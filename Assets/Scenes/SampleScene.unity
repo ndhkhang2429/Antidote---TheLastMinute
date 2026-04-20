@@ -686,7 +686,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a4c41ac9245b87c4192012080077d830, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Damping: 0.1
+  m_Damping: 0.2
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -851,7 +851,8 @@ MonoBehaviour:
   TopClamp: 70
   BottomClamp: -30
   CameraSensitivity: 1
-  InvertY: 0
+  InvertY: 1
+  CameraSmoothTime: 0.05
 --- !u!114 &1754681615
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -11,7 +11,7 @@ namespace StarterAssets
 #endif
     public class ThirdPersonController : MonoBehaviour
     {
-        [Header("Player - PUBG Style")]
+        [Header("Player - Move")]
         public float MoveSpeed = 3.0f;
         public float SprintSpeed = 6.5f;
         [Range(0.0f, 0.3f)]
@@ -42,6 +42,11 @@ namespace StarterAssets
         [Range(0.1f, 5f)]
         public float CameraSensitivity = 1f;
         public bool InvertY = false; // Đảo ngược trục Y nếu muốn
+
+        [Header("Weight Settings")]
+        public float CameraSmoothTime = 0.05f; // Thời gian làm mượt (càng cao càng nặng)
+        private float _yawVelocity;
+        private float _pitchVelocity;
 
         private float _cameraTargetYaw;
         private float _cameraTargetPitch;
@@ -118,14 +123,17 @@ namespace StarterAssets
             // Nếu có input chuột đủ lớn
             if (_input.look.sqrMagnitude >= _threshold)
             {
+                float targetYaw = _cameraTargetYaw + _input.look.x * CameraSensitivity * 0.01f;
+                float targetPitch = _cameraTargetPitch - _input.look.y * CameraSensitivity * 0.01f * (InvertY ? -1f : 1f);
+
                 // 0.01f là hệ số "vàng" để cân bằng lại Delta của Input System
-                _cameraTargetYaw += _input.look.x * CameraSensitivity * 0.01f;
-                _cameraTargetPitch -= _input.look.y * CameraSensitivity * 0.01f;
+                _cameraTargetYaw = Mathf.SmoothDampAngle(_cameraTargetYaw, targetYaw, ref _yawVelocity, CameraSmoothTime);
+                _cameraTargetPitch = Mathf.SmoothDampAngle(_cameraTargetPitch, targetPitch, ref _pitchVelocity, CameraSmoothTime);
             }
 
             // Giới hạn góc nhìn dọc (Pitch)
             _cameraTargetPitch = ClampAngle(_cameraTargetPitch, BottomClamp, TopClamp);
-
+            
             // Áp dụng xoay cho CameraTarget (Xoay tuyệt đối trong không gian)
             CameraTarget.transform.rotation = Quaternion.Euler(_cameraTargetPitch, _cameraTargetYaw, 0.0f);
         }
