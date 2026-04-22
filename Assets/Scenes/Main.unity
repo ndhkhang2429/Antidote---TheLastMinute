@@ -348,6 +348,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Sewers
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: beaf5df8081956149a0389bd744cf44d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1093,7 +1097,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!65 &725729185
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1551,7 +1555,7 @@ Transform:
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2, y: 6, z: 12.104257}
+  m_LocalPosition: {x: 2, y: 13.599999, z: 17.3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1609,7 +1613,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!65 &989289584
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1714,7 +1718,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!65 &1060981564
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2074,7 +2078,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!65 &1310774786
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2176,7 +2180,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1340164924
 Transform:
   m_ObjectHideFlags: 0
@@ -2231,11 +2235,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6766536238432138805, guid: 29275473dc42c1a499187925872e54cb, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 4.1
+      value: 11.7
       objectReference: {fileID: 0}
     - target: {fileID: 6766536238432138805, guid: 29275473dc42c1a499187925872e54cb, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 14.604257
+      value: 19.8
       objectReference: {fileID: 0}
     - target: {fileID: 6766536238432138805, guid: 29275473dc42c1a499187925872e54cb, type: 3}
       propertyPath: m_LocalRotation.w
@@ -2284,6 +2288,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6766536238432138802, guid: 29275473dc42c1a499187925872e54cb, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1549152377}
+    - targetCorrespondingSourceObject: {fileID: 6766536238432138802, guid: 29275473dc42c1a499187925872e54cb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1549152382}
   m_SourcePrefab: {fileID: 100100000, guid: 29275473dc42c1a499187925872e54cb, type: 3}
 --- !u!1 &1549152375 stripped
 GameObject:
@@ -2404,6 +2411,19 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &1549152382
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1549152375}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b3e892c08aa1234fa0ffc90e3616444, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attackCooldown: 0.4
 --- !u!1 &1698753748
 GameObject:
   m_ObjectHideFlags: 0
@@ -2422,7 +2442,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!65 &1698753749
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2840,7 +2860,7 @@ Transform:
   m_GameObject: {fileID: 1962771541}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2, y: 6, z: 12.104257}
+  m_LocalPosition: {x: 2, y: 13.599999, z: 17.3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2896,7 +2916,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!65 &2053396010
 BoxCollider:
   m_ObjectHideFlags: 0
