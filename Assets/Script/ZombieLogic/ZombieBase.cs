@@ -87,6 +87,9 @@ public class ZombieBase : MonoBehaviour
 
     protected virtual void ScreamLogic()
     {
+        Vector3 direction = (player.position - transform.position).normalized;
+        direction.y = 0; // Tránh lỗi zombie bị ngửa mặt lên trời nếu bạn đứng trên cao
+        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), Time.deltaTime * 5f);
         if (!isScreaming)
         {
             isScreaming = true;
