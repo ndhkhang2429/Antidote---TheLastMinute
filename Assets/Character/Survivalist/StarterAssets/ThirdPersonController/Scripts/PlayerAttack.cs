@@ -22,6 +22,7 @@ public class PlayerAttack : MonoBehaviour
     {
         bool isAttacking = false;
 
+
         if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
         {
             isAttacking = true;

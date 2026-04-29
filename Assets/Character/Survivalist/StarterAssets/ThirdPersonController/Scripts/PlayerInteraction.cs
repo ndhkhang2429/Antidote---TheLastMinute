@@ -75,6 +75,7 @@ public class PlayerInteraction : MonoBehaviour
                 if (currentItemInHand.GetComponent<Rigidbody>()) currentItemInHand.GetComponent<Rigidbody>().isKinematic = false;
             }
 
+            
             currentItemInHand = nearestItem;
 
             // Xử lý món đồ mới nhặt: Tắt vật lý, gắn vào tay
@@ -84,7 +85,7 @@ public class PlayerInteraction : MonoBehaviour
             currentItemInHand.transform.SetParent(weaponSlot);
             currentItemInHand.transform.localPosition = Vector3.zero;
             currentItemInHand.transform.localRotation = Quaternion.identity;
-
+            animator.SetBool("IsArmed", true);
             // Xóa bộ nhớ tạm để không nhặt lại chính nó
             nearestItem = null;
         }
