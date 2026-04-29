@@ -85,7 +85,7 @@ public class PlayerInteraction : MonoBehaviour
             currentItemInHand.transform.SetParent(weaponSlot);
             currentItemInHand.transform.localPosition = Vector3.zero;
             currentItemInHand.transform.localRotation = Quaternion.identity;
-            animator.SetBool("IsArmed", true);
+            animator.SetInteger("WeaponType", 1);
             // Xóa bộ nhớ tạm để không nhặt lại chính nó
             nearestItem = null;
         }

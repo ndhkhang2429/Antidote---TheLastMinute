@@ -22,7 +22,6 @@ public class PlayerAttack : MonoBehaviour
     {
         bool isAttacking = false;
 
-
         if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
         {
             isAttacking = true;
@@ -45,15 +44,15 @@ public class PlayerAttack : MonoBehaviour
         if (animator != null)
         {
             // Đọc trực tiếp trạng thái "isArmed" từ Animator mà chúng ta vừa tạo
-            bool isArmed = animator.GetBool("IsArmed");
+            int currentWeapon = animator.GetInteger("WeaponType");
 
-            if (isArmed)
+            if (currentWeapon == 1)
             {
                 // NẾU ĐANG CẦM VŨ KHÍ
                 animator.SetTrigger("WeaponAttack");
                 Debug.Log("Chém bằng vũ khí 2 tay!");
             }
-            else
+            else if(currentWeapon == 0)
             {
                 // NẾU ĐANG TAY KHÔNG
                 int randomIndex = Random.Range(0, 2); // 0 = Punching1, 1 = Punching2
