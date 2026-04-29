@@ -1,0 +1,5 @@
+All assets are set up and ready to be used in game. You can find them in the folder "Prefabs".  Hold the prefab and drag it to Hierarchy or Scene. 
+This assets ready to use for Desktop Computers, Consoles and mobiles. 
+Included well optimized 4 LODs. 
+52 textures with 512x2048 resolution.
+If you want use this assets for mobile,  you can easily make the textures lower and setup your main model as LOD3 for example.
