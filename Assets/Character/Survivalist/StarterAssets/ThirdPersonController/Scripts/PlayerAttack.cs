@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 public class PlayerAttack : MonoBehaviour
 {
     private Animator animator;
-    public float attackCooldown = 0.4f;
+    public float attackCooldown = 0.4f; // Bạn có thể tăng thời gian này lên nếu vung gậy mất nhiều thời gian hơn đấm
     private float nextAttackTime = 0f;
 
     private void Start()
@@ -20,39 +20,46 @@ public class PlayerAttack : MonoBehaviour
 
     private void Update()
     {
-        bool isPunching = false;
+        bool isAttacking = false;
 
         if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
         {
-            isPunching = true;
+            isAttacking = true;
             Debug.Log("Click chuột trái!");
         }
 
-        if (Keyboard.current != null && Keyboard.current.fKey.wasPressedThisFrame)
+        if (isAttacking && Time.time >= nextAttackTime)
         {
-            isPunching = true;
-            Debug.Log("Nhấn phím F!");
-        }
-
-        if (isPunching && Time.time >= nextAttackTime)
-        {
-            Punch();
+            PerformAttack();
             nextAttackTime = Time.time + attackCooldown;
         }
-        else if (isPunching)
+        else if (isAttacking)
         {
             Debug.Log($"Cooldown chưa hết, còn {nextAttackTime - Time.time:F2}s");
         }
     }
 
-    private void Punch()
+    private void PerformAttack()
     {
         if (animator != null)
         {
-            int randomIndex = Random.Range(0, 2); // 0 = Punching1, 1 = Punching2
-            animator.SetInteger("PunchIndex", randomIndex);
-            animator.SetTrigger("Punch");
-            Debug.Log($"Punch! Animation index: {randomIndex}");
+            // Đọc trực tiếp trạng thái "isArmed" từ Animator mà chúng ta vừa tạo
+            bool isArmed = animator.GetBool("IsArmed");
+
+            if (isArmed)
+            {
+                // NẾU ĐANG CẦM VŨ KHÍ
+                animator.SetTrigger("WeaponAttack");
+                Debug.Log("Chém bằng vũ khí 2 tay!");
+            }
+            else
+            {
+                // NẾU ĐANG TAY KHÔNG
+                int randomIndex = Random.Range(0, 2); // 0 = Punching1, 1 = Punching2
+                animator.SetInteger("PunchIndex", randomIndex);
+                animator.SetTrigger("Punch");
+                Debug.Log($"Punch! Animation index: {randomIndex}");
+            }
         }
     }
 }

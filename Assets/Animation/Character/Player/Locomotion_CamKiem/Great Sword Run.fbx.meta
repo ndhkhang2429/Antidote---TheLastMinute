@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 0825f6e776a23ad499b9ae1a1792ded6
+guid: 31d217042fe806c4cbc87dc6b8d97c08
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -33,11 +33,11 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: Great Sword Walk
+      name: Great Sword Run
       takeName: mixamo.com
       internalID: -203655887218126122
       firstFrame: 0
-      lastFrame: 41
+      lastFrame: 22
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -45,10 +45,10 @@ ModelImporter:
       loop: 0
       hasAdditiveReferencePose: 0
       loopTime: 1
-      loopBlend: 0
+      loopBlend: 1
       loopBlendOrientation: 1
       loopBlendPositionY: 1
-      loopBlendPositionXZ: 0
+      loopBlendPositionXZ: 1
       keepOriginalOrientation: 0
       keepOriginalPositionY: 1
       keepOriginalPositionXZ: 0
@@ -528,13 +528,13 @@ ModelImporter:
         length: 0
         modified: 0
     skeleton:
-    - name: SK_Military_Survivalist@Great Sword Walk(Clone)
+    - name: SK_Military_Survivalist@Great Sword Run(Clone)
       parentName: 
-      position: {x: -0.030135369, y: -0.09874992, z: -0.06164364}
-      rotation: {x: 0.028082812, y: 0.22636658, z: -0.0060692844, w: 0.9736184}
+      position: {x: 0.052926544, y: -0.025315017, z: -0.24879763}
+      rotation: {x: 0.11216834, y: 0.1837555, z: 0.050081834, w: 0.97526616}
       scale: {x: 1, y: 1, z: 1}
     - name: FPS_HANDS
-      parentName: SK_Military_Survivalist@Great Sword Walk(Clone)
+      parentName: SK_Military_Survivalist@Great Sword Run(Clone)
       position: {x: -0, y: 0, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
@@ -554,59 +554,59 @@ ModelImporter:
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: root
-      parentName: SK_Military_Survivalist@Great Sword Walk(Clone)
+      parentName: SK_Military_Survivalist@Great Sword Run(Clone)
       position: {x: -0, y: 0, z: 0}
       rotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071068}
       scale: {x: 1, y: 1, z: 1}
     - name: pelvis
       parentName: root
-      position: {x: 0.008993685, y: 0.009197235, z: 1.0203538}
-      rotation: {x: 0.03126993, y: 0.6711579, z: -0.279755, w: 0.6857889}
+      position: {x: -0, y: 0.010562, z: 0.967506}
+      rotation: {x: -0.11936386, y: 0.69873816, z: -0.35598853, w: 0.6089248}
       scale: {x: 1, y: 1, z: 1}
     - name: spine_01
       parentName: pelvis
       position: {x: -0.108089, y: -0.008514, z: 0}
-      rotation: {x: -0.031378206, y: 0.04374685, z: 0.2353707, w: 0.97041345}
+      rotation: {x: 0.026543142, y: 0.07070686, z: 0.36812022, w: 0.9267058}
       scale: {x: 1, y: 1, z: 1}
     - name: spine_02
       parentName: spine_01
       position: {x: -0.188753, y: 0.038011998, z: 0}
-      rotation: {x: -0.01013936, y: 0.00047631457, z: -0.0746373, w: 0.9971591}
+      rotation: {x: 0.011378704, y: -0.04008556, z: -0.14764243, w: 0.98816264}
       scale: {x: 1, y: 1, z: 1}
     - name: spine_03
       parentName: spine_02
       position: {x: -0.134073, y: 0.004205, z: 0}
-      rotation: {x: 0.0028890953, y: 0.01544445, z: -0.02230187, w: 0.9996278}
+      rotation: {x: 0.0005956824, y: -0.028460579, z: -0.04121709, w: 0.9987446}
       scale: {x: 1, y: 1, z: 1}
     - name: clavicle_l
       parentName: spine_03
       position: {x: -0.118837, y: -0.027321, z: -0.03782}
-      rotation: {x: 0.08949798, y: -0.67498004, z: 0.02507405, w: 0.73195857}
+      rotation: {x: -0.08241, y: -0.6030862, z: 0.09375541, w: 0.7878487}
       scale: {x: 1, y: 1, z: 1}
     - name: upperarm_l
       parentName: clavicle_l
       position: {x: -0.157849, y: 0, z: 0}
-      rotation: {x: 0.075487345, y: -0.07267045, z: 0.015826095, w: 0.9943693}
+      rotation: {x: -0.017061576, y: -0.11574727, z: -0.07362254, w: 0.9903996}
       scale: {x: 1, y: 1, z: 1}
     - name: lowerarm_l
       parentName: upperarm_l
       position: {x: -0.303399, y: 0, z: 0}
-      rotation: {x: -0.010206665, y: 0.0031657876, z: 0.010306983, w: 0.99988985}
+      rotation: {x: -0.030709112, y: 0.0050948686, z: 0.009459173, w: 0.9994706}
       scale: {x: 1, y: 1, z: 1}
     - name: hand_l
       parentName: lowerarm_l
       position: {x: -0.26975098, y: 0, z: 0}
-      rotation: {x: -0.83120435, y: 0.14722712, z: 0.039339162, w: 0.5346738}
+      rotation: {x: -0.7620901, y: 0.035326697, z: 0.111879006, w: 0.6367526}
       scale: {x: 1, y: 1, z: 1}
     - name: index_01_l
       parentName: hand_l
       position: {x: -0.120680995, y: 0.017634999, z: -0.021094}
-      rotation: {x: 0.020514676, y: 0.012878011, z: -0.10620253, w: 0.9940495}
+      rotation: {x: 0.13753621, y: 0.0004662702, z: -0.11304819, w: 0.9840243}
       scale: {x: 1, y: 1, z: 1}
     - name: index_02_l
       parentName: index_01_l
       position: {x: -0.042875, y: 0, z: 0}
-      rotation: {x: -0.006644303, y: -0.008024702, z: -0.021714965, w: 0.99970996}
+      rotation: {x: 0.076350726, y: -0.0013886568, z: -0.0031918155, w: 0.99707496}
       scale: {x: 1, y: 1, z: 1}
     - name: index_03_l
       parentName: index_02_l
@@ -616,12 +616,12 @@ ModelImporter:
     - name: middle_01_l
       parentName: hand_l
       position: {x: -0.122443, y: 0.012936, z: 0.005712}
-      rotation: {x: -0.08815032, y: 0.02902096, z: -0.1003665, w: 0.99061286}
+      rotation: {x: -0.00088342984, y: 0.01460128, z: -0.10322418, w: 0.9945505}
       scale: {x: 1, y: 1, z: 1}
     - name: middle_02_l
       parentName: middle_01_l
       position: {x: -0.046403997, y: 0, z: 0}
-      rotation: {x: -0.018722802, y: -0.0018490053, z: -0.011683015, w: 0.9997548}
+      rotation: {x: 0.06870323, y: -0.0069972407, z: -0.01983847, w: 0.99741536}
       scale: {x: 1, y: 1, z: 1}
     - name: middle_03_l
       parentName: middle_02_l
@@ -631,12 +631,12 @@ ModelImporter:
     - name: pinky_01_l
       parentName: hand_l
       position: {x: -0.101407, y: 0.022632, z: 0.046430998}
-      rotation: {x: -0.4541054, y: 0.0482806, z: -0.08513111, w: 0.8855564}
+      rotation: {x: -0.24267688, y: 0.03722883, z: -0.1065821, w: 0.9635156}
       scale: {x: 1, y: 1, z: 1}
     - name: pinky_02_l
       parentName: pinky_01_l
       position: {x: -0.03571, y: 0, z: 0}
-      rotation: {x: 0.010399151, y: 0.002762173, z: -0.018055823, w: 0.99977916}
+      rotation: {x: -0.030823894, y: -0.00057963986, z: -0.027288912, w: 0.99915206}
       scale: {x: 1, y: 1, z: 1}
     - name: pinky_03_l
       parentName: pinky_02_l
@@ -646,12 +646,12 @@ ModelImporter:
     - name: ring_01_l
       parentName: hand_l
       position: {x: -0.114979, y: 0.017535, z: 0.028469}
-      rotation: {x: -0.348106, y: 0.046230603, z: -0.08874059, w: 0.9320999}
+      rotation: {x: -0.32049233, y: 0.04600445, z: -0.09652829, w: 0.9411964}
       scale: {x: 1, y: 1, z: 1}
     - name: ring_02_l
       parentName: ring_01_l
       position: {x: -0.044302, y: 0, z: 0}
-      rotation: {x: 0.0003795023, y: 0.0020389126, z: -0.021275477, w: 0.9997716}
+      rotation: {x: 0.048774123, y: 0.0025619287, z: -0.025740298, w: 0.9984748}
       scale: {x: 1, y: 1, z: 1}
     - name: ring_03_l
       parentName: ring_02_l
@@ -661,12 +661,12 @@ ModelImporter:
     - name: thumb_01_l
       parentName: hand_l
       position: {x: -0.04762, y: 0.02375, z: -0.025378}
-      rotation: {x: 0.5669725, y: -0.36687824, z: 0.05586337, w: 0.735406}
+      rotation: {x: 0.5419839, y: -0.36937347, z: -0.005333809, w: 0.7548432}
       scale: {x: 1, y: 1, z: 1}
     - name: thumb_02_l
       parentName: thumb_01_l
       position: {x: -0.038696997, y: 0, z: 0}
-      rotation: {x: 0.10799201, y: -0.008967868, z: -0.025183728, w: 0.9937923}
+      rotation: {x: 0.13486451, y: 0.030756399, z: -0.0053413487, w: 0.9903722}
       scale: {x: 1, y: 1, z: 1}
     - name: thumb_03_l
       parentName: thumb_02_l
@@ -686,32 +686,32 @@ ModelImporter:
     - name: clavicle_r
       parentName: spine_03
       position: {x: -0.11883799, y: -0.027321, z: 0.03782}
-      rotation: {x: 0.56030184, y: -0.0510406, z: 0.8231677, w: -0.076496586}
+      rotation: {x: 0.6023847, y: 0.045578513, z: 0.794313, w: -0.064204805}
       scale: {x: 1, y: 1, z: 1}
     - name: upperarm_r
       parentName: clavicle_r
       position: {x: 0.15784799, y: 0, z: 0}
-      rotation: {x: 0.11402051, y: -0.17100792, z: -0.018259108, w: 0.97847956}
+      rotation: {x: -0.24883708, y: -0.15124023, z: -0.082620144, w: 0.95308995}
       scale: {x: 1, y: 1, z: 1}
     - name: lowerarm_r
       parentName: upperarm_r
       position: {x: 0.30339998, y: 0, z: 0}
-      rotation: {x: -0.10901002, y: 0.004494054, z: 0.016676715, w: 0.99389064}
+      rotation: {x: -0.0063534346, y: 0.0015368008, z: 0.012616565, w: 0.9998991}
       scale: {x: 1, y: 1, z: 1}
     - name: hand_r
       parentName: lowerarm_r
       position: {x: 0.269752, y: 0, z: 0}
-      rotation: {x: -0.7682535, y: -0.11642721, z: 0.07388926, w: 0.6251173}
+      rotation: {x: -0.729096, y: -0.09511998, z: 0.008874025, w: 0.6777113}
       scale: {x: 1, y: 1, z: 1}
     - name: index_01_r
       parentName: hand_r
       position: {x: 0.12067899, y: -0.017637, z: 0.021094}
-      rotation: {x: 0.2813507, y: 0.00035517645, z: -0.12935226, w: 0.95084685}
+      rotation: {x: 0.054443177, y: 0.010829833, z: -0.11581346, w: 0.9917187}
       scale: {x: 1, y: 1, z: 1}
     - name: index_02_r
       parentName: index_01_r
       position: {x: 0.042877, y: 0.000001, z: -0.000001}
-      rotation: {x: 0.0065922095, y: 0.000013348637, z: -0.00000034629167, w: 0.9999783}
+      rotation: {x: 0.015984349, y: 0.000015533515, z: -0.0000052647615, w: 0.99987227}
       scale: {x: 1, y: 1, z: 1}
     - name: index_03_r
       parentName: index_02_r
@@ -721,12 +721,12 @@ ModelImporter:
     - name: middle_01_r
       parentName: hand_r
       position: {x: 0.122440994, y: -0.012936999, z: -0.005711}
-      rotation: {x: 0.054580305, y: 0.018930493, z: -0.096078925, w: 0.9936959}
+      rotation: {x: 0.018011887, y: 0.018842738, z: -0.10873817, w: 0.99372864}
       scale: {x: 1, y: 1, z: 1}
     - name: middle_02_r
       parentName: middle_01_r
       position: {x: 0.046406, y: -0.000001, z: 0}
-      rotation: {x: -0.01870272, y: -0.0026651334, z: -0.016806504, w: 0.9996802}
+      rotation: {x: -0.09430113, y: -0.0000037457762, z: -0.000012365742, w: 0.9955437}
       scale: {x: 1, y: 1, z: 1}
     - name: middle_03_r
       parentName: middle_02_r
@@ -736,12 +736,12 @@ ModelImporter:
     - name: pinky_01_r
       parentName: hand_r
       position: {x: 0.101406, y: -0.022634, z: -0.046430998}
-      rotation: {x: -0.25141835, y: 0.044916578, z: -0.08848199, w: 0.9627784}
+      rotation: {x: -0.37820888, y: 0.049379416, z: -0.090728104, w: 0.9199392}
       scale: {x: 1, y: 1, z: 1}
     - name: pinky_02_r
       parentName: pinky_01_r
       position: {x: 0.035710998, y: -0.000001, z: 0}
-      rotation: {x: 0.010415698, y: 0.0037099961, z: -0.024284018, w: 0.999644}
+      rotation: {x: 0.041572448, y: 0.002563642, z: -0.01602692, w: 0.99900365}
       scale: {x: 1, y: 1, z: 1}
     - name: pinky_03_r
       parentName: pinky_02_r
@@ -751,12 +751,12 @@ ModelImporter:
     - name: ring_01_r
       parentName: hand_r
       position: {x: 0.11498, y: -0.017538, z: -0.028469}
-      rotation: {x: -0.15556443, y: 0.03465747, z: -0.08859312, w: 0.98323447}
+      rotation: {x: -0.30061844, y: 0.041958988, z: -0.09488175, w: 0.9480852}
       scale: {x: 1, y: 1, z: 1}
     - name: ring_02_r
       parentName: ring_01_r
       position: {x: 0.044299, y: 0.000001, z: 0}
-      rotation: {x: 0.009090819, y: 0.0021040463, z: -0.025541084, w: 0.9996303}
+      rotation: {x: 0.0124584045, y: 0.00042663486, z: -0.004878175, w: 0.9999104}
       scale: {x: 1, y: 1, z: 1}
     - name: ring_03_r
       parentName: ring_02_r
@@ -766,12 +766,12 @@ ModelImporter:
     - name: thumb_01_r
       parentName: hand_r
       position: {x: 0.047621, y: -0.023750998, z: 0.025378}
-      rotation: {x: 0.7181657, y: -0.3073656, z: 0.13372381, w: 0.6098216}
+      rotation: {x: 0.5957441, y: -0.3472022, z: -0.051883563, w: 0.7223903}
       scale: {x: 1, y: 1, z: 1}
     - name: thumb_02_r
       parentName: thumb_01_r
       position: {x: 0.038696, y: 0.000001, z: 0.000001}
-      rotation: {x: -0.15027347, y: -0.007717739, z: -0.02352123, w: 0.9883345}
+      rotation: {x: 0.20307422, y: -0.0025731605, z: -0.027269002, w: 0.9787802}
       scale: {x: 1, y: 1, z: 1}
     - name: thumb_03_r
       parentName: thumb_02_r
@@ -791,7 +791,7 @@ ModelImporter:
     - name: neck_01
       parentName: spine_03
       position: {x: -0.16558799, y: -0.003553, z: 0}
-      rotation: {x: 0.018954499, y: -0.0666126, z: 0.04345769, w: 0.9966519}
+      rotation: {x: 0.038884215, y: 0.027786056, z: 0.047775213, w: 0.99771416}
       scale: {x: 1, y: 1, z: 1}
     - name: head
       parentName: neck_01
@@ -801,12 +801,12 @@ ModelImporter:
     - name: thigh_l
       parentName: pelvis
       position: {x: 0.0144879995, y: -0.005314, z: -0.090058}
-      rotation: {x: 0.18563682, y: 0.08663965, z: 0.023878466, w: 0.9785001}
+      rotation: {x: 0.12673959, y: 0.0819281, z: 0.12238471, w: 0.9809419}
       scale: {x: 1, y: 1, z: 1}
     - name: calf_l
       parentName: thigh_l
       position: {x: 0.42571998, y: 0, z: 0}
-      rotation: {x: -0.008227107, y: 0.053003762, z: 0.31181222, w: 0.9486285}
+      rotation: {x: 0.034042474, y: 0.055583697, z: 0.30731463, w: 0.9493731}
       scale: {x: 1, y: 1, z: 1}
     - name: calf_twist_01_l
       parentName: calf_l
@@ -816,7 +816,7 @@ ModelImporter:
     - name: foot_l
       parentName: calf_l
       position: {x: 0.401967, y: 0, z: 0}
-      rotation: {x: -0.037060864, y: -0.06343372, z: -0.024228169, w: 0.9970034}
+      rotation: {x: -0.023358056, y: -0.0669183, z: -0.1495333, w: 0.986213}
       scale: {x: 1, y: 1, z: 1}
     - name: ball_l
       parentName: foot_l
@@ -831,12 +831,12 @@ ModelImporter:
     - name: thigh_r
       parentName: pelvis
       position: {x: 0.014486, y: -0.005314, z: 0.090058}
-      rotation: {x: 0.00516977, y: 0.12455757, z: 0.99152607, w: -0.03653305}
+      rotation: {x: -0.0062275366, y: 0.13239843, z: 0.9832381, w: -0.12519859}
       scale: {x: 1, y: 1, z: 1}
     - name: calf_r
       parentName: thigh_r
       position: {x: -0.425722, y: 0, z: 0}
-      rotation: {x: -0.0032886968, y: 0.028338581, z: 0.3282276, w: 0.94416785}
+      rotation: {x: 0.0014459527, y: -0.008386462, z: 0.3175773, w: 0.94819427}
       scale: {x: 1, y: 1, z: 1}
     - name: calf_twist_01_r
       parentName: calf_r
@@ -846,7 +846,7 @@ ModelImporter:
     - name: foot_r
       parentName: calf_r
       position: {x: -0.401968, y: 0, z: 0}
-      rotation: {x: -0.019485693, y: -0.016277464, z: -0.37153056, w: 0.92807347}
+      rotation: {x: -0.06423876, y: -0.08057792, z: -0.4788891, w: 0.8718061}
       scale: {x: 1, y: 1, z: 1}
     - name: ball_r
       parentName: foot_r
@@ -859,62 +859,62 @@ ModelImporter:
       rotation: {x: -0.047445532, y: -0.000021567112, z: 0.00049083965, w: 0.9988737}
       scale: {x: 1, y: 1, z: 1}
     - name: mixamo:SK_Military_Backpack1
-      parentName: SK_Military_Survivalist@Great Sword Walk(Clone)
+      parentName: SK_Military_Survivalist@Great Sword Run(Clone)
       position: {x: -0, y: 0, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: mixamo:SK_Military_Backpack1_vest
-      parentName: SK_Military_Survivalist@Great Sword Walk(Clone)
+      parentName: SK_Military_Survivalist@Great Sword Run(Clone)
       position: {x: -0, y: 0, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: mixamo:SK_Military_Boots3
-      parentName: SK_Military_Survivalist@Great Sword Walk(Clone)
+      parentName: SK_Military_Survivalist@Great Sword Run(Clone)
       position: {x: -0, y: 0, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: mixamo:SK_Military_Cap1
-      parentName: SK_Military_Survivalist@Great Sword Walk(Clone)
+      parentName: SK_Military_Survivalist@Great Sword Run(Clone)
       position: {x: -0, y: 0, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: mixamo:SK_Military_Head1
-      parentName: SK_Military_Survivalist@Great Sword Walk(Clone)
+      parentName: SK_Military_Survivalist@Great Sword Run(Clone)
       position: {x: -0, y: 0, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: mixamo:SK_Military_Male_Arms1
-      parentName: SK_Military_Survivalist@Great Sword Walk(Clone)
+      parentName: SK_Military_Survivalist@Great Sword Run(Clone)
       position: {x: -0, y: 0, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: mixamo:SK_Military_Male_Arms1_Gloves1
-      parentName: SK_Military_Survivalist@Great Sword Walk(Clone)
+      parentName: SK_Military_Survivalist@Great Sword Run(Clone)
       position: {x: -0, y: 0, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: mixamo:SK_Military_Pants2
-      parentName: SK_Military_Survivalist@Great Sword Walk(Clone)
+      parentName: SK_Military_Survivalist@Great Sword Run(Clone)
       position: {x: -0, y: 0, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: mixamo:SK_Military_Shirt3
-      parentName: SK_Military_Survivalist@Great Sword Walk(Clone)
+      parentName: SK_Military_Survivalist@Great Sword Run(Clone)
       position: {x: -0, y: 0, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: mixamo:SK_Military_Vest1
-      parentName: SK_Military_Survivalist@Great Sword Walk(Clone)
+      parentName: SK_Military_Survivalist@Great Sword Run(Clone)
       position: {x: -0, y: 0, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: mixamo:SK_Military_Vest1_4
-      parentName: SK_Military_Survivalist@Great Sword Walk(Clone)
+      parentName: SK_Military_Survivalist@Great Sword Run(Clone)
       position: {x: -0, y: 0, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: CameraTarget
-      parentName: SK_Military_Survivalist@Great Sword Walk(Clone)
+      parentName: SK_Military_Survivalist@Great Sword Run(Clone)
       position: {x: -0, y: 1.5, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
