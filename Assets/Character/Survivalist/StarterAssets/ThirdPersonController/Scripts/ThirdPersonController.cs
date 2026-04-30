@@ -35,6 +35,15 @@ namespace StarterAssets
         public float GroundedRadius = 0.28f;
         public LayerMask GroundLayers;
 
+        [Header("Crouch Settings")]
+        public float CrouchSpeed = 1.5f;
+        public float CrouchHeight = 1.2f;
+        public float StandHeight = 1.8f;
+        public float CrouchCenter = 0.6f;
+        public float StandCenter = 0.9f;
+        private bool _isCrouching = false;
+        private int _animIDCrouch;
+
         [Header("Camera Control")]
         public Transform CameraTarget;
         public float TopClamp = 70.0f;
@@ -102,6 +111,7 @@ namespace StarterAssets
             JumpAndGravity();
             GroundedCheck();
             HandleRotation();
+            HandleCrouch();
             Move();
         }
 
@@ -117,6 +127,7 @@ namespace StarterAssets
             _animIDJump = Animator.StringToHash("Jump");
             _animIDFreeFall = Animator.StringToHash("FreeFall");
             _animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
+            _animIDCrouch = Animator.StringToHash("isCrouch");
         }
         private void CameraRotation()
         {
@@ -177,7 +188,9 @@ namespace StarterAssets
         {
             float targetSpeed = 0f;
             if (_input.move != Vector2.zero)
-                targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
+                if (_input.move == Vector2.zero) targetSpeed = 0f;
+                else if (_isCrouching) targetSpeed = CrouchSpeed;
+                else targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
 
             _speed = Mathf.MoveTowards(_speed, targetSpeed, SpeedChangeRate * Time.deltaTime);
 
@@ -211,6 +224,32 @@ namespace StarterAssets
                 float newV = Mathf.Lerp(_animator.GetFloat("Vertical"), _input.move.y * speedRatio, lerpSpeed);
                 if (Mathf.Abs(newV) < 0.01f) newV = 0f;
                 _animator.SetFloat("Vertical", newV);
+            }
+        }
+
+        private void HandleCrouch()
+        {
+            // Kiểm tra nút bấm (Giả sử bạn đã thêm biến 'crouch' vào StarterAssetsInputs)
+            if (_input.crouch)
+            {
+                _isCrouching = !_isCrouching;
+                _input.crouch = false; // Reset input để tránh lặp liên tục
+
+                if (_isCrouching)
+                {
+                    _controller.height = CrouchHeight;
+                    _controller.center = new Vector3(0, CrouchCenter, 0);
+                }
+                else
+                {
+                    _controller.height = StandHeight;
+                    _controller.center = new Vector3(0, StandCenter, 0);
+                }
+
+                if (_hasAnimator)
+                {
+                    _animator.SetBool(_animIDCrouch, _isCrouching);
+                }
             }
         }
 

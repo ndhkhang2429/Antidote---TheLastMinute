@@ -3044,7 +3044,8 @@ MonoBehaviour:
   look: {x: 0, y: 0}
   jump: 0
   sprint: 0
-  analogMovement: 0
+  crouch: 0
+  analogMovement: 1
   cursorLocked: 1
   cursorInputForLook: 1
 --- !u!114 &1549152378
@@ -3075,6 +3076,11 @@ MonoBehaviour:
   GroundLayers:
     serializedVersion: 2
     m_Bits: 8
+  CrouchSpeed: 1.5
+  CrouchHeight: 1.2
+  StandHeight: 1.8
+  CrouchCenter: 0.6
+  StandCenter: 0.9
   CameraTarget: {fileID: 953382313}
   TopClamp: 70
   BottomClamp: -30
@@ -3396,6 +3402,11 @@ MonoBehaviour:
   GroundLayers:
     serializedVersion: 2
     m_Bits: 8
+  CrouchSpeed: 1.5
+  CrouchHeight: 1.2
+  StandHeight: 1.8
+  CrouchCenter: 0.6
+  StandCenter: 0.9
   CameraTarget: {fileID: 1908565646}
   TopClamp: 70
   BottomClamp: -30
@@ -3479,6 +3490,7 @@ MonoBehaviour:
   look: {x: 0, y: 0}
   jump: 0
   sprint: 0
+  crouch: 0
   analogMovement: 0
   cursorLocked: 1
   cursorInputForLook: 1
