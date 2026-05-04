@@ -1,97 +1,176 @@
 ﻿using UnityEngine;
+using UnityEngine.Playables;
 
+/// <summary>
+/// Xử lý nhặt đồ, vứt đồ, và giao tiếp với vật phẩm trong scene.
+/// Cập nhật PlayerState sau đó mới set Animator.
+/// </summary>
 public class PlayerInteraction : MonoBehaviour
 {
     [Header("Cài đặt Tương tác")]
-    public float interactionRadius = 2.0f; // Bán kính vòng tròn quét đồ
-    public LayerMask itemLayer; // Nhớ tạo Layer tên là "Item" và gán cho các vật phẩm
+    public float interactionRadius = 2.0f;
+    public LayerMask itemLayer;
 
     [Header("Thành phần kết nối")]
-    public Animator animator;
-    public Transform weaponSlot; // Gắn cái Transform bàn tay vào đây
+    public Transform weaponSlot;    // Gắn Transform bàn tay phải vào đây
 
-    private GameObject nearestItem = null; // Lưu món đồ đang đứng gần nhất
-    private GameObject currentItemInHand = null; // Món đồ đang cầm trên tay
+    // ── Private ─────────────────────────────────────────────
+    private Animator _animator;
+    private GameObject _nearestItem = null;
 
-    void Update()
+    // Animator Parameter IDs
+    private int _paramPickUp;
+    private int _paramWeaponType;
+
+    // ── UI callback (gán từ UIManager nếu có) ───────────────
+    public event System.Action<string> OnShowPickupPrompt;   // tên item
+    public event System.Action OnHidePickupPrompt;
+
+    private void Start()
+    {
+        _animator = GetComponentInChildren<Animator>();
+        if (_animator == null)
+            Debug.LogError("[PlayerInteraction] Không tìm thấy Animator!");
+
+        _paramPickUp = Animator.StringToHash("PickUp");
+        _paramWeaponType = Animator.StringToHash("WeaponType");
+
+        // Subscribe event từ PlayerState để sync Animator khi weapon thay đổi
+        if (PlayerState.Instance != null)
+            PlayerState.Instance.OnWeaponChanged += SyncAnimatorWeaponType;
+    }
+
+    private void OnDestroy()
+    {
+        if (PlayerState.Instance != null)
+            PlayerState.Instance.OnWeaponChanged -= SyncAnimatorWeaponType;
+    }
+
+    private void Update()
     {
         FindNearestItem();
 
-        // Nếu tìm thấy đồ và người chơi bấm F
-        if (nearestItem != null && Input.GetKeyDown(KeyCode.F))
-        {
+        if (_nearestItem != null && Input.GetKeyDown(KeyCode.F))
             PerformPickup();
-        }
+
+        // Bấm G để vứt đồ
+        if (Input.GetKeyDown(KeyCode.G))
+            DropCurrentItem();
     }
 
-    // Hàm này quét các vật phẩm xung quanh và tìm món gần nhất
-    void FindNearestItem()
+    // ── Tìm đồ gần nhất ─────────────────────────────────────
+
+    private void FindNearestItem()
     {
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, interactionRadius, itemLayer);
+        Collider[] hits = Physics.OverlapSphere(transform.position, interactionRadius, itemLayer);
 
-        if (hitColliders.Length > 0)
+        if (hits.Length == 0)
         {
-            float shortestDistance = Mathf.Infinity;
-            GameObject closestObj = null;
+            _nearestItem = null;
+            OnHidePickupPrompt?.Invoke();
+            return;
+        }
 
-            // Lọc ra món đồ gần nhân vật nhất trong bán kính
-            foreach (Collider col in hitColliders)
+        float shortest = Mathf.Infinity;
+        GameObject closest = null;
+
+        foreach (Collider col in hits)
+        {
+            float dist = Vector3.Distance(transform.position, col.transform.position);
+            if (dist < shortest)
             {
-                float distanceToItem = Vector3.Distance(transform.position, col.transform.position);
-                if (distanceToItem < shortestDistance)
-                {
-                    shortestDistance = distanceToItem;
-                    closestObj = col.gameObject;
-                }
+                shortest = dist;
+                closest = col.gameObject;
             }
-
-            nearestItem = closestObj;
-
-            // TODO: Chỗ này sau này bạn có thể gọi UI hiện chữ "Bấm F để nhặt: [Tên đồ]"
         }
-        else
-        {
-            nearestItem = null;
-            // TODO: Tắt UI nhặt đồ
-        }
+
+        _nearestItem = closest;
+
+        // Hiện UI prompt nếu có ItemData
+        ItemData data = _nearestItem?.GetComponent<ItemData>();
+        string name = data != null ? data.itemName : _nearestItem.name;
+        OnShowPickupPrompt?.Invoke(name);
     }
 
-    void PerformPickup()
+    // ── Nhặt đồ ─────────────────────────────────────────────
+
+    private void PerformPickup()
     {
-        // Kích hoạt animation cúi nhặt (tham số bạn đã setup ở bước trước)
-        animator.SetTrigger("PickUp");
+        if (_animator == null) return;
+
+        PlayerState.Instance?.SetPickingUp(true);
+        _animator.SetTrigger(_paramPickUp);
+
+        Debug.Log($"[PlayerInteraction] Bắt đầu nhặt: {_nearestItem.name}");
     }
 
-    // HÀM NÀY ĐƯỢC GỌI TỪ ANIMATION EVENT (Khi tay vung ra chạm đất)
+    /// <summary>
+    /// GỌI TỪ ANIMATION EVENT khi tay vươn tới vật phẩm.
+    /// Gắn event này vào đúng frame trong animation PickUp.
+    /// </summary>
     public void EquipItem()
     {
-        if (nearestItem != null)
+        if (_nearestItem == null)
         {
-            // Vứt đồ cũ nếu đang cầm
-            if (currentItemInHand != null)
-            {
-                // Logic vứt đồ (bật lại Rigidbody, nhả parent...)
-                currentItemInHand.transform.SetParent(null);
-                if (currentItemInHand.GetComponent<Rigidbody>()) currentItemInHand.GetComponent<Rigidbody>().isKinematic = false;
-            }
-
-            
-            currentItemInHand = nearestItem;
-
-            // Xử lý món đồ mới nhặt: Tắt vật lý, gắn vào tay
-            if (currentItemInHand.GetComponent<Rigidbody>()) currentItemInHand.GetComponent<Rigidbody>().isKinematic = true;
-            if (currentItemInHand.GetComponent<Collider>()) currentItemInHand.GetComponent<Collider>().enabled = false;
-
-            currentItemInHand.transform.SetParent(weaponSlot);
-            currentItemInHand.transform.localPosition = Vector3.zero;
-            currentItemInHand.transform.localRotation = Quaternion.identity;
-            animator.SetInteger("WeaponType", 1);
-            // Xóa bộ nhớ tạm để không nhặt lại chính nó
-            nearestItem = null;
+            Debug.LogWarning("[PlayerInteraction] EquipItem gọi nhưng không có item!");
+            PlayerState.Instance?.SetPickingUp(false);
+            return;
         }
+
+        ItemData data = _nearestItem.GetComponent<ItemData>();
+        if (data == null)
+        {
+            Debug.LogWarning($"[PlayerInteraction] {_nearestItem.name} không có ItemData!");
+            PlayerState.Instance?.SetPickingUp(false);
+            return;
+        }
+
+        // Tắt vật lý, gắn vào tay
+        var rb = _nearestItem.GetComponent<Rigidbody>();
+        if (rb) rb.isKinematic = true;
+
+        var col = _nearestItem.GetComponent<Collider>();
+        if (col) col.enabled = false;
+
+        _nearestItem.transform.SetParent(weaponSlot);
+        _nearestItem.transform.localPosition = data.holdPositionOffset;
+        _nearestItem.transform.localRotation = Quaternion.Euler(data.holdRotationOffset);
+
+        // Cập nhật PlayerState (sẽ tự fire event → SyncAnimatorWeaponType)
+        PlayerState.Instance?.EquipWeapon(data.weaponType, _nearestItem);
+        PlayerState.Instance?.SetPickingUp(false);
+
+        OnHidePickupPrompt?.Invoke();
+        _nearestItem = null;
+
+        Debug.Log($"[PlayerInteraction] Đã trang bị: {data.itemName} (WeaponType={data.weaponType})");
     }
 
-    // Vẽ một vòng tròn đỏ trong Editor để bạn dễ hình dung bán kính quét đồ
+    // ── Vứt đồ ──────────────────────────────────────────────
+
+    private void DropCurrentItem()
+    {
+        if (PlayerState.Instance?.CurrentItemInHand == null)
+        {
+            Debug.Log("[PlayerInteraction] Không có đồ để vứt.");
+            return;
+        }
+
+        PlayerState.Instance.DropCurrentItem();
+        // SyncAnimatorWeaponType sẽ tự chạy qua event OnWeaponChanged
+        Debug.Log("[PlayerInteraction] Đã vứt đồ.");
+    }
+
+    // ── Sync Animator theo PlayerState ──────────────────────
+
+    private void SyncAnimatorWeaponType(int weaponType)
+    {
+        if (_animator != null)
+            _animator.SetInteger(_paramWeaponType, weaponType);
+    }
+
+    // ── Gizmos ──────────────────────────────────────────────
+
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;

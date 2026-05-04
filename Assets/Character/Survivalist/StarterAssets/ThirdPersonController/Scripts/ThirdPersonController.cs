@@ -187,10 +187,12 @@ namespace StarterAssets
         private void Move()
         {
             float targetSpeed = 0f;
-            if (_input.move != Vector2.zero)
-                if (_input.move == Vector2.zero) targetSpeed = 0f;
-                else if (_isCrouching) targetSpeed = CrouchSpeed;
-                else targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
+            if (_input.move == Vector2.zero)
+                targetSpeed = 0f;
+            else if (_isCrouching)
+                targetSpeed = CrouchSpeed;
+            else
+                targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
 
             _speed = Mathf.MoveTowards(_speed, targetSpeed, SpeedChangeRate * Time.deltaTime);
 

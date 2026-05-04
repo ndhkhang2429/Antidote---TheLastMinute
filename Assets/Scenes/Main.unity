@@ -1094,6 +1094,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 8f289fb7ae8d34a42bbed27816f76e6f, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1080441195}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 8f289fb7ae8d34a42bbed27816f76e6f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1080441200}
   m_SourcePrefab: {fileID: 100100000, guid: 8f289fb7ae8d34a42bbed27816f76e6f, type: 3}
 --- !u!1 &698328143
 GameObject:
@@ -2086,6 +2089,24 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &1080441200
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1080441191}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e1cce4b68029a74dbfe8a0d8443f1e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemName: Unnamed Item
+  weaponType: 1
+  holdPositionOffset: {x: 0, y: 0, z: 0}
+  holdRotationOffset: {x: 0, y: 0, z: 0}
+  itemIcon: {fileID: 0}
+  itemDescription: 
 --- !u!1001 &1080513576
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3017,6 +3038,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6766536238432138802, guid: 29275473dc42c1a499187925872e54cb, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1549152383}
+    - targetCorrespondingSourceObject: {fileID: 6766536238432138802, guid: 29275473dc42c1a499187925872e54cb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1549152385}
   m_SourcePrefab: {fileID: 100100000, guid: 29275473dc42c1a499187925872e54cb, type: 3}
 --- !u!1 &1549152375 stripped
 GameObject:
@@ -3155,7 +3179,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b3e892c08aa1234fa0ffc90e3616444, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackCooldown: 0.4
+  unarmedCooldown: 0.4
+  weaponCooldown: 0.7
 --- !u!114 &1549152383
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3172,13 +3197,19 @@ MonoBehaviour:
   itemLayer:
     serializedVersion: 2
     m_Bits: 128
-  animator: {fileID: 1549152384}
   weaponSlot: {fileID: 561111346}
---- !u!95 &1549152384 stripped
-Animator:
-  m_CorrespondingSourceObject: {fileID: 6766536238432138804, guid: 29275473dc42c1a499187925872e54cb, type: 3}
-  m_PrefabInstance: {fileID: 1549152374}
+--- !u!114 &1549152385
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1549152375}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb59151ebcbcc964aa56d8bb9c992aa4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1698753748
 GameObject:
   m_ObjectHideFlags: 0
@@ -3506,7 +3537,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b3e892c08aa1234fa0ffc90e3616444, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackCooldown: 0.4
+  unarmedCooldown: 0.4
+  weaponCooldown: 0.7
 --- !u!1 &1908565645
 GameObject:
   m_ObjectHideFlags: 0

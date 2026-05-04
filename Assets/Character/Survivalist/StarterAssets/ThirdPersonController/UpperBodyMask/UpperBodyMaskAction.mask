@@ -6,13 +6,13 @@ AvatarMask:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: UpperBodyMask
-  m_Mask: 01000000010000000100000001000000010000000100000001000000000000000000000000000000000000000000000000000000
+  m_Name: UpperBodyMaskAction
+  m_Mask: 01000000010000000100000000000000000000000100000001000000010000000100000000000000000000000000000000000000
   m_Elements:
   - m_Path: 
     m_Weight: 1
   - m_Path: FPS_HANDS
-    m_Weight: 1
+    m_Weight: 0
   - m_Path: FPS_HANDS/SK_Miliary_FPS_Arms
     m_Weight: 1
   - m_Path: FPS_HANDS/SK_Miliary_FPS_Arms_Gloves1
@@ -20,9 +20,9 @@ AvatarMask:
   - m_Path: FPS_HANDS/SK_Miliary_Military_FPS_Shirt3
     m_Weight: 1
   - m_Path: root
-    m_Weight: 1
+    m_Weight: 0
   - m_Path: root/pelvis
-    m_Weight: 1
+    m_Weight: 0
   - m_Path: root/pelvis/spine_01
     m_Weight: 1
   - m_Path: root/pelvis/spine_01/spine_02
