@@ -104,6 +104,11 @@ namespace StarterAssets
 
             _cameraTargetYaw = CameraTarget.transform.rotation.eulerAngles.y;
             _cameraTargetPitch = CameraTarget.transform.rotation.eulerAngles.x;
+            if (_hasAnimator)
+            {
+                _animator.SetFloat("Horizontal", 0f);
+                _animator.SetFloat("Vertical", 0f);
+            }
         }
 
         private void Update()
@@ -218,6 +223,11 @@ namespace StarterAssets
 
                 float speedRatio = _input.move == Vector2.zero ? 0f : (_input.sprint ? 1f : 0.5f);
                 float lerpSpeed = Time.deltaTime * SpeedChangeRate * 2f;
+
+                float currentH = _animator.GetFloat("Horizontal");
+                float currentV = _animator.GetFloat("Vertical");
+                if (float.IsNaN(currentH)) currentH = 0f;
+                if (float.IsNaN(currentV)) currentV = 0f;
 
                 float newH = Mathf.Lerp(_animator.GetFloat("Horizontal"), _input.move.x * speedRatio, lerpSpeed);
                 if (Mathf.Abs(newH) < 0.01f) newH = 0f;

@@ -14,11 +14,11 @@ AvatarMask:
   - m_Path: FPS_HANDS
     m_Weight: 0
   - m_Path: FPS_HANDS/SK_Miliary_FPS_Arms
-    m_Weight: 1
+    m_Weight: 0
   - m_Path: FPS_HANDS/SK_Miliary_FPS_Arms_Gloves1
-    m_Weight: 1
+    m_Weight: 0
   - m_Path: FPS_HANDS/SK_Miliary_Military_FPS_Shirt3
-    m_Weight: 1
+    m_Weight: 0
   - m_Path: root
     m_Weight: 0
   - m_Path: root/pelvis
