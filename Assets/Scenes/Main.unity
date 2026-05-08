@@ -869,7 +869,6 @@ GameObject:
   - component: {fileID: 245125979}
   - component: {fileID: 245125978}
   - component: {fileID: 245125977}
-  - component: {fileID: 245125976}
   - component: {fileID: 245125975}
   m_Layer: 6
   m_Name: Player
@@ -890,23 +889,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb59151ebcbcc964aa56d8bb9c992aa4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &245125976
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 245125974}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2c9a9354ff58c514580e1e532833ddb2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  interactionRadius: 2
-  itemLayer:
-    serializedVersion: 2
-    m_Bits: 128
-  weaponSlot: {fileID: 561111346}
 --- !u!114 &245125977
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1876,6 +1858,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 834369070}
   m_Mesh: {fileID: 3284207138172352754, guid: beaf5df8081956149a0389bd744cf44d, type: 3}
+--- !u!1 &905852653 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6766536238432138802, guid: 29275473dc42c1a499187925872e54cb, type: 3}
+  m_PrefabInstance: {fileID: 1549152374}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &947523883
 GameObject:
   m_ObjectHideFlags: 3
@@ -3309,13 +3296,33 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6766536238432138802, guid: 29275473dc42c1a499187925872e54cb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1549152378}
   m_SourcePrefab: {fileID: 100100000, guid: 29275473dc42c1a499187925872e54cb, type: 3}
 --- !u!4 &1549152376 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6766536238432138805, guid: 29275473dc42c1a499187925872e54cb, type: 3}
   m_PrefabInstance: {fileID: 1549152374}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1549152378
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 905852653}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c9a9354ff58c514580e1e532833ddb2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interactionRadius: 2
+  itemLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  weaponSlot: {fileID: 561111346}
 --- !u!1 &1698753748
 GameObject:
   m_ObjectHideFlags: 0
