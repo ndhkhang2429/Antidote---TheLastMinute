@@ -16,6 +16,4 @@ public class ZombieNormal : ZombieBase
         detectionRange = 10f;
         attackRange = 2f;
     }
-
-    // Con này đánh bình thường, không có skill gì đặc biệt nên không cần ghi đè các hàm AttackLogic hay Die
 }

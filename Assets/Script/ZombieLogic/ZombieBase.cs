@@ -208,6 +208,8 @@ public class ZombieBase : MonoBehaviour
 
         if(playerHealth != null) 
             playerHealth.TakeDamage(attackDamage, gameObject);
+
+        Debug.Log($"Đánh trúng player, damage: {attackDamage}");
     }
 
     void OnDrawGizmosSelected()
