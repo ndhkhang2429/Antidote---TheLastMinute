@@ -8,11 +8,12 @@ public class ZombieBase : MonoBehaviour
     protected NavMeshAgent agent;
     protected Animator anim;
     protected Transform player;
+    protected HealthSystem healthSystem;
 
     [Header("Base Stats")]
-    public float maxHealth = 100f;
-    protected float currentHealth;
     public float attackDamage = 15f;
+    public float attackCooldown = 1.5f;
+    protected float nextAttackTime = 0f;
 
     [Header("AI Settings")]
     public float walkSpeed = 1f;
@@ -20,8 +21,6 @@ public class ZombieBase : MonoBehaviour
     public float detectionRange = 10f;
     public float attackRange = 2f;
     public Transform[] waypoints;
-    public float attackCooldown = 1.5f;
-    protected float nextAttackTime = 0f;
     protected int currentWaypointIndex = 0;
 
     // Máy trạng thái bảo vệ (protected) để class con có thể đọc được
@@ -35,12 +34,24 @@ public class ZombieBase : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
         anim = GetComponent<Animator>();
-        currentHealth = maxHealth;
+
+        healthSystem = GetComponent<HealthSystem>();
+        if(healthSystem == null)
+            Debug.LogError($"[ZombieBase] {gameObject.name} thiếu HealthSystem component!");
+
+        healthSystem.OnDeath += Die;
 
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null) player = playerObj.transform;
 
         GoToNextWaypoint();
+    }
+
+    private void OnDestroy()
+    {
+        // Hủy subscribe tránh memory leak
+        if (healthSystem != null)
+            healthSystem.OnDeath -= Die;
     }
 
     protected virtual void Update()
@@ -160,21 +171,16 @@ public class ZombieBase : MonoBehaviour
     // --- HỆ THỐNG CHIẾN ĐẤU ---
 
     // Hàm nhận sát thương chung cho mọi Zombie
-    public virtual void TakeDamage(float damage)
+    public virtual void TakeDamage(float damage, GameObject attacker = null)
     {
         if (currentState == ZombieState.Dead) return;
 
-        currentHealth -= damage;
+        healthSystem.TakeDamage(damage, attacker);
 
         // Bị bắn trúng thì tự động nhận diện và rượt luôn, bỏ qua tiếng hét
         if (currentState == ZombieState.Patrol)
         {
             currentState = ZombieState.Chase;
-        }
-
-        if (currentHealth <= 0)
-        {
-            Die();
         }
     }
 
@@ -188,6 +194,20 @@ public class ZombieBase : MonoBehaviour
         Collider col = GetComponent<Collider>();
         if (col != null) col.enabled = false;
         agent.enabled = false;
+    }
+
+    public virtual void DealDamageToPlayer()
+    {
+        if (player == null) return;
+
+        float dist = Vector3.Distance(transform.position, player.position);
+
+        if (dist > attackRange * 1.2f) return;
+
+        HealthSystem playerHealth = player.GetComponent<HealthSystem>();
+
+        if(playerHealth != null) 
+            playerHealth.TakeDamage(attackDamage, gameObject);
     }
 
     void OnDrawGizmosSelected()

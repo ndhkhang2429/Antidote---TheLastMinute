@@ -723,7 +723,7 @@ AnimatorController:
   - m_Name: WeaponType
     m_Type: 3
     m_DefaultFloat: 0
-    m_DefaultInt: 1
+    m_DefaultInt: 3
     m_DefaultBool: 0
     m_Controller: {fileID: 9100000}
   - m_Name: isCrouch
@@ -1038,7 +1038,7 @@ BlendTree:
     m_DirectBlendParameter: Speed
     m_Mirror: 0
   - serializedVersion: 2
-    m_Motion: {fileID: -203655887218126122, guid: 481f3c5bab7b86247a6e2e249feb8116, type: 3}
+    m_Motion: {fileID: -203655887218126122, guid: 342ce0612f0b57a43948aa0498c89d32, type: 3}
     m_Threshold: 1
     m_Position: {x: 0, y: 0}
     m_TimeScale: 1

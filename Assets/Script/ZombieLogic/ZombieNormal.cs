@@ -9,13 +9,12 @@ public class ZombieNormal : ZombieBase
         // Vẫn gọi base.Start() để nó lấy NavMesh, Animator và tìm Player
         base.Start();
 
-        // Thiết lập chỉ số riêng cho con Zombie thường
-        maxHealth = 100f;
-        currentHealth = maxHealth;
         attackDamage = 15f;
-
-        // Tốc độ di chuyển chậm lờ đờ
-        agent.speed = 2.5f;
+        attackCooldown = 1.5f;
+        walkSpeed = 1f;
+        runSpeed = 2.5f;
+        detectionRange = 10f;
+        attackRange = 2f;
     }
 
     // Con này đánh bình thường, không có skill gì đặc biệt nên không cần ghi đè các hàm AttackLogic hay Die

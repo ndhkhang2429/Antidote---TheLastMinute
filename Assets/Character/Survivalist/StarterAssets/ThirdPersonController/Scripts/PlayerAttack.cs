@@ -12,6 +12,16 @@ public class PlayerAttack : MonoBehaviour
     public float unarmedCooldown = 0.4f;
     public float weaponCooldown = 0.7f;  // Gậy/xà beng thường chậm hơn đấm
 
+    [Header("Melee Damage")]
+    public float unarmedDamage = 10f;   // Damage đánh tay
+    public float meleeDamage = 25f;     // Damage đánh bằng gậy
+
+    [Header("Melee Hitbox")]
+    public float hitRadius = 1.2f;          // Bán kính vùng đánh
+    public float hitDistance = 1.0f;        // Khoảng cách trước mặt
+    public float hitHeight = 1.0f;          // Độ cao vùng đánh
+    public LayerMask zombieLayer;           
+
     [Header("Combo Punch")]
     // PunchIndex: 0 = Punching, 1 = Punching1 (khớp với Animator)
     private int _punchComboIndex = 0;
@@ -21,6 +31,7 @@ public class PlayerAttack : MonoBehaviour
     // ── Private ─────────────────────────────────────────────
     private Animator _animator;
     private float _nextAttackTime = 0f;
+    private float _currentDamage = 0f;
 
     // Animator Parameter IDs
     private int _paramWeaponAttack;
@@ -69,6 +80,7 @@ public class PlayerAttack : MonoBehaviour
 
         if (weaponType == 0)
         {
+            _currentDamage = unarmedDamage;
             PerformPunch();
             _nextAttackTime = Time.time + unarmedCooldown;
         }
@@ -76,6 +88,7 @@ public class PlayerAttack : MonoBehaviour
         {
             // WeaponType 1, 2, 3... đều dùng WeaponAttack trigger
             // Mở rộng sau nếu muốn animation khác nhau theo từng loại
+            _currentDamage = meleeDamage;
             PerformWeaponAttack();
             _nextAttackTime = Time.time + weaponCooldown;
         }
@@ -105,6 +118,35 @@ public class PlayerAttack : MonoBehaviour
         string weaponName = wt == 1 ? "Gậy/2 tay" : wt == 2 ? "Pistol" : wt == 3 ? "Rifle" : "Weapon";
         Debug.Log($"[PlayerAttack] Tấn công bằng: {weaponName}");
     }
+    public void OnMeleeHit()
+    {
+        // Tạo vùng sphere trước mặt player
+        Vector3 hitCenter = transform.position
+                          + transform.forward * hitDistance
+                          + Vector3.up * hitHeight;
+
+        Collider[] hits = Physics.OverlapSphere(hitCenter, hitRadius, zombieLayer);
+
+        if (hits.Length == 0)
+        {
+            Debug.Log("[PlayerAttack] Đánh trượt!");
+            return;
+        }
+
+        foreach (Collider hit in hits)
+        {
+            ZombieBase zombie = hit.GetComponent<ZombieBase>();
+            if (zombie == null)
+                zombie = hit.GetComponentInParent<ZombieBase>();
+
+            if (zombie != null)
+            {
+                zombie.TakeDamage(_currentDamage, gameObject);
+                Debug.Log($"[PlayerAttack] Đánh trúng {hit.name}, damage: {_currentDamage}");
+                break; // Chỉ đánh 1 zombie mỗi cú
+            }
+        }
+    }
 
     /// <summary>
     /// Gọi từ bên ngoài (ví dụ input system mới) nếu cần
@@ -112,5 +154,13 @@ public class PlayerAttack : MonoBehaviour
     public void OnAttackInput()
     {
         TryAttack();
+    }
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Vector3 hitCenter = transform.position
+                          + transform.forward * hitDistance
+                          + Vector3.up * hitHeight;
+        Gizmos.DrawWireSphere(hitCenter, hitRadius);
     }
 }
