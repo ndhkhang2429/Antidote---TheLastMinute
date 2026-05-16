@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -10,75 +10,176 @@ public class ZombieBase : MonoBehaviour
     protected Transform player;
     protected HealthSystem healthSystem;
 
-    [Header("Base Stats")]
+    [Header("Stats")]
     public float attackDamage = 15f;
     public float attackCooldown = 1.5f;
-    protected float nextAttackTime = 0f;
-
-    [Header("AI Settings")]
     public float walkSpeed = 1f;
     public float runSpeed = 3.5f;
     public float detectionRange = 10f;
     public float attackRange = 2f;
+
+    [Header("Patrol")]
     public Transform[] waypoints;
     protected int currentWaypointIndex = 0;
 
-    // Máy trạng thái bảo vệ (protected) để class con có thể đọc được
-    protected enum ZombieState { Patrol, Scream, Chase, Attack, Dead }
-    protected ZombieState currentState = ZombieState.Patrol;
+    [Header("Scream Settings")]
+    public float screamDuration = 2f;
+    public float turnSpeed = 10f;
+    public float turnThreshold = 0.95f;
 
-    protected bool isScreaming = false;
+    // ── Private ─────────────────────────────────────────────
+    private Node _root;
+    protected float _nextAttackTime = 0f;
+    protected bool _isDead = false;
 
-    // virtual: Cho phép class con (Boss/Elite) ghi đè (thay đổi) nội dung hàm này nếu cần
+    private bool _hasDetectedPlayer = false;
+    private bool _screamDone = false;
+    private float _screamTimer = 0f;
+
+    // Giai đoạn scream tách thành 3 bước rõ ràng
+    private enum ScreamPhase { None, Turning, Screaming }
+    private ScreamPhase _screamPhase = ScreamPhase.None;
+
+    // ────────────────────────────────────────────────────────
+
     protected virtual void Start()
     {
         agent = GetComponent<NavMeshAgent>();
         anim = GetComponent<Animator>();
-
         healthSystem = GetComponent<HealthSystem>();
-        if(healthSystem == null)
-            Debug.LogError($"[ZombieBase] {gameObject.name} thiếu HealthSystem component!");
+
+        if (healthSystem == null)
+            Debug.LogError($"[ZombieBase] {gameObject.name} thiếu HealthSystem!");
 
         healthSystem.OnDeath += Die;
 
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null) player = playerObj.transform;
 
+        _root = BuildTree();
         GoToNextWaypoint();
     }
 
     private void OnDestroy()
     {
-        // Hủy subscribe tránh memory leak
         if (healthSystem != null)
             healthSystem.OnDeath -= Die;
     }
 
     protected virtual void Update()
     {
-        // Nếu đã chết thì ngừng suy nghĩ
-        if (currentState == ZombieState.Dead || player == null) return;
+        if (_isDead || player == null) return;
 
-        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
-
-        switch (currentState)
+        // Đang quay hoặc hét → block BT hoàn toàn
+        if (_screamPhase != ScreamPhase.None)
         {
-            case ZombieState.Patrol:
-                PatrolLogic(distanceToPlayer);
-                break;
-            case ZombieState.Scream:
-                ScreamLogic();
-                break;
-            case ZombieState.Chase:
-                ChaseLogic(distanceToPlayer);
-                break;
-            case ZombieState.Attack:
-                AttackLogic(distanceToPlayer);
-                break;
+            HandleScreamPhase();
+            return;
+        }
+
+        _root.Evaluate();
+    }
+
+    // ── Xử lý từng giai đoạn Scream ─────────────────────────
+
+    private void HandleScreamPhase()
+    {
+        // Luôn đứng yên trong suốt quá trình
+        agent.isStopped = true;
+        agent.velocity = Vector3.zero;
+        anim.SetFloat("Speed", 0f);
+
+        if (_screamPhase == ScreamPhase.Turning)
+        {
+            // Quay mặt về phía player
+            Vector3 dir = (player.position - transform.position).normalized;
+            dir.y = 0;
+
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                Quaternion.LookRotation(dir),
+                Time.deltaTime * turnSpeed);
+
+            // Kiểm tra đã quay đủ chưa bằng dot product
+            float dot = Vector3.Dot(transform.forward, dir);
+            if (dot >= turnThreshold)
+            {
+                // Quay xong → chuyển sang giai đoạn hét
+                _screamPhase = ScreamPhase.Screaming;
+                _screamTimer = 0f;
+                anim.SetTrigger("Scream");
+                Debug.Log("[ZombieBase] Quay xong → Bắt đầu hét!");
+            }
+        }
+        else if (_screamPhase == ScreamPhase.Screaming)
+        {
+            // Đang hét → đếm thời gian
+            _screamTimer += Time.deltaTime;
+
+            if (_screamTimer >= screamDuration)
+            {
+                // Hét xong → cho BT chạy tiếp
+                _screamPhase = ScreamPhase.None;
+                _screamDone = true;
+                Debug.Log("[ZombieBase] Hét xong → Chase/Attack!");
+            }
         }
     }
 
-    protected virtual void PatrolLogic(float dist)
+    // ── Xây dựng Behaviour Tree ──────────────────────────────
+
+    protected virtual Node BuildTree()
+    {
+        return new Selector(new List<Node>
+        {
+            new Sequence(new List<Node>
+            {
+                new ConditionNode(CanDetectPlayer),
+                new ActionNode(Scream),
+                new Selector(new List<Node>
+                {
+                    new Sequence(new List<Node>
+                    {
+                        new ConditionNode(IsInAttackRange),
+                        new ActionNode(Attack)
+                    }),
+                    new ActionNode(Chase)
+                })
+            }),
+            new ActionNode(Patrol)
+        });
+    }
+
+    // ── Conditions ───────────────────────────────────────────
+
+    private bool CanDetectPlayer()
+    {
+        if (player == null) return false;
+
+        bool inRange = Vector3.Distance(transform.position, player.position)
+                       <= detectionRange;
+
+        // Mất dấu → reset để hét lại lần sau
+        if (!inRange && _hasDetectedPlayer)
+        {
+            _hasDetectedPlayer = false;
+            _screamDone = false;
+            _screamPhase = ScreamPhase.None;
+            _screamTimer = 0f;
+        }
+
+        return inRange;
+    }
+
+    private bool IsInAttackRange()
+    {
+        if (player == null) return false;
+        return Vector3.Distance(transform.position, player.position) <= attackRange;
+    }
+
+    // ── Actions ──────────────────────────────────────────────
+
+    private NodeState Patrol()
     {
         agent.isStopped = false;
         agent.speed = walkSpeed;
@@ -86,79 +187,80 @@ public class ZombieBase : MonoBehaviour
         anim.SetFloat("Speed", 1f, 0.1f, Time.deltaTime);
 
         if (!agent.pathPending && agent.remainingDistance <= 0.2f)
-        {
             GoToNextWaypoint();
-        }
 
-        if (dist < detectionRange)
-        {
-            currentState = ZombieState.Scream;
-        }
+        return NodeState.Running;
     }
 
-    protected virtual void ScreamLogic()
+    private NodeState Scream()
     {
-        Vector3 direction = (player.position - transform.position).normalized;
-        direction.y = 0; // Tránh lỗi zombie bị ngửa mặt lên trời nếu bạn đứng trên cao
-        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), Time.deltaTime * 5f);
-        if (!isScreaming)
+        // Lần đầu phát hiện → bắt đầu giai đoạn quay mặt
+        if (!_hasDetectedPlayer)
         {
-            isScreaming = true;
+            _hasDetectedPlayer = true;
+            _screamDone = false;
+            _screamPhase = ScreamPhase.Turning; // Quay trước!
             agent.isStopped = true;
-            anim.SetFloat("Speed", 0f);
-            anim.SetTrigger("Scream");
-
-            // Chờ 2 giây (thời gian hét) rồi chuyển sang rượt
-            Invoke("StartChasing", 2f);
+            agent.velocity = Vector3.zero;
+            Debug.Log("[ZombieBase] Phát hiện player → Bắt đầu quay mặt!");
+            return NodeState.Running;
         }
+
+        // Đang trong ScreamPhase → chờ HandleScreamPhase() xử lý
+        if (_screamPhase != ScreamPhase.None)
+            return NodeState.Running;
+
+        // Chưa hét xong
+        if (!_screamDone)
+            return NodeState.Running;
+
+        // Hét xong → cho BT chạy tiếp Chase/Attack
+        return NodeState.Success;
     }
 
-    protected virtual void StartChasing()
-    {
-        currentState = ZombieState.Chase;
-    }
-
-    protected virtual void ChaseLogic(float dist)
+    private NodeState Chase()
     {
         agent.isStopped = false;
         agent.speed = runSpeed;
         agent.stoppingDistance = attackRange;
-
         agent.SetDestination(player.position);
         anim.SetFloat("Speed", 2f, 0.1f, Time.deltaTime);
-        
-        if (dist <= attackRange)
+
+        if (Vector3.Distance(transform.position, player.position)
+            > detectionRange * 1.5f)
         {
-            currentState = ZombieState.Attack;
-        }
-        else if (dist > detectionRange * 1.5f) // Mất dấu
-        {
-            isScreaming = false;
-            currentState = ZombieState.Patrol;
             GoToNextWaypoint();
+            return NodeState.Failure;
         }
+
+        return NodeState.Running;
     }
 
-    protected virtual void AttackLogic(float dist)
+    private NodeState Attack()
     {
         agent.isStopped = true;
         anim.SetFloat("Speed", 0f, 0.15f, Time.deltaTime);
+        FacePlayer();
 
-        // Xoay mặt về phía người chơi
-        Vector3 direction = (player.position - transform.position).normalized;
-        direction.y = 0;
-        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), Time.deltaTime * 5f);
-
-        if (Time.time >= nextAttackTime)
+        if (Time.time >= _nextAttackTime)
         {
             anim.SetTrigger("Attack");
-            nextAttackTime = Time.time + attackCooldown; // Hẹn giờ cho cú đánh tiếp theo
+            _nextAttackTime = Time.time + attackCooldown;
         }
 
-        if (dist > attackRange)
-        {
-            currentState = ZombieState.Chase;
-        }
+        return NodeState.Running;
+    }
+
+    // ── Helpers ──────────────────────────────────────────────
+
+    private void FacePlayer()
+    {
+        Vector3 dir = (player.position - transform.position).normalized;
+        dir.y = 0;
+        transform.rotation = Quaternion.Slerp(
+            transform.rotation,
+            Quaternion.LookRotation(dir),
+            Time.deltaTime * turnSpeed);
     }
 
     protected void GoToNextWaypoint()
@@ -168,51 +270,41 @@ public class ZombieBase : MonoBehaviour
         currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Length;
     }
 
-    // --- HỆ THỐNG CHIẾN ĐẤU ---
+    // ── Combat ───────────────────────────────────────────────
 
-    // Hàm nhận sát thương chung cho mọi Zombie
     public virtual void TakeDamage(float damage, GameObject attacker = null)
     {
-        if (currentState == ZombieState.Dead) return;
-
+        if (_isDead) return;
         healthSystem.TakeDamage(damage, attacker);
 
-        // Bị bắn trúng thì tự động nhận diện và rượt luôn, bỏ qua tiếng hét
-        if (currentState == ZombieState.Patrol)
-        {
-            currentState = ZombieState.Chase;
-        }
-    }
-
-    protected virtual void Die()
-    {
-        currentState = ZombieState.Dead;
-        agent.isStopped = true;
-        anim.SetTrigger("IsDead"); // Đảm bảo bạn có Parameter Trigger "IsDead" trong Animator
-
-        // Tắt va chạm để người chơi không đi xuyên qua hoặc bắn trúng xác chết
-        Collider col = GetComponent<Collider>();
-        if (col != null) col.enabled = false;
-        agent.enabled = false;
+        // Bị đánh → bỏ qua scream, chase thẳng
+        _hasDetectedPlayer = true;
+        _screamDone = true;
+        _screamPhase = ScreamPhase.None;
     }
 
     public virtual void DealDamageToPlayer()
     {
         if (player == null) return;
-
-        float dist = Vector3.Distance(transform.position, player.position);
-
-        if (dist > attackRange * 1.2f) return;
+        if (Vector3.Distance(transform.position, player.position) > attackRange * 1.2f)
+            return;
 
         HealthSystem playerHealth = player.GetComponent<HealthSystem>();
-
-        if(playerHealth != null) 
-            playerHealth.TakeDamage(attackDamage, gameObject);
-
-        Debug.Log($"Đánh trúng player, damage: {attackDamage}");
+        playerHealth?.TakeDamage(attackDamage, gameObject);
     }
 
-    void OnDrawGizmosSelected()
+    protected virtual void Die()
+    {
+        _isDead = true;
+        agent.isStopped = true;
+        agent.enabled = false;
+        anim.SetTrigger("IsDead");
+
+        Collider col = GetComponent<Collider>();
+        if (col != null) col.enabled = false;
+    }
+
+    private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
