@@ -121,6 +121,7 @@ public class ZombieBase : MonoBehaviour
                 // Hét xong → cho BT chạy tiếp
                 _screamPhase = ScreamPhase.None;
                 _screamDone = true;
+                OnScreamComplete();
                 Debug.Log("[ZombieBase] Hét xong → Chase/Attack!");
             }
         }
@@ -152,7 +153,7 @@ public class ZombieBase : MonoBehaviour
 
     // ── Conditions ───────────────────────────────────────────
 
-    private bool CanDetectPlayer()
+    protected bool CanDetectPlayer()
     {
         if (player == null) return false;
 
@@ -171,7 +172,7 @@ public class ZombieBase : MonoBehaviour
         return inRange;
     }
 
-    private bool IsInAttackRange()
+    protected bool IsInAttackRange()
     {
         if (player == null) return false;
         return Vector3.Distance(transform.position, player.position) <= attackRange;
@@ -179,7 +180,7 @@ public class ZombieBase : MonoBehaviour
 
     // ── Actions ──────────────────────────────────────────────
 
-    private NodeState Patrol()
+    protected NodeState Patrol()
     {
         agent.isStopped = false;
         agent.speed = walkSpeed;
@@ -192,7 +193,7 @@ public class ZombieBase : MonoBehaviour
         return NodeState.Running;
     }
 
-    private NodeState Scream()
+    protected NodeState Scream()
     {
         // Lần đầu phát hiện → bắt đầu giai đoạn quay mặt
         if (!_hasDetectedPlayer)
@@ -218,7 +219,7 @@ public class ZombieBase : MonoBehaviour
         return NodeState.Success;
     }
 
-    private NodeState Chase()
+    protected NodeState Chase()
     {
         agent.isStopped = false;
         agent.speed = runSpeed;
@@ -236,7 +237,7 @@ public class ZombieBase : MonoBehaviour
         return NodeState.Running;
     }
 
-    private NodeState Attack()
+    protected NodeState Attack()
     {
         agent.isStopped = true;
         anim.SetFloat("Speed", 0f, 0.15f, Time.deltaTime);
@@ -269,6 +270,8 @@ public class ZombieBase : MonoBehaviour
         agent.destination = waypoints[currentWaypointIndex].position;
         currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Length;
     }
+
+    protected virtual void OnScreamComplete() { }
 
     // ── Combat ───────────────────────────────────────────────
 
