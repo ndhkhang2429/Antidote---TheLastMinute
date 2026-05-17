@@ -31,6 +31,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _AmbientOcclusion1:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _Base_Color:
         m_Texture: {fileID: 2800000, guid: 6d483374db7ff9d48ab5c07ffa0cf25e, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -99,30 +103,51 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _AlphaCutoff: 0.5
+    - _Base_Color_Grtunge_Scale: 1
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
+    - _EnvironmentReflections: 1
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
     - _GrungeChannel: 1
-    - _GrungeScale: 9.4
-    - _Grunge_Max: 0.596
+    - _GrungeScale: 41
+    - _Grunge_Max: 0.393
     - _Grunge_Min: 0
+    - _Grunge_Normal: 1.396
     - _Grunge_ON: 1
-    - _Grunge_Opacity: 0.672
+    - _Grunge_Opacity: 0.583
     - _Grunge_Smoothness: 0.2786137
     - _Grunge_Texture: 0
     - _Grunge_Texture_ON: 0
-    - _Grunge_Texture_Opacity: 0.722
+    - _Grunge_Texture_Opacity: 0.696
+    - _Grunge_Texture_Scale: 5.898302
     - _Metallic: 0
     - _Mode: 0
     - _Normal_Scale: 1
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _QueueControl: 0
+    - _QueueOffset: 0
+    - _ReceiveShadows: 1
+    - _Smoothness: 0.2765529
     - _Smoothness1: 0.2786137
     - _SmoothnessTextureChannel: 0
     - _Smoothness_Grunge: 0.16

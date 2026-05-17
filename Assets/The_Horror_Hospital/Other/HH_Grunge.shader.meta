@@ -3,11 +3,12 @@ guid: 4c90ae556b25fa74faeb01e2e1f65b57
 ShaderImporter:
   externalObjects: {}
   defaultTextures:
-  - _Normal: {fileID: 2800000, guid: f62c523b81b614147b075badd08f49a2, type: 3}
-  - _Grunge_Mask: {fileID: 2800000, guid: 8086b626d4688f84faef7403c4eec05e, type: 3}
   - _Base_Color: {fileID: 2800000, guid: 4814fa37e4b2bdf4f8c893b57b2a05b6, type: 3}
   - _Grunge_Texture: {fileID: 2800000, guid: 892df4ee12c65c743bef91e8b7a47532, type: 3}
-  - _Metallic_Smoothness: {fileID: 2800000, guid: 370c6a8f759f7c1409e438d8e9cdb247, type: 3}
+  - _Grunge_Mask: {fileID: 2800000, guid: 8086b626d4688f84faef7403c4eec05e, type: 3}
+  - _Normal: {fileID: 2800000, guid: f62c523b81b614147b075badd08f49a2, type: 3}
+  - _Metallic_Smoothness: {fileID: 2800000, guid: 370c6a8f759f7c1409e438d8e9cdb247,
+      type: 3}
   nonModifiableTextures: []
   userData: 
   assetBundleName: 

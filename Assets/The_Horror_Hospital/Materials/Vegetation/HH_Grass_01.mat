@@ -14,7 +14,6 @@ Material:
   m_ValidKeywords: []
   m_InvalidKeywords:
   - _ADD_PRECOMPUTED_VELOCITY
-  - _ALPHATEST_ON
   - _CONSERVATIVE_DEPTH_OFFSET
   - _DEPTHOFFSET_ON
   - _DISABLE_SSR_TRANSPARENT
@@ -160,6 +159,7 @@ Material:
     - _Emmisive_Power: 0.153
     - _EnableBlendModePreserveSpecularLighting: 1
     - _EnableFogOnTransparent: 1
+    - _EnvironmentReflections: 1
     - _Float0: 0
     - _Float1: 0.08
     - _Float2: 1.49
@@ -175,6 +175,9 @@ Material:
     - _OpaqueCullMode: 2
     - _Parallax: 0.02
     - _Power_Normal: 1.74
+    - _QueueControl: 0
+    - _QueueOffset: 0
+    - _ReceiveShadows: 1
     - _ReceivesSSR: 1
     - _ReceivesSSRTransparent: 0
     - _RenderQueueType: 1

@@ -15,7 +15,6 @@ Material:
   - _GRUNGECHANNEL_G
   - _GRUNGE_ON_ON
   m_InvalidKeywords:
-  - _GRUNGE_TEXTURE_ON
   - _METALLICGLOSSMAP
   - _NORMALMAP
   m_LightmapFlags: 5
@@ -29,6 +28,10 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _AmbientOcclusion:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _AmbientOcclusion1:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -96,43 +99,55 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _T_N:
-        m_Texture: {fileID: 2800000, guid: f562a0e4af0fcf24498daec25db49cd9, type: 3}
+    - _texcoord:
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _texcoord:
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _AlphaCutoff: 0.5
+    - _Base_Color_Grtunge_Scale: 1
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
+    - _EnvironmentReflections: 1
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
     - _GrungeChannel: 1
     - _GrungeScale: 43
-    - _Grunge_Max: 0.617
+    - _Grunge_Max: 0.738
     - _Grunge_Min: 0.022
-    - _Grunge_Normal: 1.327
-    - _Grunge_Normals: 0.2
-    - _Grunge_Normalsmask: 1.5
+    - _Grunge_Normal: 1.432
     - _Grunge_ON: 1
-    - _Grunge_Opacity: 0.69
-    - _Grunge_Smoothness: 0.907
-    - _Grunge_Texture: 1
+    - _Grunge_Opacity: 0.703
+    - _Grunge_Smoothness: 0.959
+    - _Grunge_Texture: 0
     - _Grunge_Texture_ON: 0
     - _Grunge_Texture_Opacity: 0.469
-    - _Grunge_Texture_Scale: 12.6
+    - _Grunge_Texture_Scale: 5.898302
     - _Metallic: 0
     - _Mode: 0
-    - _Normal_Scale: 0.97
+    - _Normal_Scale: 0.5
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _Smoothness: 0.66
+    - _QueueControl: 0
+    - _QueueOffset: 0
+    - _ReceiveShadows: 1
+    - _Smoothness: 1
     - _Smoothness1: 0.68
     - _SmoothnessTextureChannel: 0
     - _Smoothness_Grunge: 1.55
@@ -144,7 +159,7 @@ Material:
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _Grunge_Tint: {r: 0.14653781, g: 0.23953906, b: 0.3490565, a: 0}
+    - _Grunge_Tint: {r: 0.14653787, g: 0.23953912, b: 0.34905657, a: 0}
     - _Tiling_Main_Texture: {r: 1, g: 1, b: 0, a: 0}
     - _Tint: {r: 0.7264151, g: 0.7264151, b: 0.7264151, a: 0}
   m_BuildTextureStacks: []

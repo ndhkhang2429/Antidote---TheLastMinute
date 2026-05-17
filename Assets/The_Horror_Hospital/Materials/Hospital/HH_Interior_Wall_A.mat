@@ -31,6 +31,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _AmbientOcclusion1:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _Base_Color:
         m_Texture: {fileID: 2800000, guid: 559f3b403bbc9454f9384b9aa26b4e8b, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -99,30 +103,51 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _AlphaCutoff: 0.5
+    - _Base_Color_Grtunge_Scale: 1
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
+    - _EnvironmentReflections: 1
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
     - _GrungeChannel: 0
-    - _GrungeScale: 11
+    - _GrungeScale: 10.9
     - _Grunge_Max: 0.691
     - _Grunge_Min: 0.038
+    - _Grunge_Normal: 1.361
     - _Grunge_ON: 1
     - _Grunge_Opacity: 0.59
     - _Grunge_Smoothness: 0.2786137
     - _Grunge_Texture: 0
     - _Grunge_Texture_ON: 0
     - _Grunge_Texture_Opacity: 0.799
+    - _Grunge_Texture_Scale: 5.898302
     - _Metallic: 0
     - _Mode: 0
     - _Normal_Scale: 1
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _QueueControl: 0
+    - _QueueOffset: 0
+    - _ReceiveShadows: 1
+    - _Smoothness: 0.2765529
     - _Smoothness1: 0.75
     - _SmoothnessTextureChannel: 0
     - _Smoothness_Grunge: -0.43
@@ -134,7 +159,7 @@ Material:
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _Grunge_Tint: {r: 0.8773585, g: 0.8773585, b: 0.8773585, a: 0}
+    - _Grunge_Tint: {r: 0.8396226, g: 0.8396226, b: 0.8396226, a: 0}
     - _Tiling_Main_Texture: {r: 1, g: 1, b: 0, a: 0}
     - _Tint: {r: 1, g: 1, b: 1, a: 0}
   m_BuildTextureStacks: []
