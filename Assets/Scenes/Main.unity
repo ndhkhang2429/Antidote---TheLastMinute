@@ -598,19 +598,21 @@ MonoBehaviour:
   waypoints:
   - {fileID: 436425979}
   - {fileID: 1907527449}
+  headLookWeight: 0.7
+  headLookOffset: {x: 0, y: 1.5, z: 0}
   screamDuration: 2
   turnSpeed: 10
   turnThreshold: 0.95
   frenzySpeedMultiplier: 1.5
   frenzyThreshold: 0.3
   alertRadius: 15
-  leapMinRange: 4
-  leapMaxRange: 8
-  leapCooldown: 5
-  leapDamage: 30
-  leapKnockback: 5
-  leapDuration: 0.6
-  leapArcHeight: 3
+  runnerScreamDuration: 0.8
+  pounceMinRange: 4
+  pounceMaxRange: 8
+  pounceCooldown: 4
+  pounceDamage: 25
+  pounceSpeed: 15
+  pounceDuration: 0.4
 --- !u!4 &77088362 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7386234923826168992, guid: 95e6ef58b90ea9e46a843246af29bd1d, type: 3}
@@ -1254,6 +1256,8 @@ MonoBehaviour:
   detectionRange: 10
   attackRange: 2
   waypoints: []
+  headLookWeight: 0.7
+  headLookOffset: {x: 0, y: 1.5, z: 0}
   screamDuration: 2
   turnSpeed: 10
   turnThreshold: 0.95

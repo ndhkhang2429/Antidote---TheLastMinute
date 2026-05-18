@@ -22,6 +22,10 @@ public class ZombieBase : MonoBehaviour
     public Transform[] waypoints;
     protected int currentWaypointIndex = 0;
 
+    [Header("Head Look")]
+    public float headLookWeight = 0.7f;  // 0 = không nhìn, 1 = nhìn hoàn toàn
+    public Vector3 headLookOffset = new Vector3(0, 1.5f, 0); // Nhìn vào ngực player
+
     [Header("Scream Settings")]
     public float screamDuration = 2f;
     public float turnSpeed = 10f;
@@ -80,6 +84,27 @@ public class ZombieBase : MonoBehaviour
         _root.Evaluate();
     }
 
+    private void OnAnimatorIK(int layerIndex)
+    {
+        if (player == null || _isDead) return;
+
+        // Chỉ ngước nhìn player khi Chase, không khi Patrol
+        bool isChasing = _hasDetectedPlayer && _screamDone;
+
+        if (isChasing)
+        {
+            Vector3 lookTarget = player.position + headLookOffset;
+
+            anim.SetLookAtWeight(headLookWeight, 0.3f, 0.7f);
+            anim.SetLookAtPosition(lookTarget);
+        }
+        else
+        {
+            // Patrol → nhìn thẳng phía trước
+            anim.SetLookAtWeight(0f);
+        }
+    }
+
     // ── Xử lý từng giai đoạn Scream ─────────────────────────
 
     private void HandleScreamPhase()
@@ -87,6 +112,9 @@ public class ZombieBase : MonoBehaviour
         // Luôn đứng yên trong suốt quá trình
         agent.isStopped = true;
         agent.velocity = Vector3.zero;
+
+        agent.updatePosition = false;
+        agent.updateRotation = false;
         anim.SetFloat("Speed", 0f);
 
         if (_screamPhase == ScreamPhase.Turning)
@@ -121,6 +149,9 @@ public class ZombieBase : MonoBehaviour
                 // Hét xong → cho BT chạy tiếp
                 _screamPhase = ScreamPhase.None;
                 _screamDone = true;
+
+                agent.updateRotation = true;
+                agent.updatePosition = true;
                 OnScreamComplete();
                 Debug.Log("[ZombieBase] Hét xong → Chase/Attack!");
             }
