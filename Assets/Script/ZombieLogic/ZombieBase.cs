@@ -182,6 +182,8 @@ public class ZombieBase : MonoBehaviour
 
     protected NodeState Patrol()
     {
+        if (!agent.isActiveAndEnabled || !agent.isOnNavMesh)
+            return NodeState.Running;
         agent.isStopped = false;
         agent.speed = walkSpeed;
         agent.stoppingDistance = 0f;
@@ -221,6 +223,8 @@ public class ZombieBase : MonoBehaviour
 
     protected NodeState Chase()
     {
+        if (!agent.isActiveAndEnabled || !agent.isOnNavMesh)
+            return NodeState.Running;
         agent.isStopped = false;
         agent.speed = runSpeed;
         agent.stoppingDistance = attackRange;
@@ -239,6 +243,8 @@ public class ZombieBase : MonoBehaviour
 
     protected NodeState Attack()
     {
+        if (!agent.isActiveAndEnabled || !agent.isOnNavMesh)
+            return NodeState.Running;
         agent.isStopped = true;
         anim.SetFloat("Speed", 0f, 0.15f, Time.deltaTime);
         FacePlayer();
@@ -267,6 +273,8 @@ public class ZombieBase : MonoBehaviour
     protected void GoToNextWaypoint()
     {
         if (waypoints == null || waypoints.Length == 0) return;
+        if (!agent.isActiveAndEnabled || !agent.isOnNavMesh) return;
+
         agent.destination = waypoints[currentWaypointIndex].position;
         currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Length;
     }
@@ -274,6 +282,12 @@ public class ZombieBase : MonoBehaviour
     protected virtual void OnScreamComplete() { }
 
     // ── Combat ───────────────────────────────────────────────
+    public void ForceAlert()
+    {
+        _hasDetectedPlayer = true;
+        _screamDone = true;
+        _screamPhase = ScreamPhase.None;
+    }
 
     public virtual void TakeDamage(float damage, GameObject attacker = null)
     {

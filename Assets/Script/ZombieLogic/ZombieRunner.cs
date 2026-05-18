@@ -6,24 +6,25 @@ using UnityEngine.AI;
 /// <summary>
 /// Zombie Runner: nhanh, gầy, tấn công liên tục.
 /// Cơ chế đặc biệt:
-/// - Leap Attack: nhảy vồ khi cách player 4-6m
-/// - Frenzy: tăng tốc khi HP < 30%
+/// - Leap Attack: nhảy vồ theo arc khi cách player 4-8m
+/// - Frenzy: tăng tốc + nhấp nháy đỏ khi HP < 30%
 /// - Alert: hét kéo zombie xung quanh khi phát hiện player
 /// </summary>
 public class ZombieRunner : ZombieBase
 {
     [Header("Runner Stats")]
-    public float frenzySpeedMultiplier = 1.5f;  // Tăng tốc khi Frenzy
-    public float frenzyThreshold = 0.3f;         // HP < 30% → Frenzy
-    public float alertRadius = 15f;              // Bán kính alert đồng bọn
+    public float frenzySpeedMultiplier = 1.5f;
+    public float frenzyThreshold = 0.3f;
+    public float alertRadius = 15f;
 
     [Header("Leap Attack")]
-    public float leapMinRange = 4f;              // Khoảng cách tối thiểu để nhảy
-    public float leapMaxRange = 8f;              // Khoảng cách tối đa để nhảy
-    public float leapCooldown = 5f;              // Cooldown nhảy vồ
-    public float leapDamage = 30f;               // Damage khi nhảy vồ
-    public float leapForce = 8f;                 // Lực nhảy
-    public float leapKnockback = 5f;             // Lực đẩy player khi nhảy trúng
+    public float leapMinRange = 4f;
+    public float leapMaxRange = 8f;
+    public float leapCooldown = 5f;
+    public float leapDamage = 30f;
+    public float leapKnockback = 5f;
+    public float leapDuration = 0.6f;
+    public float leapArcHeight = 3f;  // Chiều cao arc khi nhảy
 
     // ── Private ─────────────────────────────────────────────
     private bool _isFrenzy = false;
@@ -37,28 +38,27 @@ public class ZombieRunner : ZombieBase
     {
         base.Start();
 
-        // Stats Runner: nhanh, yếu, đánh liên tục
         attackDamage = 12f;
-        attackCooldown = 0.8f;   // Đánh nhanh hơn Normal
-        walkSpeed = 2f;     // Đi nhanh hơn
-        runSpeed = 6f;     // Chạy rất nhanh
-        detectionRange = 15f;    // Nhạy cảm hơn
+        attackCooldown = 0.8f;
+        walkSpeed = 2f;
+        runSpeed = 6f;
+        detectionRange = 15f;
         attackRange = 1.8f;
 
         _originalRunSpeed = runSpeed;
     }
 
-    // ── Override Update để check Frenzy ─────────────────────
+    // ── Update: check Frenzy trước khi tick BT ──────────────
 
     protected override void Update()
     {
         if (!_isDead)
             CheckFrenzy();
 
-        base.Update(); // Gọi BT tick từ ZombieBase
+        base.Update();
     }
 
-    // ── Override BuildTree → thêm nhánh Leap ────────────────
+    // ── Override BuildTree: thêm nhánh Leap ─────────────────
 
     protected override Node BuildTree()
     {
@@ -71,14 +71,14 @@ public class ZombieRunner : ZombieBase
                 new ActionNode(Scream),
                 new Selector(new List<Node>
                 {
-                    // Ưu tiên 1: Leap Attack nếu đủ điều kiện
+                    // Ưu tiên 1: Leap nếu đủ điều kiện
                     new Sequence(new List<Node>
                     {
                         new ConditionNode(CanLeap),
                         new ActionNode(LeapAttack)
                     }),
 
-                    // Ưu tiên 2: Tấn công thường nếu trong tầm
+                    // Ưu tiên 2: Tấn công thường
                     new Sequence(new List<Node>
                     {
                         new ConditionNode(IsInAttackRange),
@@ -100,18 +100,14 @@ public class ZombieRunner : ZombieBase
     private void CheckFrenzy()
     {
         if (_isFrenzy || healthSystem == null) return;
+        if (healthSystem.HPPercent >= frenzyThreshold) return;
 
-        if (healthSystem.HPPercent < frenzyThreshold)
-        {
-            _isFrenzy = true;
-            runSpeed = _originalRunSpeed * frenzySpeedMultiplier;
-            attackCooldown *= 0.5f; // Đánh nhanh gấp đôi
+        _isFrenzy = true;
+        runSpeed = _originalRunSpeed * frenzySpeedMultiplier;
+        attackCooldown *= 0.5f;
 
-            // Đổi màu mắt đỏ nếu có renderer
-            StartCoroutine(FrenzyVisualEffect());
-
-            Debug.Log($"[ZombieRunner] {gameObject.name} FRENZY MODE!");
-        }
+        StartCoroutine(FrenzyVisualEffect());
+        Debug.Log($"[ZombieRunner] {gameObject.name} FRENZY MODE!");
     }
 
     private IEnumerator FrenzyVisualEffect()
@@ -120,16 +116,22 @@ public class ZombieRunner : ZombieBase
 
         while (_isFrenzy && !_isDead)
         {
-            // Nhấp nháy đỏ liên tục
             float pulse = (Mathf.Sin(Time.time * 10f) + 1f) / 2f;
             Color frenzyColor = Color.Lerp(Color.white, Color.red, pulse * 0.4f);
 
             foreach (var r in renderers)
                 foreach (var mat in r.materials)
-                    mat.SetColor("_BaseColor", frenzyColor);
+                    if (mat.HasProperty("_BaseColor"))
+                        mat.SetColor("_BaseColor", frenzyColor);
 
             yield return null;
         }
+
+        // Reset màu khi chết
+        foreach (var r in renderers)
+            foreach (var mat in r.materials)
+                if (mat.HasProperty("_BaseColor"))
+                    mat.SetColor("_BaseColor", Color.white);
     }
 
     // ── Leap Attack ──────────────────────────────────────────
@@ -158,39 +160,54 @@ public class ZombieRunner : ZombieBase
 
     private IEnumerator PerformLeap()
     {
-        // Dừng NavMesh, tự điều khiển physics
+        // Dừng NavMesh
         agent.isStopped = true;
         agent.enabled = false;
-
         anim.SetTrigger("Leap");
 
-        // Tính hướng và lực nhảy về phía player
-        Vector3 dir = (player.position - transform.position).normalized;
-        Vector3 leapVelocity = dir * leapForce + Vector3.up * (leapForce * 0.4f);
+        // Chờ animation Leap thực sự bắt đầu
+        yield return null; // Đợi 1 frame
+        yield return null; // Đợi thêm 1 frame nữa cho chắc
 
-        Rigidbody rb = GetComponent<Rigidbody>();
-        if (rb != null)
+        // Chờ animator chuyển sang state Leap
+        float waitTime = 0f;
+        while (waitTime < 0.2f &&
+               !anim.GetCurrentAnimatorStateInfo(0).IsName("Jump Attack"))
         {
-            rb.isKinematic = false;
-            rb.AddForce(leapVelocity, ForceMode.VelocityChange);
+            waitTime += Time.deltaTime;
+            yield return null;
         }
 
-        // Chờ trong không trung
-        float leapDuration = 0.6f;
+        Vector3 startPos = transform.position;
+        Vector3 targetPos = player.position;
         float elapsed = 0f;
         bool hitPlayer = false;
 
+        // Tính arc height theo khoảng cách
+        float dist = Vector3.Distance(startPos, targetPos);
+        float arcHeight = Mathf.Clamp(dist * 0.4f, 1.5f, leapArcHeight);
+
+        // Xoay mặt về player trước khi nhảy
+        Vector3 lookDir = (targetPos - startPos).normalized;
+        lookDir.y = 0;
+        if (lookDir != Vector3.zero)
+            transform.rotation = Quaternion.LookRotation(lookDir);
+
+        // Bay theo arc
         while (elapsed < leapDuration)
         {
             elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / leapDuration);
 
-            // Xoay mặt về phía player khi bay
-            transform.rotation = Quaternion.Slerp(
-                transform.rotation,
-                Quaternion.LookRotation(dir),
-                Time.deltaTime * 10f);
+            // Vị trí ngang: Lerp từ start → target
+            Vector3 newPos = Vector3.Lerp(startPos, targetPos, t);
 
-            // Check va chạm với player trong khi bay
+            // Vị trí dọc: Sin tạo arc bay lên rồi xuống
+            newPos.y += arcHeight * Mathf.Sin(t * Mathf.PI);
+
+            transform.position = newPos;
+
+            // Check hit player trong lúc bay
             float distToPlayer = Vector3.Distance(transform.position, player.position);
             if (distToPlayer < 1.5f && !hitPlayer)
             {
@@ -201,42 +218,54 @@ public class ZombieRunner : ZombieBase
             yield return null;
         }
 
-        // Hạ cánh
-        if (rb != null)
+        // Snap xuống NavMesh gần nhất
+        if (NavMesh.SamplePosition(
+            transform.position,
+            out NavMeshHit navHit,
+            3f,
+            NavMesh.AllAreas))
         {
-            rb.isKinematic = true;
-            rb.velocity = Vector3.zero;
+            transform.position = navHit.position;
         }
 
-        // Bật lại NavMesh
-        agent.enabled = true;
-        agent.isStopped = false;
-        _isLeaping = false;
+        // Đợi physics ổn định
+        yield return new WaitForSeconds(0.1f);
 
+        // Bật lại NavMesh
+        if (!_isDead && gameObject.activeInHierarchy)
+        {
+            agent.enabled = true;
+            yield return null; // Đợi 1 frame
+
+            if (agent.isOnNavMesh)
+                agent.isStopped = false;
+        }
+
+        _isLeaping = false;
         Debug.Log("[ZombieRunner] Leap xong!");
     }
 
     private void HitPlayerOnLand()
     {
-        HealthSystem playerHealth = player.GetComponent<HealthSystem>();
+        if (player == null) return;
+
+        // Gây damage
+        HealthSystem playerHealth = player.GetComponent<HealthSystem>()
+            ?? player.GetComponentInChildren<HealthSystem>();
+
         if (playerHealth != null)
         {
             playerHealth.TakeDamage(leapDamage, gameObject);
-            Debug.Log($"[ZombieRunner] Leap trúng player! Damage: {leapDamage}");
+            Debug.Log($"[ZombieRunner] Leap trúng! Damage: {leapDamage}");
         }
 
-        // Knockback player
-        Rigidbody playerRb = player.GetComponent<Rigidbody>();
-        if (playerRb != null)
-        {
-            Vector3 knockDir = (player.position - transform.position).normalized;
-            playerRb.AddForce(knockDir * leapKnockback, ForceMode.Impulse);
-        }
+        // Knockback bằng CharacterController (player không có Rigidbody)
+        // Implement sau nếu cần
+        Debug.Log("[ZombieRunner] Knockback player!");
     }
 
-    // ── Alert đồng bọn ───────────────────────────────────────
+    // ── Alert đồng bọn khi Scream xong ──────────────────────
 
-    // Gọi từ ScreamAction trong ZombieBase qua override
     protected override void OnScreamComplete()
     {
         AlertNearbyZombies();
@@ -245,8 +274,8 @@ public class ZombieRunner : ZombieBase
     private void AlertNearbyZombies()
     {
         Collider[] hits = Physics.OverlapSphere(transform.position, alertRadius);
-
         int alerted = 0;
+
         foreach (Collider hit in hits)
         {
             ZombieBase zombie = hit.GetComponent<ZombieBase>()
@@ -254,8 +283,8 @@ public class ZombieRunner : ZombieBase
 
             if (zombie != null && zombie != this)
             {
-                // Force zombie khác chuyển sang chase
-                zombie.TakeDamage(0f, gameObject); // Trick: damage 0 để trigger alert
+                // Force zombie khác alert mà không gây damage
+                zombie.ForceAlert();
                 alerted++;
             }
         }
@@ -267,13 +296,10 @@ public class ZombieRunner : ZombieBase
 
     private void OnDrawGizmosSelected()
     {
-        // Leap range
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(transform.position, leapMinRange);
         Gizmos.color = new Color(0f, 1f, 1f, 0.3f);
         Gizmos.DrawWireSphere(transform.position, leapMaxRange);
-
-        // Alert radius
         Gizmos.color = new Color(1f, 1f, 0f, 0.15f);
         Gizmos.DrawWireSphere(transform.position, alertRadius);
     }

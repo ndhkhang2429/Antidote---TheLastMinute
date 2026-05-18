@@ -503,6 +503,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7386234923825879168, guid: 95e6ef58b90ea9e46a843246af29bd1d, type: 3}
       insertIndex: -1
       addedObject: {fileID: 77088357}
+    - targetCorrespondingSourceObject: {fileID: 7386234923825879168, guid: 95e6ef58b90ea9e46a843246af29bd1d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 77088364}
   m_SourcePrefab: {fileID: 100100000, guid: 95e6ef58b90ea9e46a843246af29bd1d, type: 3}
 --- !u!1 &77088356 stripped
 GameObject:
@@ -523,7 +526,7 @@ NavMeshAgent:
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
-  m_StoppingDistance: 2
+  m_StoppingDistance: 3
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
@@ -539,8 +542,8 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 77088356}
   serializedVersion: 4
-  m_Mass: 1
-  m_Drag: 0
+  m_Mass: 60
+  m_Drag: 1
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -587,10 +590,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attackDamage: 15
-  attackCooldown: 1.5
-  walkSpeed: 1
-  runSpeed: 3.5
-  detectionRange: 10
+  attackCooldown: 0.8
+  walkSpeed: 2
+  runSpeed: 6
+  detectionRange: 15
   attackRange: 2
   waypoints:
   - {fileID: 436425979}
@@ -605,13 +608,37 @@ MonoBehaviour:
   leapMaxRange: 8
   leapCooldown: 5
   leapDamage: 30
-  leapForce: 8
   leapKnockback: 5
+  leapDuration: 0.6
+  leapArcHeight: 3
 --- !u!4 &77088362 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7386234923826168992, guid: 95e6ef58b90ea9e46a843246af29bd1d, type: 3}
   m_PrefabInstance: {fileID: 77088355}
   m_PrefabAsset: {fileID: 0}
+--- !u!136 &77088364
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 77088356}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.071946904
+  m_Height: 0.35379186
+  m_Direction: 1
+  m_Center: {x: -0.00016422271, y: 0.15981142, z: -0.00778141}
 --- !u!1 &311372196
 GameObject:
   m_ObjectHideFlags: 0
