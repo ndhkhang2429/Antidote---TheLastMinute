@@ -21,10 +21,11 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Mat_Blood_1
-  m_Shader: {fileID: 4800000, guid: 0406db5a14f94604a8c57ccfbc9f3b46, type: 3}
+  m_Shader: {fileID: 4800000, guid: b7839dad95683814aa64166edc107ae2, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _ALPHAPREMULTIPLY_ON
   - _EMISSION
   - _NORMALMAP
   - _SURFACE_TYPE_TRANSPARENT
@@ -44,7 +45,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _BaseMap:
-        m_Texture: {fileID: 2800000, guid: 50f92059060fd1d43bbb4c3917d30fc3, type: 3}
+        m_Texture: {fileID: 2800000, guid: 6cbf613ea9f9d474890ed284bd121792, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
@@ -166,7 +167,7 @@ Material:
     - _LUTOffset: 0
     - _LUTSpeed: 0
     - _LUTValueIntensity: 1
-    - _Metallic: 0
+    - _Metallic: 0.076
     - _Mode: 0
     - _NormalIntensity: 1
     - _OcclusionStrength: 1
@@ -184,7 +185,7 @@ Material:
     - _SoftParticlesNearFadeDistance: 0
     - _SpecularHighlights: 1
     - _Src: 5
-    - _SrcBlend: 5
+    - _SrcBlend: 1
     - _SrcBlendAlpha: 1
     - _Surface: 1
     - _WorkflowMode: 1
