@@ -5,7 +5,8 @@ ShaderImporter:
   defaultTextures:
   - _LUT: {fileID: 2800000, guid: cefbf3db17ebe674db0d21108dfd0f4a, type: 3}
   - _ErosionTexture: {fileID: 2800000, guid: 50f92059060fd1d43bbb4c3917d30fc3, type: 3}
-  - _DistortionTexture: {fileID: 2800000, guid: 68f40dd3ecb9ff44c80cf000682ee400, type: 3}
+  - _DistortionTexture: {fileID: 2800000, guid: 68f40dd3ecb9ff44c80cf000682ee400,
+      type: 3}
   - _NormalTexture: {fileID: 2800000, guid: 6690b0fec148ad2478bc8e01570c413f, type: 3}
   nonModifiableTextures: []
   userData: 
