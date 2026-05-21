@@ -120,9 +120,10 @@ public class ZombieTank : ZombieBase
 
     private void Explode()
     {
+        Vector3 explosionCenter = transform.position + Vector3.up * 1.5f;
         // Spawn VFX
         if (explosionVFX != null)
-            Instantiate(explosionVFX, transform.position, Quaternion.identity);
+            Instantiate(explosionVFX, explosionCenter, Quaternion.identity);
 
         // Detect tất cả collider trong bán kính
         Collider[] hits = Physics.OverlapSphere(transform.position, explosionRadius);
@@ -189,11 +190,14 @@ public class ZombieTank : ZombieBase
 
     // ── Gizmos ───────────────────────────────────────────────
 
-    private void OnDrawGizmosSelected()
+    private void OnDrawGizmosSelected()
     {
+        // Dời vòng Gizmos lên ngang bụng
+        Vector3 gizmoCenter = transform.position + Vector3.up * 1.5f;
+
         Gizmos.color = new Color(1f, 0.5f, 0f, 0.25f);
-        Gizmos.DrawSphere(transform.position, explosionRadius);
+        Gizmos.DrawSphere(gizmoCenter, explosionRadius);
         Gizmos.color = new Color(1f, 0.5f, 0f, 1f);
-        Gizmos.DrawWireSphere(transform.position, explosionRadius);
+        Gizmos.DrawWireSphere(gizmoCenter, explosionRadius);
     }
 }

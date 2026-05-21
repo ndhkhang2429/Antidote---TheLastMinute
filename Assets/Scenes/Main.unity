@@ -1231,11 +1231,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1856349326787631848, guid: d22e9a5553194624ba40dbf39fd94518, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 27.964228
+      value: 8.93
       objectReference: {fileID: 0}
     - target: {fileID: 1856349326787631848, guid: d22e9a5553194624ba40dbf39fd94518, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 5.8306503
+      value: 6.03
       objectReference: {fileID: 0}
     - target: {fileID: 1856349326787631848, guid: d22e9a5553194624ba40dbf39fd94518, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1537,7 +1537,7 @@ MonoBehaviour:
   explosionForce: 500
   preExplosionDuration: 2
   maxScaleMultiplier: 1.4
-  explosionVFX: {fileID: 3655826346578956991, guid: 32f41489646e0f946b66f220b26e3e0a, type: 3}
+  explosionVFX: {fileID: 7947533759390168906, guid: b172f4091eaf13d429dd782a24e949f0, type: 3}
 --- !u!114 &959815918
 MonoBehaviour:
   m_ObjectHideFlags: 0

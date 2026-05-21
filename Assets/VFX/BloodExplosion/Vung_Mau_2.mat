@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Vung_Mau_2
   m_Shader: {fileID: 4800000, guid: 0406db5a14f94604a8c57ccfbc9f3b46, type: 3}
-  m_Parent: {fileID: 2100000, guid: bbadab37e09ecb54f93df8c6bd867fec, type: 2}
+  m_Parent: {fileID: 2100000, guid: f0a4df21d8395284b8c5b8afa52f5182, type: 2}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _NORMALMAP
