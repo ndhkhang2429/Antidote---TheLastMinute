@@ -119,10 +119,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a265ab5ccf51ccc42b93fcf7006ea411, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 150
-  damage: 10
-  lifeTime: 3
-  impactVFXTag: Explosion
+  data: {fileID: 0}
+  hitVFXPrefab: {fileID: 2504214343621411470, guid: 3ed0d324122d7b24eaec75c55c74aafc, type: 3}
 --- !u!54 &4025677912705774625
 Rigidbody:
   m_ObjectHideFlags: 0

@@ -364,7 +364,7 @@ Transform:
   m_GameObject: {fileID: 418295748}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 2.77, y: 3.7, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -379,15 +379,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 418295748}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b083e4d27aaccf0469de341fd52d4882, type: 3}
+  m_Script: {fileID: 11500000, guid: 560f66a823ad4d34396560444681cc92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  projectilePoolTag: Rocket
-  fireRate: 1.2
-  magSize: 8
-  reloadTime: 5
-  firePoint: {fileID: 2146539080}
-  muzzleFlash: {fileID: 6294508013172393186, guid: 043176b6a68be2b43b073aaaa4782c7d, type: 3}
+  weaponData: {fileID: 11400000, guid: 65b4cdb680d6ab749af0fd0e9ef3dcae, type: 2}
+  projectilePrefab: {fileID: 3241911419727879326, guid: 90c07273a8c86f14d94c245bb42281e9, type: 3}
+  firePoint: {fileID: 418295749}
+  muzzleFlashVFX: {fileID: 6294508013172393186, guid: 043176b6a68be2b43b073aaaa4782c7d, type: 3}
+  poolSize: 20
 --- !u!1 &474068576
 GameObject:
   m_ObjectHideFlags: 0
@@ -581,60 +580,6 @@ MonoBehaviour:
   yMinLimit: -15
   yMaxLimit: 80
   smoothTime: 10
---- !u!1 &961746044
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 961746046}
-  - component: {fileID: 961746045}
-  m_Layer: 0
-  m_Name: PoolManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &961746045
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 961746044}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c44f4a8f10df3414b903b43bdbc6c56b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  pools:
-  - tag: Bullet
-    prefab: {fileID: 2900637856836774640, guid: 95391db65a252e340a0bf6268a1da855, type: 3}
-    size: 100
-  - tag: Rocket
-    prefab: {fileID: 3241911419727879326, guid: 90c07273a8c86f14d94c245bb42281e9, type: 3}
-    size: 20
-  - tag: Explosion
-    prefab: {fileID: 2433282508537954060, guid: 3ef3ae421f71c5c4e97fe12dc2fc6312, type: 3}
-    size: 30
---- !u!4 &961746046
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 961746044}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -59.305946, y: 37.00792, z: 2.4380555}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &968865873
 GameObject:
   m_ObjectHideFlags: 0
@@ -661,7 +606,7 @@ Transform:
   m_GameObject: {fileID: 968865873}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.58, y: 3.67, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -676,15 +621,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 968865873}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b083e4d27aaccf0469de341fd52d4882, type: 3}
+  m_Script: {fileID: 11500000, guid: 560f66a823ad4d34396560444681cc92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  projectilePoolTag: Bullet
-  fireRate: 0.05
-  magSize: 200
-  reloadTime: 3
+  weaponData: {fileID: 11400000, guid: 9c63b179fb092fe44acc011d90e88459, type: 2}
+  projectilePrefab: {fileID: 2900637856836774640, guid: 95391db65a252e340a0bf6268a1da855, type: 3}
   firePoint: {fileID: 1607805361}
-  muzzleFlash: {fileID: 6294508013172393186, guid: 043176b6a68be2b43b073aaaa4782c7d, type: 3}
+  muzzleFlashVFX: {fileID: 6294508013172393186, guid: 043176b6a68be2b43b073aaaa4782c7d, type: 3}
+  poolSize: 20
 --- !u!1 &1374449530
 GameObject:
   m_ObjectHideFlags: 0
@@ -828,7 +772,7 @@ Transform:
   m_GameObject: {fileID: 1607805360}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.81, y: 2.5, z: 10.8}
+  m_LocalPosition: {x: -2.81, y: 3.81, z: 10.8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -902,14 +846,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1666848424}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 560f66a823ad4d34396560444681cc92, type: 3}
+  m_Script: {fileID: 11500000, guid: 61f6a1624929d1942b8939abfd435265, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weaponData: {fileID: 0}
-  projectilePrefab: {fileID: 0}
-  firePoint: {fileID: 0}
-  muzzleFlashVFX: {fileID: 0}
-  poolSize: 20
+  machineGun: {fileID: 968865875}
+  rocketLauncher: {fileID: 418295750}
 --- !u!1001 &1679454087
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1018,7 +959,7 @@ Transform:
   m_GameObject: {fileID: 2146539079}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 9.2, y: 2.6, z: 12.1}
+  m_LocalPosition: {x: 2.26, y: 4.43, z: 12.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1032,5 +973,4 @@ SceneRoots:
   - {fileID: 1374449532}
   - {fileID: 329779893}
   - {fileID: 1679454087}
-  - {fileID: 961746046}
   - {fileID: 17981868}
