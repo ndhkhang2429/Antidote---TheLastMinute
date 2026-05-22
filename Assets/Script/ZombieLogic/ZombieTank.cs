@@ -57,6 +57,7 @@ public class ZombieTank : ZombieBase
         // Dừng AI
         _isDead = true;
         agent.isStopped = true;
+        agent.velocity = Vector3.zero;
         agent.enabled = false;
 
         // Tắt collider
