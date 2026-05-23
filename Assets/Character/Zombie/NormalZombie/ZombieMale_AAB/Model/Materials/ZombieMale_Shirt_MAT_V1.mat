@@ -42,7 +42,9 @@ Material:
     - _Cull: 2
     - _Cutoff: 0.055
     - _Smoothness: 0.5
-    m_Colors: []
+    m_Colors:
+    - _BaseColor: {r: 0.45107546, g: 0.554717, b: 0.44272694, a: 1}
+    - _Color: {r: 0.45107543, g: 0.554717, b: 0.4427269, a: 1}
   m_BuildTextureStacks: []
 --- !u!114 &431915781549147251
 MonoBehaviour:
