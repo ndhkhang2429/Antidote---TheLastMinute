@@ -57,7 +57,7 @@ ModelImporter:
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
       events:
-      - time: 0.41204008
+      - time: 0.39555657
         functionName: EquipItem
         data: 
         objectReferenceParameter: {instanceID: 0}
