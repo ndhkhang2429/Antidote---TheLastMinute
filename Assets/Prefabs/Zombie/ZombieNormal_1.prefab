@@ -484,6 +484,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1dd9c954362f1eb4a86dcc2c3013fd91, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5251288873795775782}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1dd9c954362f1eb4a86dcc2c3013fd91, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 773574190720521262}
   m_SourcePrefab: {fileID: 100100000, guid: 1dd9c954362f1eb4a86dcc2c3013fd91, type: 3}
 --- !u!4 &406990236268722905 stripped
 Transform:
@@ -516,6 +519,11 @@ MonoBehaviour:
   waypoints:
   - {fileID: 2682672780775423755}
   - {fileID: 3003087232194997236}
+  headLookWeight: 0.7
+  headLookOffset: {x: 0, y: 1.5, z: 0}
+  screamDuration: 2
+  turnSpeed: 10
+  turnThreshold: 0.95
 --- !u!195 &7436979287463038652
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -577,3 +585,21 @@ CapsuleCollider:
   m_Height: 2.0023723
   m_Direction: 1
   m_Center: {x: -0.014922221, y: 0.87343115, z: 0.089378305}
+--- !u!114 &773574190720521262
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1075863169306009699}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7d0f8481ff4861479cd280e0f77f3e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  BloodFXPrefabs: []
+  AttachedBloodDecal: {fileID: 3136605153214515430, guid: 45eef0a861a8a8946b4c23fb9f4f779a, type: 3}
+  DirectionalLight: {fileID: 0}
+  UpDirection: {x: 0, y: 1, z: 0}
+  DecalScaleMin: 0.75
+  DecalScaleMax: 1.2

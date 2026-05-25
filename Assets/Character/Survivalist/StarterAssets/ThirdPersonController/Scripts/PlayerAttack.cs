@@ -120,18 +120,13 @@ public class PlayerAttack : MonoBehaviour
     }
     public void OnMeleeHit()
     {
-        // Tạo vùng sphere trước mặt player
         Vector3 hitCenter = transform.position
                           + transform.forward * hitDistance
                           + Vector3.up * hitHeight;
 
         Collider[] hits = Physics.OverlapSphere(hitCenter, hitRadius, zombieLayer);
 
-        if (hits.Length == 0)
-        {
-            Debug.Log("[PlayerAttack] Đánh trượt!");
-            return;
-        }
+        if (hits.Length == 0) return;
 
         foreach (Collider hit in hits)
         {
@@ -141,9 +136,18 @@ public class PlayerAttack : MonoBehaviour
 
             if (zombie != null)
             {
+                // Damage (giữ nguyên)
                 zombie.TakeDamage(_currentDamage, gameObject);
-                Debug.Log($"[PlayerAttack] Đánh trúng {hit.name}, damage: {_currentDamage}");
-                break; // Chỉ đánh 1 zombie mỗi cú
+
+                // ── Thêm mới: Gọi Blood VFX ──
+                Vector3 hitPoint = hit.ClosestPoint(hitCenter);
+                Vector3 hitNormal = (hitPoint - transform.position).normalized;
+
+                var bloodFX = hit.GetComponentInParent<ZombieBloodFXHandler>();
+                if (bloodFX != null)
+                    bloodFX.OnHitMelee(hitPoint, hitNormal);
+
+                break;
             }
         }
     }
