@@ -8,7 +8,7 @@ public class PlayerUI : MonoBehaviour
     public Image manaBarFill;
 
     [Header("Data Reference")]
-    public PlayerStatsSO playerStatsSO; // Kéo file PlayerStatsData vào đây
+    public PlayerStats playerStatsSO; // Kéo file PlayerStatsData vào đây
 
     void OnEnable()
     {

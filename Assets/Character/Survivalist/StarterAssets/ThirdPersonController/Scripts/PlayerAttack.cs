@@ -1,48 +1,52 @@
 ﻿using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.Playables;
+using StarterAssets;  // ThirdPersonController input
 
 /// <summary>
 /// Xử lý toàn bộ logic tấn công của player.
-/// Đọc WeaponType từ PlayerState, KHÔNG đọc từ Animator.
+/// — Đọc config từ WeaponDataSO (damage, cooldown, hitbox)
+/// — Nhận input từ StarterAssets (đồng bộ với ThirdPersonController)
+/// — Fire GameEventSO để HUD/Audio phản ứng mà không cần biết nhau
 /// </summary>
 public class PlayerAttack : MonoBehaviour
 {
-    [Header("Cài đặt Cooldown")]
-    public float unarmedCooldown = 0.4f;
-    public float weaponCooldown = 0.7f;  // Gậy/xà beng thường chậm hơn đấm
+    [Header("Weapon Configs — tạo asset WeaponData_ trong Project")]
+    [SerializeField] private WeaponDataSO _unarmedData;   // kéo WeaponData_Unarmed vào
+    [SerializeField] private WeaponDataSO _meleeData;     // kéo WeaponData_Melee vào
 
-    [Header("Melee Damage")]
-    public float unarmedDamage = 10f;   // Damage đánh tay
-    public float meleeDamage = 25f;     // Damage đánh bằng gậy
+    [Header("Zombie Layer")]
+    [SerializeField] private LayerMask _zombieLayer;
 
-    [Header("Melee Hitbox")]
-    public float hitRadius = 1.2f;          // Bán kính vùng đánh
-    public float hitDistance = 1.0f;        // Khoảng cách trước mặt
-    public float hitHeight = 1.0f;          // Độ cao vùng đánh
-    public LayerMask zombieLayer;           
+    [Header("Events — kéo SO vào đây trong Inspector")]
+    [SerializeField] private GameEventSO OnWeaponFired;   // HUD, Audio lắng nghe
 
-    [Header("Combo Punch")]
-    // PunchIndex: 0 = Punching, 1 = Punching1 (khớp với Animator)
+    // ── Private refs ───────────────────────────────────────
+    private Animator _animator;
+    private StarterAssetsInputs _input;      // input chung với ThirdPersonController
+
+    // ── Combo state ────────────────────────────────────────
     private int _punchComboIndex = 0;
-    private float _comboResetTime = 0.8f;  // Thời gian reset combo nếu không bấm tiếp
     private float _lastPunchTime = 0f;
 
-    // ── Private ─────────────────────────────────────────────
-    private Animator _animator;
+    // ── Cooldown state ─────────────────────────────────────
     private float _nextAttackTime = 0f;
     private float _currentDamage = 0f;
 
-    // Animator Parameter IDs
+    // ── Animator param IDs ─────────────────────────────────
     private int _paramWeaponAttack;
     private int _paramPunch;
     private int _paramPunchIndex;
 
+    // ── Lifecycle ──────────────────────────────────────────
+
     private void Start()
     {
         _animator = GetComponentInChildren<Animator>();
-        if (_animator == null)
-            Debug.LogError("[PlayerAttack] Không tìm thấy Animator!");
+        _input = GetComponent<StarterAssetsInputs>();
+
+        if (_animator == null) Debug.LogError("[PlayerAttack] Không tìm thấy Animator!");
+        if (_input == null) Debug.LogError("[PlayerAttack] Không tìm thấy StarterAssetsInputs!");
+        if (_unarmedData == null) Debug.LogError("[PlayerAttack] Chưa gán _unarmedData!");
+        if (_meleeData == null) Debug.LogError("[PlayerAttack] Chưa gán _meleeData!");
 
         _paramWeaponAttack = Animator.StringToHash("WeaponAttack");
         _paramPunch = Animator.StringToHash("Punch");
@@ -52,23 +56,23 @@ public class PlayerAttack : MonoBehaviour
     private void Update()
     {
         // Reset combo nếu lâu không bấm
-        if (Time.time - _lastPunchTime > _comboResetTime)
+        WeaponDataSO current = CurrentWeaponData();
+        if (current != null && Time.time - _lastPunchTime > current.comboResetTime)
             _punchComboIndex = 0;
 
-        // Detect click chuột trái
-        if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
+        //Input: StarterAssets dùng bool shoot — set true khi click chuột trái
+        if (_input != null && _input.shoot)
         {
+            _input.shoot = false;   // consume input, tránh fire liên tục
             TryAttack();
         }
     }
 
+    // ── Logic tấn công ─────────────────────────────────────
+
     private void TryAttack()
     {
-        if (Time.time < _nextAttackTime)
-        {
-            Debug.Log($"[PlayerAttack] Cooldown chưa hết, còn {_nextAttackTime - Time.time:F2}s");
-            return;
-        }
+        if (Time.time < _nextAttackTime) return;
 
         if (PlayerState.Instance == null)
         {
@@ -77,94 +81,102 @@ public class PlayerAttack : MonoBehaviour
         }
 
         int weaponType = PlayerState.Instance.WeaponType;
+        WeaponDataSO data = weaponType == 0 ? _unarmedData : _meleeData;
+
+        if (data == null)
+        {
+            Debug.LogWarning($"[PlayerAttack] Không có WeaponDataSO cho WeaponType={weaponType}");
+            return;
+        }
+
+        _currentDamage = data.damage;
+        _nextAttackTime = Time.time + data.cooldown;
 
         if (weaponType == 0)
-        {
-            _currentDamage = unarmedDamage;
-            PerformPunch();
-            _nextAttackTime = Time.time + unarmedCooldown;
-        }
+            PerformPunch(data);
         else
-        {
-            // WeaponType 1, 2, 3... đều dùng WeaponAttack trigger
-            // Mở rộng sau nếu muốn animation khác nhau theo từng loại
-            _currentDamage = meleeDamage;
-            PerformWeaponAttack();
-            _nextAttackTime = Time.time + weaponCooldown;
-        }
+            PerformWeaponAttack(data);
+
+        OnWeaponFired?.Raise();
     }
 
-    private void PerformPunch()
+    private void PerformPunch(WeaponDataSO data)
     {
         if (_animator == null) return;
 
-        // Combo: 0 → 1 → 0 → 1...
         _animator.SetInteger(_paramPunchIndex, _punchComboIndex);
         _animator.SetTrigger(_paramPunch);
 
-        _punchComboIndex = (_punchComboIndex + 1) % 2;
+        _punchComboIndex = (_punchComboIndex + 1) % data.comboSteps;
         _lastPunchTime = Time.time;
 
-        Debug.Log($"[PlayerAttack] Punch! ComboIndex: {_punchComboIndex}");
+        Debug.Log($"[PlayerAttack] Punch combo {_punchComboIndex}");
     }
 
-    private void PerformWeaponAttack()
+    private void PerformWeaponAttack(WeaponDataSO data)
     {
         if (_animator == null) return;
 
         _animator.SetTrigger(_paramWeaponAttack);
-
-        int wt = PlayerState.Instance.WeaponType;
-        string weaponName = wt == 1 ? "Gậy/2 tay" : wt == 2 ? "Pistol" : wt == 3 ? "Rifle" : "Weapon";
-        Debug.Log($"[PlayerAttack] Tấn công bằng: {weaponName}");
+        Debug.Log($"[PlayerAttack] Tấn công: {data.weaponName}");
     }
+
+    // ── Animation Event (gắn vào đúng frame trong Animator) ──
+
+    /// <summary>
+    /// Gọi từ Animation Event khi cú đánh chạm mục tiêu.
+    /// </summary>
     public void OnMeleeHit()
     {
+        WeaponDataSO data = CurrentWeaponData();
+        if (data == null) return;
+
         Vector3 hitCenter = transform.position
-                          + transform.forward * hitDistance
-                          + Vector3.up * hitHeight;
+                          + transform.forward * data.hitDistance
+                          + Vector3.up * data.hitHeight;
 
-        Collider[] hits = Physics.OverlapSphere(hitCenter, hitRadius, zombieLayer);
-
+        Collider[] hits = Physics.OverlapSphere(hitCenter, data.hitRadius, _zombieLayer);
         if (hits.Length == 0) return;
 
         foreach (Collider hit in hits)
         {
-            ZombieBase zombie = hit.GetComponent<ZombieBase>();
-            if (zombie == null)
-                zombie = hit.GetComponentInParent<ZombieBase>();
+            ZombieBase zombie = hit.GetComponent<ZombieBase>()
+                             ?? hit.GetComponentInParent<ZombieBase>();
 
             if (zombie != null)
             {
-                // Damage (giữ nguyên)
                 zombie.TakeDamage(_currentDamage, gameObject);
 
-                // ── Thêm mới: Gọi Blood VFX ──
+                // Blood VFX
                 Vector3 hitPoint = hit.ClosestPoint(hitCenter);
                 Vector3 hitNormal = (hitPoint - transform.position).normalized;
-
-                var bloodFX = hit.GetComponentInParent<ZombieBloodFXHandler>();
-                if (bloodFX != null)
-                    bloodFX.OnHitMelee(hitPoint, hitNormal);
+                hit.GetComponentInParent<ZombieBloodFXHandler>()
+                   ?.OnHitMelee(hitPoint, hitNormal);
 
                 break;
             }
         }
     }
 
-    /// <summary>
-    /// Gọi từ bên ngoài (ví dụ input system mới) nếu cần
-    /// </summary>
-    public void OnAttackInput()
+    // ── Helper ─────────────────────────────────────────────
+
+    private WeaponDataSO CurrentWeaponData()
     {
-        TryAttack();
+        if (PlayerState.Instance == null) return null;
+        return PlayerState.Instance.WeaponType == 0 ? _unarmedData : _meleeData;
     }
+
+    // ── Gizmos ─────────────────────────────────────────────
+
     private void OnDrawGizmosSelected()
     {
+        WeaponDataSO data = CurrentWeaponData() ?? _unarmedData;
+        if (data == null) return;
+
         Gizmos.color = Color.red;
         Vector3 hitCenter = transform.position
-                          + transform.forward * hitDistance
-                          + Vector3.up * hitHeight;
-        Gizmos.DrawWireSphere(hitCenter, hitRadius);
+                          + transform.forward * data.hitDistance
+                          + Vector3.up * data.hitHeight;
+        Gizmos.DrawWireSphere(hitCenter, data.hitRadius);
     }
 }

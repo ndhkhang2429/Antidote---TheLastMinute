@@ -13,8 +13,9 @@ namespace StarterAssets
 		public bool jump;
 		public bool sprint;
 		public bool crouch;
+        public bool shoot;
 
-		[Header("Movement Settings")]
+        [Header("Movement Settings")]
 		public bool analogMovement;
 
 #if !UNITY_IOS || !UNITY_ANDROID
@@ -80,9 +81,12 @@ namespace StarterAssets
 			sprint = newSprintState;
 		}
 
+        public void OnShoot(InputValue value) => ShootInput(value.isPressed);
+        public void ShootInput(bool v) => shoot = v;
+
 #if !UNITY_IOS || !UNITY_ANDROID
 
-		private void OnApplicationFocus(bool hasFocus)
+        private void OnApplicationFocus(bool hasFocus)
 		{
 			SetCursorState(cursorLocked);
 		}

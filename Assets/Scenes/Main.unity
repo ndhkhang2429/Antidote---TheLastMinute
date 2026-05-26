@@ -479,31 +479,12 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6075764518405645363, guid: 0c35c567edf471e468153ecc8d798e64, type: 3}
   m_PrefabInstance: {fileID: 149630231406095045}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 455976419}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 42bf16167b22bc84ea20c6c0d7dcf084, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &455976419 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5653107524642111943, guid: 0c35c567edf471e468153ecc8d798e64, type: 3}
-  m_PrefabInstance: {fileID: 149630231406095045}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &455976430
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 455976419}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f2502ab5315311541973bf7c60a76d57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bloodOverlayImage: {fileID: 666313864}
-  maxAlpha: 0.85
 --- !u!1 &666313862
 GameObject:
   m_ObjectHideFlags: 0
@@ -824,6 +805,14 @@ PrefabInstance:
     - target: {fileID: 1075863169306009699, guid: a7d09a8327dd0f145b76dd3aff8af79b, type: 3}
       propertyPath: m_Name
       value: ZombieNormal_1 (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8516778540827654617, guid: a7d09a8327dd0f145b76dd3aff8af79b, type: 3}
+      propertyPath: _soOnDied
+      value: 
+      objectReference: {fileID: 11400000, guid: 92132fe448bc07c4291360919ffaa95e, type: 2}
+    - target: {fileID: 8516778540827654617, guid: a7d09a8327dd0f145b76dd3aff8af79b, type: 3}
+      propertyPath: _destroyOnDeath
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1870,6 +1859,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &1940006330 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2951693030431116828, guid: 0c35c567edf471e468153ecc8d798e64, type: 3}
+  m_PrefabInstance: {fileID: 149630231406095045}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1962771541
 GameObject:
   m_ObjectHideFlags: 0
@@ -4220,6 +4214,38 @@ PrefabInstance:
       propertyPath: itemLayer.m_Bits
       value: 128
       objectReference: {fileID: 0}
+    - target: {fileID: 1663327187368889152, guid: 0c35c567edf471e468153ecc8d798e64, type: 3}
+      propertyPath: _meleeData
+      value: 
+      objectReference: {fileID: 11400000, guid: 61b1614b2366d5a42ad3feb46234ee1f, type: 2}
+    - target: {fileID: 1663327187368889152, guid: 0c35c567edf471e468153ecc8d798e64, type: 3}
+      propertyPath: _unarmedData
+      value: 
+      objectReference: {fileID: 11400000, guid: cc878db25fee5ef4a8d62ccfc69df266, type: 2}
+    - target: {fileID: 1663327187368889152, guid: 0c35c567edf471e468153ecc8d798e64, type: 3}
+      propertyPath: OnWeaponFired
+      value: 
+      objectReference: {fileID: 11400000, guid: 61afc741956fa8c44a9c8766d718ac78, type: 2}
+    - target: {fileID: 1663327187368889152, guid: 0c35c567edf471e468153ecc8d798e64, type: 3}
+      propertyPath: _zombieLayer.m_Bits
+      value: 256
+      objectReference: {fileID: 0}
+    - target: {fileID: 2542996391809376946, guid: 0c35c567edf471e468153ecc8d798e64, type: 3}
+      propertyPath: _statsSO
+      value: 
+      objectReference: {fileID: 11400000, guid: 0a21772d85b10794085fa3851ad84841, type: 2}
+    - target: {fileID: 2542996391809376946, guid: 0c35c567edf471e468153ecc8d798e64, type: 3}
+      propertyPath: _weaponSlot
+      value: 
+      objectReference: {fileID: 1940006330}
+    - target: {fileID: 2542996391809376946, guid: 0c35c567edf471e468153ecc8d798e64, type: 3}
+      propertyPath: OnItemDropped
+      value: 
+      objectReference: {fileID: 11400000, guid: 75e064f5fc06c7947b6f2ccab08ccdf9, type: 2}
+    - target: {fileID: 2542996391809376946, guid: 0c35c567edf471e468153ecc8d798e64, type: 3}
+      propertyPath: OnItemPickedUp
+      value: 
+      objectReference: {fileID: 11400000, guid: 6f4fcbe980b9d974c98b7af0e23511a3, type: 2}
     - target: {fileID: 2882026057572354982, guid: 0c35c567edf471e468153ecc8d798e64, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -5720,6 +5746,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: PlayerArmature
       objectReference: {fileID: 0}
+    - target: {fileID: 6075764518405645363, guid: 0c35c567edf471e468153ecc8d798e64, type: 3}
+      propertyPath: _statsSO
+      value: 
+      objectReference: {fileID: 11400000, guid: 0a21772d85b10794085fa3851ad84841, type: 2}
+    - target: {fileID: 6075764518405645363, guid: 0c35c567edf471e468153ecc8d798e64, type: 3}
+      propertyPath: _soOnDied
+      value: 
+      objectReference: {fileID: 11400000, guid: 92132fe448bc07c4291360919ffaa95e, type: 2}
+    - target: {fileID: 6075764518405645363, guid: 0c35c567edf471e468153ecc8d798e64, type: 3}
+      propertyPath: _soOnDamaged
+      value: 
+      objectReference: {fileID: 11400000, guid: ef969a94fa54cba44bf29f4916f5dc48, type: 2}
+    - target: {fileID: 7611864752389032781, guid: 0c35c567edf471e468153ecc8d798e64, type: 3}
+      propertyPath: bloodOverlayImage
+      value: 
+      objectReference: {fileID: 666313864}
     - target: {fileID: 8569552477287115922, guid: 0c35c567edf471e468153ecc8d798e64, type: 3}
       propertyPath: canPush
       value: 1
@@ -5727,10 +5769,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5653107524642111943, guid: 0c35c567edf471e468153ecc8d798e64, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 455976430}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0c35c567edf471e468153ecc8d798e64, type: 3}
 --- !u!1001 &1438453014595426228
 PrefabInstance:
@@ -5854,7 +5893,6 @@ SceneRoots:
   - {fileID: 1962771544}
   - {fileID: 705507995}
   - {fileID: 2060585592}
-  - {fileID: 149630231406095045}
   - {fileID: 1438453014595426228}
   - {fileID: 6917760416652684323}
   - {fileID: 992144583}
@@ -5866,3 +5904,4 @@ SceneRoots:
   - {fileID: 1713340147}
   - {fileID: 1607299005}
   - {fileID: 938286243}
+  - {fileID: 149630231406095045}

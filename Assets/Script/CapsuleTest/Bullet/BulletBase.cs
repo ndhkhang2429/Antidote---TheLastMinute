@@ -4,7 +4,7 @@ using System;
 public abstract class BulletBase : MonoBehaviour
 {
     public BulletData bulletData;
-    public PlayerStatsSO playerStatsSO; // KÉO FILE SO VÀO ĐÂY TRÊN PREFAB ĐẠN
+    public PlayerStats playerStatsSO; // KÉO FILE SO VÀO ĐÂY TRÊN PREFAB ĐẠN
 
     private Action<BulletBase> returnToPool;
     private float currentLifeTime;

@@ -14,7 +14,7 @@ public class PlayerShooting : MonoBehaviour
     public bool useExplosiveBullet = false;
 
     [Header("Data Reference")]
-    public PlayerStatsSO playerStatsSO; // Kéo file PlayerStatsData vào đây
+    public PlayerStats playerStatsSO; // Kéo file PlayerStatsData vào đây
 
     private IObjectPool<BulletBase> normalPool;
     private IObjectPool<BulletBase> explosivePool;

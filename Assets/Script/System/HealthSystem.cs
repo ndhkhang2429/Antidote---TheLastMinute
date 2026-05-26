@@ -1,54 +1,81 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Quản lý HP cho bất kỳ entity nào (Player, Zombie, NPC).
+///
+/// Có 2 loại event song song:
+/// — C# event   : dùng cho script trên cùng GameObject (ZombieBase.Die, ...)
+///                Subscribe bằng code: healthSystem.OnDeath += Die;
+/// — GameEventSO: dùng cho hệ thống ngoài (HUD, Audio, GameManager...)
+///                Kéo thả asset vào Inspector, không cần viết code kết nối.
+///
+/// — Player: gán PlayerStatsSO để đọc maxHP
+/// — Zombie: để _statsSO trống, tự điền maxHP trong Inspector
+/// </summary>
 public class HealthSystem : MonoBehaviour
 {
-    [Header("HP settings")]
-    [SerializeField] private float maxHP = 100f;
-    [SerializeField] private float currentHP;
+    [Header("Config (Player dùng SO | Zombie điền tay)")]
+    [SerializeField] private PlayerStatsSO _statsSO;
+    [SerializeField] private float _maxHPOverride = 100f;
 
-    [Header("Die Effect")]
-    [SerializeField] private float destroyDelay = 3f;
-    [SerializeField] private bool destroyOnDeath = false;
+    [Header("GameEventSO — kéo asset vào Inspector (cho HUD, Audio...)")]
+    [SerializeField] private FloatGameEventSO _soOnDamaged;  // truyền HPPercent (0-1)
+    [SerializeField] private FloatGameEventSO _soOnHealed;   // truyền HPPercent (0-1)
+    [SerializeField] private GameEventSO _soOnDied;
 
-    // ── Events ──────────────────────────────────────────────
-    public event Action<float, float> OnDamaged;   // (currentHP, maxHP)
-    public event Action<float, float> OnHealed;    // (currentHP, maxHP)
+    [Header("Die Settings")]
+    [SerializeField] private float _destroyDelay = 3f;
+    [SerializeField] private bool _destroyOnDeath = false;
+
+    // ── C# events — ZombieBase và script cùng GameObject subscribe ──
     public event Action OnDeath;
-    public event Action<float, float> OnHPChanged; // Gọi mỗi khi HP thay đổi (cho UI)
+    public event Action<float, float> OnDamaged;  // (currentHP, maxHP)
+    public event Action<float, float> OnHealed;   // (currentHP, maxHP)
 
-    private bool _isDead = false;
+    // ── Runtime state ──────────────────────────────────────
+    private float _currentHP;
+    private bool _isDead;
+
     public bool IsDead => _isDead;
-    public float HPPercent => currentHP / maxHP;
-
-    public float CurrentHP => currentHP;
-    public float MaxHP => maxHP;
-
+    public float MaxHP => _statsSO != null ? _statsSO.maxHP : _maxHPOverride;
+    public float CurrentHP => _currentHP;
+    public float HPPercent => _currentHP / MaxHP;
 
     private void Awake()
     {
-        currentHP = maxHP;
+        _currentHP = MaxHP;
     }
+
+    // ── Public API ─────────────────────────────────────────
 
     public void TakeDamage(float damage, GameObject attacker = null)
     {
-        if (_isDead) return;
-        if (damage <= 0) return;
+        if (_isDead || damage <= 0) return;
 
-        currentHP -= damage;
-        currentHP = Mathf.Clamp(currentHP, 0, maxHP);
+        _currentHP = Mathf.Clamp(_currentHP - damage, 0, MaxHP);
 
-        Debug.Log($"[HealthSystem] {gameObject.name} bị {damage} damage " +
-                  $"bởi {attacker?.name ?? "Unknown"}. HP: {currentHP}/{maxHP}");
+        Debug.Log($"[HealthSystem] {gameObject.name} nhận {damage} damage " +
+                  $"từ {attacker?.name ?? "Unknown"}. HP: {_currentHP}/{MaxHP}");
 
-        OnDamaged?.Invoke(currentHP, maxHP);
-        OnHPChanged?.Invoke(currentHP, maxHP);
+        OnDamaged?.Invoke(_currentHP, MaxHP);  // C# event → ZombieBase, script cùng GO
+        _soOnDamaged?.Raise(HPPercent);        // SO event  → HUD, Audio qua Inspector
 
-        if (currentHP <= 0)
+        if (_currentHP <= 0)
             Die();
     }
+
+    public void Heal(float amount)
+    {
+        if (_isDead || amount <= 0) return;
+
+        _currentHP = Mathf.Clamp(_currentHP + amount, 0, MaxHP);
+
+        OnHealed?.Invoke(_currentHP, MaxHP);
+        _soOnHealed?.Raise(HPPercent);
+    }
+
+    // ── Internal ───────────────────────────────────────────
 
     private void Die()
     {
@@ -57,20 +84,20 @@ public class HealthSystem : MonoBehaviour
 
         Debug.Log($"[HealthSystem] {gameObject.name} đã chết!");
 
-        OnDeath?.Invoke();
+        OnDeath?.Invoke();   // C# event → ZombieBase.Die() subscribe trực tiếp
+        _soOnDied?.Raise();  // SO event  → GameManager, Audio qua Inspector
 
-        if (destroyOnDeath)
-            Destroy(gameObject, destroyDelay);
+        if (_destroyOnDeath)
+            Destroy(gameObject, _destroyDelay);
     }
+
+    // ── Gizmos ─────────────────────────────────────────────
 
     private void OnDrawGizmosSelected()
     {
-        // Hiển thị HP bar đơn giản trong Scene view
         if (!Application.isPlaying) return;
-
         Gizmos.color = Color.red;
         Vector3 pos = transform.position + Vector3.up * 2.5f;
-        Gizmos.DrawCube(pos, new Vector3(HPPercent * 1f, 0.1f, 0.1f));
+        Gizmos.DrawCube(pos, new Vector3(HPPercent, 0.1f, 0.1f));
     }
-
 }

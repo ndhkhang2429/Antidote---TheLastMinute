@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &668179587097597672
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2951693030431116828}
+  m_Layer: 6
+  m_Name: WeaponSlot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2951693030431116828
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 668179587097597672}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.76929235, y: 0.004928402, z: -0.006261908, w: 0.6388472}
+  m_LocalPosition: {x: 0.0825, y: -0.0351, z: -0.001}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2882026058867798336}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5095187022212679991
 GameObject:
   m_ObjectHideFlags: 0
@@ -423,16 +454,19 @@ PrefabInstance:
       addedObject: {fileID: 8569552477287115922}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 4003286339607590792}
+      addedObject: {fileID: 3557273499569664803}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 3557273499569664803}
+      addedObject: {fileID: 1663327187368889152}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2542996391809376946}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6075764518405645363}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7611864752389032781}
   m_SourcePrefab: {fileID: 100100000, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
 --- !u!4 &4293858817423138776 stripped
 Transform:
@@ -581,28 +615,6 @@ MonoBehaviour:
     m_Bits: 0
   canPush: 0
   strength: 1.1
---- !u!114 &4003286339607590792
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5653107524642111943}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6b3e892c08aa1234fa0ffc90e3616444, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  unarmedCooldown: 0.4
-  weaponCooldown: 0.7
-  unarmedDamage: 10
-  meleeDamage: 25
-  hitRadius: 1.2
-  hitDistance: 1
-  hitHeight: 1
-  zombieLayer:
-    serializedVersion: 2
-    m_Bits: 0
 --- !u!114 &3557273499569664803
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -615,6 +627,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb59151ebcbcc964aa56d8bb9c992aa4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1663327187368889152
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5653107524642111943}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b3e892c08aa1234fa0ffc90e3616444, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _unarmedData: {fileID: 0}
+  _meleeData: {fileID: 0}
+  _zombieLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  OnWeaponFired: {fileID: 0}
 --- !u!114 &2542996391809376946
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -627,11 +657,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c9a9354ff58c514580e1e532833ddb2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  interactionRadius: 2
-  itemLayer:
-    serializedVersion: 2
-    m_Bits: 128
-  weaponSlot: {fileID: 2882026058084599673}
+  _statsSO: {fileID: 0}
+  _weaponSlot: {fileID: 0}
+  OnItemPickedUp: {fileID: 0}
+  OnItemDropped: {fileID: 0}
 --- !u!114 &6075764518405645363
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -644,10 +673,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42bf16167b22bc84ea20c6c0d7dcf084, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHP: 100
-  currentHP: 100
-  destroyDelay: 3
-  destroyOnDeath: 0
+  _statsSO: {fileID: 0}
+  _maxHPOverride: 100
+  _soOnDamaged: {fileID: 0}
+  _soOnHealed: {fileID: 0}
+  _soOnDied: {fileID: 0}
+  _destroyDelay: 3
+  _destroyOnDeath: 0
+--- !u!114 &7611864752389032781
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5653107524642111943}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2502ab5315311541973bf7c60a76d57, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bloodOverlayImage: {fileID: 0}
+  maxAlpha: 0.85
 --- !u!1001 &8797944281287342451
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1014,12 +1060,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 6766536237700630579, guid: 29275473dc42c1a499187925872e54cb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2951693030431116828}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 29275473dc42c1a499187925872e54cb, type: 3}
---- !u!4 &2882026058084599673 stripped
+--- !u!4 &2882026058867798336 stripped
 Transform:
-  m_CorrespondingSourceObject: {fileID: 6766536239551282698, guid: 29275473dc42c1a499187925872e54cb, type: 3}
+  m_CorrespondingSourceObject: {fileID: 6766536237700630579, guid: 29275473dc42c1a499187925872e54cb, type: 3}
   m_PrefabInstance: {fileID: 8797944281287342451}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &2882026059203710790 stripped

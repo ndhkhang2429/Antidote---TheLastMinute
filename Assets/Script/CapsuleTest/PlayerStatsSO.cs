@@ -2,7 +2,7 @@
 using System;
 
 [CreateAssetMenu(fileName = "NewPlayerStats", menuName = "Stats/Player Stats")]
-public class PlayerStatsSO : ScriptableObject
+public class PlayerStats : ScriptableObject
 {
     [Header("Base Settings (Chỉ setup, không đổi khi chơi)")]
     [Range(0.01f, 1f)] public float initialHealth = 1.0f;

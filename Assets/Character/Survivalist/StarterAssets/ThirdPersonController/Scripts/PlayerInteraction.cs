@@ -1,41 +1,51 @@
 ﻿using UnityEngine;
-using UnityEngine.Playables;
+using StarterAssets;
 
 /// <summary>
 /// Xử lý nhặt đồ, vứt đồ, và giao tiếp với vật phẩm trong scene.
-/// Cập nhật PlayerState sau đó mới set Animator.
+/// — Đọc interactionRadius từ PlayerStatsSO
+/// — Input: F để nhặt, G để vứt (giữ nguyên theo thiết kế game)
+/// — Sync Animator qua event OnWeaponChanged của PlayerState
 /// </summary>
 public class PlayerInteraction : MonoBehaviour
 {
-    [Header("Cài đặt Tương tác")]
-    public float interactionRadius = 2.0f;
-    public LayerMask itemLayer;
+    [Header("Config")]
+    [SerializeField] private PlayerStatsSO _statsSO;   // kéo PlayerStats SO vào
 
     [Header("Thành phần kết nối")]
-    public Transform weaponSlot;    // Gắn Transform bàn tay phải vào đây
+    [SerializeField] private Transform _weaponSlot;    // bàn tay phải
 
-    // ── Private ─────────────────────────────────────────────
+    [Header("Events — kéo SO vào đây trong Inspector")]
+    [SerializeField] private GameEventSO OnItemPickedUp;
+    [SerializeField] private GameEventSO OnItemDropped;
+
+    // ── Private refs ───────────────────────────────────────
     private Animator _animator;
     private GameObject _nearestItem = null;
 
-    // Animator Parameter IDs
+    // ── Animator param IDs ─────────────────────────────────
     private int _paramPickUp;
     private int _paramWeaponType;
 
-    // ── UI callback (gán từ UIManager nếu có) ───────────────
-    public event System.Action<string> OnShowPickupPrompt;   // tên item
+    // ── UI callback (gán từ HUDManager nếu có) ─────────────
+    public event System.Action<string> OnShowPickupPrompt;
     public event System.Action OnHidePickupPrompt;
+
+    private float InteractionRadius =>
+        _statsSO != null ? _statsSO.interactionRadius : 2f;
+
+    // ── Lifecycle ──────────────────────────────────────────
 
     private void Start()
     {
         _animator = GetComponentInChildren<Animator>();
-        if (_animator == null)
-            Debug.LogError("[PlayerInteraction] Không tìm thấy Animator!");
+        if (_animator == null) Debug.LogError("[PlayerInteraction] Không tìm thấy Animator!");
+        if (_statsSO == null) Debug.LogWarning("[PlayerInteraction] Chưa gán PlayerStatsSO, dùng giá trị mặc định.");
+        if (_weaponSlot == null) Debug.LogError("[PlayerInteraction] Chưa gán WeaponSlot!");
 
         _paramPickUp = Animator.StringToHash("PickUp");
         _paramWeaponType = Animator.StringToHash("WeaponType");
 
-        // Subscribe event từ PlayerState để sync Animator khi weapon thay đổi
         if (PlayerState.Instance != null)
             PlayerState.Instance.OnWeaponChanged += SyncAnimatorWeaponType;
     }
@@ -53,29 +63,25 @@ public class PlayerInteraction : MonoBehaviour
         if (_nearestItem != null && Input.GetKeyDown(KeyCode.F))
             PerformPickup();
 
-        // Bấm G để vứt đồ
         if (Input.GetKeyDown(KeyCode.G))
             DropCurrentItem();
     }
 
-    // ── Tìm đồ gần nhất ─────────────────────────────────────
+    // ── Tìm đồ gần nhất ────────────────────────────────────
 
     private void FindNearestItem()
     {
-        Collider[] hits = Physics.OverlapSphere(transform.position, interactionRadius, itemLayer);
+        // Lấy itemLayer từ ItemData nếu muốn mở rộng, hoặc giữ SerializeField riêng
+        Collider[] hits = Physics.OverlapSphere(transform.position, InteractionRadius);
 
-        if (hits.Length == 0)
-        {
-            _nearestItem = null;
-            OnHidePickupPrompt?.Invoke();
-            return;
-        }
-
-        float shortest = Mathf.Infinity;
         GameObject closest = null;
+        float shortest = Mathf.Infinity;
 
         foreach (Collider col in hits)
         {
+            // Chỉ nhặt object có ItemData
+            if (col.GetComponent<ItemData>() == null) continue;
+
             float dist = Vector3.Distance(transform.position, col.transform.position);
             if (dist < shortest)
             {
@@ -86,13 +92,18 @@ public class PlayerInteraction : MonoBehaviour
 
         _nearestItem = closest;
 
-        // Hiện UI prompt nếu có ItemData
-        ItemData data = _nearestItem?.GetComponent<ItemData>();
-        string name = data != null ? data.itemName : _nearestItem.name;
-        OnShowPickupPrompt?.Invoke(name);
+        if (_nearestItem != null)
+        {
+            ItemData data = _nearestItem.GetComponent<ItemData>();
+            OnShowPickupPrompt?.Invoke(data != null ? data.itemName : _nearestItem.name);
+        }
+        else
+        {
+            OnHidePickupPrompt?.Invoke();
+        }
     }
 
-    // ── Nhặt đồ ─────────────────────────────────────────────
+    // ── Nhặt đồ ────────────────────────────────────────────
 
     private void PerformPickup()
     {
@@ -105,8 +116,7 @@ public class PlayerInteraction : MonoBehaviour
     }
 
     /// <summary>
-    /// GỌI TỪ ANIMATION EVENT khi tay vươn tới vật phẩm.
-    /// Gắn event này vào đúng frame trong animation PickUp.
+    /// Gọi từ Animation Event khi tay chạm vật phẩm.
     /// </summary>
     public void EquipItem()
     {
@@ -132,21 +142,21 @@ public class PlayerInteraction : MonoBehaviour
         var col = _nearestItem.GetComponent<Collider>();
         if (col) col.enabled = false;
 
-        _nearestItem.transform.SetParent(weaponSlot);
+        _nearestItem.transform.SetParent(_weaponSlot);
         _nearestItem.transform.localPosition = data.holdPositionOffset;
         _nearestItem.transform.localRotation = Quaternion.Euler(data.holdRotationOffset);
 
-        // Cập nhật PlayerState (sẽ tự fire event → SyncAnimatorWeaponType)
         PlayerState.Instance?.EquipWeapon(data.weaponType, _nearestItem);
         PlayerState.Instance?.SetPickingUp(false);
 
+        OnItemPickedUp?.Raise();
         OnHidePickupPrompt?.Invoke();
         _nearestItem = null;
 
         Debug.Log($"[PlayerInteraction] Đã trang bị: {data.itemName} (WeaponType={data.weaponType})");
     }
 
-    // ── Vứt đồ ──────────────────────────────────────────────
+    // ── Vứt đồ ─────────────────────────────────────────────
 
     private void DropCurrentItem()
     {
@@ -157,11 +167,12 @@ public class PlayerInteraction : MonoBehaviour
         }
 
         PlayerState.Instance.DropCurrentItem();
-        // SyncAnimatorWeaponType sẽ tự chạy qua event OnWeaponChanged
+        OnItemDropped?.Raise();
+
         Debug.Log("[PlayerInteraction] Đã vứt đồ.");
     }
 
-    // ── Sync Animator theo PlayerState ──────────────────────
+    // ── Sync Animator ───────────────────────────────────────
 
     private void SyncAnimatorWeaponType(int weaponType)
     {
@@ -169,11 +180,11 @@ public class PlayerInteraction : MonoBehaviour
             _animator.SetInteger(_paramWeaponType, weaponType);
     }
 
-    // ── Gizmos ──────────────────────────────────────────────
+    // ── Gizmos ─────────────────────────────────────────────
 
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, interactionRadius);
+        Gizmos.DrawWireSphere(transform.position, InteractionRadius);
     }
 }

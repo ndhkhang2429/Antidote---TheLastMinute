@@ -2,7 +2,7 @@
 
 public class PlayerManager : MonoBehaviour
 {
-    public PlayerStatsSO statsSO; // Kéo file PlayerStatsData vào đây
+    public PlayerStats statsSO; // Kéo file PlayerStatsData vào đây
 
     void Awake()
     {
