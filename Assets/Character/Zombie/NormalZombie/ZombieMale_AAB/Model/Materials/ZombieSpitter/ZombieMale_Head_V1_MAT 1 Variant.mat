@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: ZombieMale_Head_V1_MAT
+  m_Name: ZombieMale_Head_V1_MAT 1 Variant
   m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
   m_Parent: {fileID: 2100000, guid: 53bac12df1b897d4a8c3703713e8aa60, type: 2}
   m_ModifiedSerializedProperties: 0
@@ -15,8 +15,7 @@ Material:
   - _METALLICSPECGLOSSMAP
   - _NORMALMAP
   - _OCCLUSIONMAP
-  m_InvalidKeywords:
-  - _METALLICGLOSSMAP
+  m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -30,9 +29,11 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats: []
-    m_Colors: []
+    m_Colors:
+    - _BaseColor: {r: 0, g: 1, b: 0.07450981, a: 1}
+    - _Color: {r: 0, g: 1, b: 0.07450979, a: 1}
   m_BuildTextureStacks: []
---- !u!114 &8153062550499619353
+--- !u!114 &2665094535419187470
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}

@@ -272,7 +272,7 @@ public class ZombieBase : MonoBehaviour
         return NodeState.Running;
     }
 
-    protected NodeState Attack()
+    protected virtual NodeState Attack()
     {
         if (!agent.isActiveAndEnabled || !agent.isOnNavMesh)
             return NodeState.Running;
@@ -291,14 +291,31 @@ public class ZombieBase : MonoBehaviour
 
     // ── Helpers ──────────────────────────────────────────────
 
-    private void FacePlayer()
+    protected void FacePlayer(bool instant = false)
     {
+        if (player == null) return;
+
         Vector3 dir = (player.position - transform.position).normalized;
-        dir.y = 0;
-        transform.rotation = Quaternion.Slerp(
-            transform.rotation,
-            Quaternion.LookRotation(dir),
-            Time.deltaTime * turnSpeed);
+        dir.y = 0; // Đảm bảo không ngửa lên/cúi xuống trục Y
+
+        if (dir == Vector3.zero) return;
+
+        Quaternion targetRotation = Quaternion.LookRotation(dir);
+
+        if (instant)
+        {
+            // Xoay ngay lập tức không delay (Thích hợp cho lúc nã đạn)
+            transform.rotation = targetRotation;
+        }
+        else
+        {
+
+            // Tăng tốc độ xoay một chút để bớt lờ đờ, hoặc bạn có thể tăng turnSpeed trên Inspector
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                targetRotation,
+                Time.deltaTime * (turnSpeed * 1.5f));
+        }
     }
 
     protected void GoToNextWaypoint()

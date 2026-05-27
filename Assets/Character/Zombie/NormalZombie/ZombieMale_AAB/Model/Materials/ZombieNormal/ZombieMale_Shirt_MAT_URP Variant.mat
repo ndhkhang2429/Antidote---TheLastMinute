@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-5368085683807125939
+--- !u!114 &-373193928042345299
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
@@ -20,11 +20,12 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: ZombieMale_LowerBody_MAT_V1
+  m_Name: ZombieMale_Shirt_MAT_URP Variant
   m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
-  m_Parent: {fileID: 2100000, guid: 711145f6e1d46994286f7a2310520f59, type: 2}
-  m_ModifiedSerializedProperties: 24
+  m_Parent: {fileID: 2100000, guid: f2f48ab58d320434780b05574a2ec390, type: 2}
+  m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _ALPHATEST_ON
   - _METALLICSPECGLOSSMAP
   - _NORMALMAP
   - _OCCLUSIONMAP
@@ -34,28 +35,13 @@ Material:
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap:
-    RenderType: Opaque
+    RenderType: TransparentCutout
   disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
-    m_TexEnvs:
-    - _BaseMap:
-        m_Texture: {fileID: 2800000, guid: 20304ca0294ac5b43b73d4ea6444ba40, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 20304ca0294ac5b43b73d4ea6444ba40, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
+    m_TexEnvs: []
     m_Ints: []
-    m_Floats:
-    - _AlphaClip: 0
-    - _AlphaToMask: 0
-    - _Cull: 2
-    - _Cutoff: 0.081
-    - _Smoothness: 0.5
-    m_Colors:
-    - _BaseColor: {r: 0.96981126, g: 0.96981126, b: 0.96981126, a: 1}
-    - _Color: {r: 0.96981126, g: 0.96981126, b: 0.96981126, a: 1}
+    m_Floats: []
+    m_Colors: []
   m_BuildTextureStacks: []
