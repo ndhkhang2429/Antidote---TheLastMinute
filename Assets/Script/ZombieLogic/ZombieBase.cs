@@ -203,7 +203,7 @@ public class ZombieBase : MonoBehaviour
         return inRange;
     }
 
-    protected bool IsInAttackRange()
+    protected virtual bool IsInAttackRange()
     {
         if (player == null) return false;
         return Vector3.Distance(transform.position, player.position) <= attackRange;

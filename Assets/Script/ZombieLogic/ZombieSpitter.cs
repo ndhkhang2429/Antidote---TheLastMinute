@@ -8,41 +8,47 @@ public class ZombieSpitter : ZombieBase
     public Transform firePoint;
     public float projectileSpeed = 15f;
 
-    [Tooltip("Thời gian đứng yên hoàn toàn để phát hoạt ảnh bắn")]
-    public float attackAnimDuration = 1.5f;
+    [Tooltip("Thời gian dự phòng nếu Animation Event không kích hoạt")]
+    public float fallbackAttackDuration = 1.5f;
 
-    [Header("Circular Movement Settings")]
-    public float strafeSpeed = 2f;
-    public float minAttackCooldown = 1.5f;
-    public float maxAttackCooldown = 3.5f;
-    public float arcLeadAngle = 20f;
+    [Header("Strafe Settings")]
+    public float strafeSpeed = 2.5f;
+    public float minStrafeTime = 1.5f;
+    public float maxStrafeTime = 3.5f;
+    public float arcLeadAngle = 25f;
 
-    // ── Biến trạng thái nội bộ ────────────────────────────────
-    private int _strafeDirection = 1;
-    private bool _isAiming = false;
-    private bool _isAttacking = false;
+    // ── State Machine ─────────────────────────────────────────
+    private enum SpitterState { Aiming, Attacking, Strafing }
+    private SpitterState _state = SpitterState.Aiming;
+
+    private int _strafeDir = 1;
+    private float _strafeEndTime = 0f;
     private float _attackEndTime = 0f;
+    private bool _attackAnimationFinished = false;
+
+    // Timer chống lỗi cập nhật mỗi frame
+    private float _lastAttackFrameTime = 0f;
+    private float _lastPathUpdateTime = 0f;
 
     protected override void Start()
     {
         base.Start();
-        SetRandomStrafeData();
+        PickNewStrafeDirection();
+
+        if (anim != null)
+            anim.applyRootMotion = false; // Tắt Root motion để tránh lệch anim
     }
 
-    public override void DealDamageToPlayer()
+    // ── FIX BUG: Nới rộng tầm kiểm tra khi đang chiến đấu (Hysteresis) ──
+    protected override bool IsInAttackRange()
     {
-        if (player == null || _isDead) return;
+        if (player == null) return false;
+        float dist = Vector3.Distance(transform.position, player.position);
 
-        Vector3 targetPosition = player.position + new Vector3(0, 1.5f, 0);
-        Vector3 shootDirection = targetPosition - firePoint.position;
-
-        GameObject acidObj = Instantiate(acidProjectilePrefab, firePoint.position, Quaternion.LookRotation(shootDirection));
-
-        AcidProjectile projectile = acidObj.GetComponent<AcidProjectile>();
-        if (projectile != null)
-        {
-            projectile.Setup(shootDirection, attackDamage, projectileSpeed);
-        }
+        // Nếu zombie đang trong quá trình luân chuyển Aim/Attack/Strafe,
+        // cho phép nó đi lệch ra khỏi attackRange tới 30% (buffer) mà không bị rớt về node Chase.
+        float currentRange = (_state == SpitterState.Strafing) ? attackRange * 1.3f : attackRange;
+        return dist <= currentRange;
     }
 
     protected override NodeState Attack()
@@ -50,85 +56,162 @@ public class ZombieSpitter : ZombieBase
         if (!agent.isActiveAndEnabled || !agent.isOnNavMesh)
             return NodeState.Running;
 
-        // ── TRẠNG THÁI 1: ĐANG PHÁT ANIMATION BẮN (ĐỨNG YÊN) ──
-        if (_isAttacking)
+        // Nếu BT vừa thoát ra Chase rồi nhảy lại vào Attack (cách nhau > 2 frame), reset State về Aiming
+        if (Time.time - _lastAttackFrameTime > Time.deltaTime * 2f)
         {
-            agent.isStopped = true;
-            agent.updateRotation = false;
-            FacePlayer(); // Tuỳ chọn: Vẫn khóa mục tiêu trong lúc khạc độc
-
-            // Nếu đã hết thời gian phát animation bắn
-            if (Time.time >= _attackEndTime)
-            {
-                _isAttacking = false;
-
-                // Bắn XONG thì mới bắt đầu tính Cooldown và Random hướng đi
-                SetRandomStrafeData();
-            }
-
-            return NodeState.Running; // Khóa BT lại ở đây, không chạy xuống dưới
+            EnterAiming();
         }
+        _lastAttackFrameTime = Time.time;
 
-        // ── TRẠNG THÁI 2: HẾT COOLDOWN -> DỪNG LẠI NGẮM BẮN ──
-        if (Time.time >= _nextAttackTime || _isAiming)
+        switch (_state)
         {
-            if (!_isAiming)
-            {
-                _isAiming = true;
-                agent.isStopped = true;
-                agent.updateRotation = false;
-            }
-
-            anim.SetFloat("Speed", 0f, 0.15f, Time.deltaTime);
-            FacePlayer();
-
-            Vector3 dirToPlayer = (player.position - transform.position).normalized;
-            dirToPlayer.y = 0;
-            float angleToPlayer = Vector3.Angle(transform.forward, dirToPlayer);
-
-            // Xoay mặt chuẩn -> CHUYỂN SANG TRẠNG THÁI BẮN
-            if (angleToPlayer < 5f)
-            {
-                anim.SetTrigger("Attack");
-
-                _isAiming = false;
-                _isAttacking = true; // Bật cờ khóa di chuyển
-
-                // Hẹn giờ kết thúc animation (Bạn có thể tinh chỉnh thông số attackAnimDuration trên Inspector)
-                _attackEndTime = Time.time + attackAnimDuration;
-            }
-        }
-        // ── TRẠNG THÁI 3: TRONG COOLDOWN -> DI CHUYỂN VÒNG TRÒN ──
-        else
-        {
-            agent.isStopped = false;
-            agent.updateRotation = true;
-            agent.speed = strafeSpeed;
-            agent.stoppingDistance = 0f;
-
-            anim.SetFloat("Speed", 1f, 0.1f, Time.deltaTime);
-
-            MoveInCircle();
+            case SpitterState.Aiming: return HandleAiming();
+            case SpitterState.Attacking: return HandleAttacking();
+            case SpitterState.Strafing: return HandleStrafing();
         }
 
         return NodeState.Running;
     }
 
-    private void MoveInCircle()
+    // ── PHA 1: AIMING ─────────────────────────────────────────
+    private void EnterAiming()
     {
-        Vector3 dirFromPlayerToZombie = (transform.position - player.position).normalized;
-        dirFromPlayerToZombie.y = 0;
-
-        Vector3 tangentDirection = Quaternion.Euler(0, arcLeadAngle * _strafeDirection, 0) * dirFromPlayerToZombie;
-        Vector3 targetPosition = player.position + tangentDirection * attackRange;
-
-        agent.SetDestination(targetPosition);
+        _state = SpitterState.Aiming;
+        StopAgentCompletely(); // Chỉ gọi 1 lần khi bắt đầu Aim
     }
 
-    private void SetRandomStrafeData()
+    private NodeState HandleAiming()
     {
-        // Cooldown bắt đầu được đếm TỪ LÚC BẮN XONG
-        _nextAttackTime = Time.time + Random.Range(minAttackCooldown, maxAttackCooldown);
-        _strafeDirection = Random.value > 0.5f ? 1 : -1;
+        anim.SetFloat("Speed", 0f, 0.15f, Time.deltaTime);
+        FacePlayer(false);
+
+        Vector3 dir = (player.position - transform.position).normalized;
+        dir.y = 0f;
+
+        // Ngắm trúng mục tiêu -> Chuyển sang Attack
+        if (Vector3.Dot(transform.forward, dir) >= 0.95f)
+        {
+            EnterAttacking();
+        }
+
+        return NodeState.Running;
+    }
+
+    // ── PHA 2: ATTACKING ──────────────────────────────────────
+    private void EnterAttacking()
+    {
+        _state = SpitterState.Attacking;
+        StopAgentCompletely(); // Chỉ gọi 1 lần khi bắt đầu Attack
+
+        _attackEndTime = Time.time + fallbackAttackDuration;
+        _attackAnimationFinished = false;
+        anim.SetTrigger("Attack");
+    }
+
+    private NodeState HandleAttacking()
+    {
+        anim.SetFloat("Speed", 0f, 0.15f, Time.deltaTime);
+        FacePlayer(true);
+
+        // Chờ kết thúc animation (hoặc hết thời gian fallback)
+        if (_attackAnimationFinished || Time.time >= _attackEndTime)
+        {
+            EnterStrafing();
+        }
+
+        return NodeState.Running;
+    }
+
+    // ── PHA 3: STRAFING ───────────────────────────────────────
+    private void EnterStrafing()
+    {
+        _state = SpitterState.Strafing;
+
+        // Bật lại di chuyển 1 lần duy nhất
+        if (agent.isActiveAndEnabled && agent.isOnNavMesh)
+        {
+            agent.isStopped = false;
+            agent.speed = strafeSpeed;
+            agent.stoppingDistance = 0f;
+        }
+
+        _strafeEndTime = Time.time + Random.Range(minStrafeTime, maxStrafeTime);
+        PickNewStrafeDirection();
+
+        // Ép update path ngay lập tức ở frame đầu tiên
+        _lastPathUpdateTime = 0f;
+    }
+
+    private NodeState HandleStrafing()
+    {
+        if (Time.time >= _strafeEndTime)
+        {
+            EnterAiming();
+            return NodeState.Running;
+        }
+
+        anim.SetFloat("Speed", 2f, 0.1f, Time.deltaTime);
+        MoveAlongCircle();
+
+        return NodeState.Running;
+    }
+
+    // ── KHOÁ AGENT (Chống trượt) ──────────────────────────────
+    private void StopAgentCompletely()
+    {
+        if (agent.isActiveAndEnabled && agent.isOnNavMesh)
+        {
+            if (!agent.isStopped)
+            {
+                agent.isStopped = true;
+                agent.ResetPath(); // Xoá lộ trình cũ dập tắt quán tính
+                agent.velocity = Vector3.zero;
+            }
+        }
+    }
+
+    // ── Di chuyển theo cung tròn (Tối ưu NavMesh) ──────────────
+    private void MoveAlongCircle()
+    {
+        if (player == null || !agent.isActiveAndEnabled || !agent.isOnNavMesh) return;
+
+        // CHỐNG GIẬT CỤC: Chỉ tính toán lại đường đi mỗi 0.2 giây thay vì mỗi frame
+        if (Time.time - _lastPathUpdateTime < 0.2f) return;
+        _lastPathUpdateTime = Time.time;
+
+        Vector3 toZombie = transform.position - player.position;
+        toZombie.y = 0f;
+
+        Vector3 idealPos = player.position + toZombie.normalized * attackRange;
+        Vector3 tangent = Quaternion.Euler(0, 90f * _strafeDir, 0) * toZombie.normalized;
+
+        // Tính vị trí đích mới
+        Vector3 target = idealPos + tangent * (arcLeadAngle * 0.1f);
+
+        agent.SetDestination(target);
+    }
+
+    // ── ANIMATION EVENTS ──────────────────────────────────────
+    public override void DealDamageToPlayer()
+    {
+        if (player == null || _isDead) return;
+        if (acidProjectilePrefab == null || firePoint == null) return;
+
+        Vector3 targetPos = player.position + Vector3.up * 1.5f;
+        Vector3 shootDir = (targetPos - firePoint.position).normalized;
+
+        GameObject acidObj = Instantiate(acidProjectilePrefab, firePoint.position, Quaternion.LookRotation(shootDir));
+        acidObj.GetComponent<AcidProjectile>()?.Setup(shootDir, attackDamage, projectileSpeed);
+    }
+
+    // Gọi hàm này ở frame cuối cùng của clip Attack bằng Animation Event
+    public void OnAttackAnimationFinished()
+    {
+        _attackAnimationFinished = true;
+    }
+
+    private void PickNewStrafeDirection()
+    {
+        _strafeDir = Random.value > 0.5f ? 1 : -1;
     }
 }

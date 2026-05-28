@@ -1707,6 +1707,10 @@ PrefabInstance:
       propertyPath: attackAnimDuration
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6409432290955340034, guid: 74fd60609cba88d4bb0fc39e1cee5593, type: 3}
+      propertyPath: fallbackAttackDuration
+      value: 2.5
+      objectReference: {fileID: 0}
     - target: {fileID: 6441686684582178011, guid: 74fd60609cba88d4bb0fc39e1cee5593, type: 3}
       propertyPath: m_Layer
       value: 8
