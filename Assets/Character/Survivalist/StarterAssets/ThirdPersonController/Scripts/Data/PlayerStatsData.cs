@@ -11,6 +11,6 @@ public class PlayerStatsSO : ScriptableObject
     public float maxHP = 100f;
 
     [Header("Interaction")]
-    public float interactionRadius = 2.0f;
+    public float interactionRadius = 100.0f;
     public float dropDestroyDelay = 3f;
 }

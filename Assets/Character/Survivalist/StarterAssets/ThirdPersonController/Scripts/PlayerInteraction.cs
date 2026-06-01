@@ -1,47 +1,34 @@
 ﻿using UnityEngine;
 using StarterAssets;
 
-/// <summary>
-/// Xử lý nhặt đồ, vứt đồ, và giao tiếp với vật phẩm trong scene.
-/// — Đọc interactionRadius từ PlayerStatsSO
-/// — Input: F để nhặt, G để vứt (giữ nguyên theo thiết kế game)
-/// — Sync Animator qua event OnWeaponChanged của PlayerState
-/// </summary>
 public class PlayerInteraction : MonoBehaviour
 {
     [Header("Config")]
-    [SerializeField] private PlayerStatsSO _statsSO;   // kéo PlayerStats SO vào
+    [SerializeField] private PlayerStatsSO _statsSO;
+    [SerializeField] private Camera _mainCamera;
+    [SerializeField] private LayerMask _interactLayer; // Chọn layer "Interactable" trong Inspector
 
     [Header("Thành phần kết nối")]
-    [SerializeField] private Transform _weaponSlot;    // bàn tay phải
+    [SerializeField] private Transform _weaponSlot;
 
-    [Header("Events — kéo SO vào đây trong Inspector")]
+    [Header("Events")]
     [SerializeField] private GameEventSO OnItemPickedUp;
     [SerializeField] private GameEventSO OnItemDropped;
 
-    // ── Private refs ───────────────────────────────────────
+    // ── Private Refs ───────────────────────────────────────
     private Animator _animator;
-    private GameObject _nearestItem = null;
+    private GameObject _currentTarget = null;
 
     // ── Animator param IDs ─────────────────────────────────
     private int _paramPickUp;
     private int _paramWeaponType;
 
-    // ── UI callback (gán từ HUDManager nếu có) ─────────────
-    public event System.Action<string> OnShowPickupPrompt;
-    public event System.Action OnHidePickupPrompt;
-
-    private float InteractionRadius =>
-        _statsSO != null ? _statsSO.interactionRadius : 2f;
-
-    // ── Lifecycle ──────────────────────────────────────────
+    private float InteractionRadius => _statsSO != null ? _statsSO.interactionRadius : 3f;
 
     private void Start()
     {
         _animator = GetComponentInChildren<Animator>();
-        if (_animator == null) Debug.LogError("[PlayerInteraction] Không tìm thấy Animator!");
-        if (_statsSO == null) Debug.LogWarning("[PlayerInteraction] Chưa gán PlayerStatsSO, dùng giá trị mặc định.");
-        if (_weaponSlot == null) Debug.LogError("[PlayerInteraction] Chưa gán WeaponSlot!");
+        if (_mainCamera == null) _mainCamera = Camera.main;
 
         _paramPickUp = Animator.StringToHash("PickUp");
         _paramWeaponType = Animator.StringToHash("WeaponType");
@@ -58,133 +45,132 @@ public class PlayerInteraction : MonoBehaviour
 
     private void Update()
     {
-        FindNearestItem();
+        HandleRaycast();
 
-        if (_nearestItem != null && Input.GetKeyDown(KeyCode.F))
+        if (_currentTarget != null && Input.GetKeyDown(KeyCode.F))
             PerformPickup();
 
         if (Input.GetKeyDown(KeyCode.G))
             DropCurrentItem();
     }
 
-    // ── Tìm đồ gần nhất ────────────────────────────────────
-
-    private void FindNearestItem()
+    // ── Xử lý tia nhìn ─────────────────────────────────────
+    private void HandleRaycast()
     {
-        // Lấy itemLayer từ ItemData nếu muốn mở rộng, hoặc giữ SerializeField riêng
-        Collider[] hits = Physics.OverlapSphere(transform.position, InteractionRadius);
+        Ray ray = new Ray(_mainCamera.transform.position, _mainCamera.transform.forward);
 
-        GameObject closest = null;
-        float shortest = Mathf.Infinity;
-
-        foreach (Collider col in hits)
+        if (Physics.Raycast(ray, out RaycastHit hit, InteractionRadius, _interactLayer))
         {
-            // Chỉ nhặt object có ItemData
-            if (col.GetComponent<ItemData>() == null) continue;
+            GameObject hitObject = hit.collider.gameObject;
 
-            float dist = Vector3.Distance(transform.position, col.transform.position);
-            if (dist < shortest)
+            // Nếu tia nhìn chạm vào một vật MỚI
+            if (hitObject != _currentTarget)
             {
-                shortest = dist;
-                closest = col.gameObject;
+                ClearCurrentTarget(); // Tắt vật cũ đi trước
+
+                ItemData itemData = hitObject.GetComponent<ItemData>();
+                if (itemData != null)
+                {
+                    _currentTarget = hitObject;
+
+                    // Bật sáng vật mới
+                    var highlight = _currentTarget.GetComponent<ItemHighlight>();
+                    if (highlight != null) highlight.ToggleHighlight(true);
+
+                    // Gọi UI hiển thị
+                    InteractionUIManager.Instance.ShowPrompt($"[F] Nhặt {itemData.itemName}");
+                }
             }
-        }
-
-        _nearestItem = closest;
-
-        if (_nearestItem != null)
-        {
-            ItemData data = _nearestItem.GetComponent<ItemData>();
-            OnShowPickupPrompt?.Invoke(data != null ? data.itemName : _nearestItem.name);
         }
         else
         {
-            OnHidePickupPrompt?.Invoke();
+            // Nếu nhìn ra chỗ khác (trượt khỏi vật phẩm)
+            if (_currentTarget != null)
+            {
+                ClearCurrentTarget();
+            }
         }
     }
 
-    // ── Nhặt đồ ────────────────────────────────────────────
+    // Tắt highlight và ẩn UI
+    private void ClearCurrentTarget()
+    {
+        if (_currentTarget != null)
+        {
+            var highlight = _currentTarget.GetComponent<ItemHighlight>();
+            if (highlight != null) highlight.ToggleHighlight(false);
 
+            _currentTarget = null;
+        }
+
+        if (InteractionUIManager.Instance != null)
+        {
+            InteractionUIManager.Instance.HidePrompt();
+        }
+    }
+
+    // ── Logic Nhặt / Vứt (Giữ nguyên của bạn) ──────────────
     private void PerformPickup()
     {
-        if (_animator == null) return;
+        if (_animator == null || _currentTarget == null) return;
 
         PlayerState.Instance?.SetPickingUp(true);
         _animator.SetTrigger(_paramPickUp);
-
-        Debug.Log($"[PlayerInteraction] Bắt đầu nhặt: {_nearestItem.name}");
     }
 
-    /// <summary>
-    /// Gọi từ Animation Event khi tay chạm vật phẩm.
-    /// </summary>
     public void EquipItem()
     {
-        if (_nearestItem == null)
+        if (_currentTarget == null)
         {
-            Debug.LogWarning("[PlayerInteraction] EquipItem gọi nhưng không có item!");
             PlayerState.Instance?.SetPickingUp(false);
             return;
         }
 
-        ItemData data = _nearestItem.GetComponent<ItemData>();
-        if (data == null)
-        {
-            Debug.LogWarning($"[PlayerInteraction] {_nearestItem.name} không có ItemData!");
-            PlayerState.Instance?.SetPickingUp(false);
-            return;
-        }
+        // 1. LƯU LẠI VẬT THỂ VÀO BIẾN TẠM
+        GameObject itemToPickUp = _currentTarget;
+        ItemData data = itemToPickUp.GetComponent<ItemData>();
+        if (data == null) return;
 
-        // Tắt vật lý, gắn vào tay
-        var rb = _nearestItem.GetComponent<Rigidbody>();
+        // 2. Bây giờ bạn gọi Clear vô tư, vì ta đã có itemToPickUp giữ data rồi
+        ClearCurrentTarget();
+
+        // 3. Thay _currentTarget bằng itemToPickUp ở mọi dòng bên dưới
+        var rb = itemToPickUp.GetComponent<Rigidbody>();
         if (rb) rb.isKinematic = true;
 
-        var col = _nearestItem.GetComponent<Collider>();
+        var col = itemToPickUp.GetComponent<Collider>();
         if (col) col.enabled = false;
 
-        _nearestItem.transform.SetParent(_weaponSlot);
-        _nearestItem.transform.localPosition = data.holdPositionOffset;
-        _nearestItem.transform.localRotation = Quaternion.Euler(data.holdRotationOffset);
+        itemToPickUp.transform.SetParent(_weaponSlot);
+        itemToPickUp.transform.localPosition = data.holdPositionOffset;
+        itemToPickUp.transform.localRotation = Quaternion.Euler(data.holdRotationOffset);
 
-        PlayerState.Instance?.EquipWeapon(data.weaponType, _nearestItem);
+        PlayerState.Instance?.EquipWeapon(data.weaponType, itemToPickUp);
         PlayerState.Instance?.SetPickingUp(false);
 
         OnItemPickedUp?.Raise();
-        OnHidePickupPrompt?.Invoke();
-        _nearestItem = null;
-
-        Debug.Log($"[PlayerInteraction] Đã trang bị: {data.itemName} (WeaponType={data.weaponType})");
     }
-
-    // ── Vứt đồ ─────────────────────────────────────────────
 
     private void DropCurrentItem()
     {
-        if (PlayerState.Instance?.CurrentItemInHand == null)
-        {
-            Debug.Log("[PlayerInteraction] Không có đồ để vứt.");
-            return;
-        }
+        if (PlayerState.Instance?.CurrentItemInHand == null) return;
 
         PlayerState.Instance.DropCurrentItem();
         OnItemDropped?.Raise();
-
-        Debug.Log("[PlayerInteraction] Đã vứt đồ.");
     }
-
-    // ── Sync Animator ───────────────────────────────────────
 
     private void SyncAnimatorWeaponType(int weaponType)
     {
-        if (_animator != null)
-            _animator.SetInteger(_paramWeaponType, weaponType);
+        if (_animator != null) _animator.SetInteger(_paramWeaponType, weaponType);
     }
 
-    // ── Gizmos ─────────────────────────────────────────────
-
-    private void OnDrawGizmosSelected()
+    // ── GIZMOS DEBUG ─────────────────────────────────────────
+    private void OnDrawGizmos()
     {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, InteractionRadius);
+        if (_mainCamera != null)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawRay(_mainCamera.transform.position, _mainCamera.transform.forward * InteractionRadius);
+        }
     }
 }
