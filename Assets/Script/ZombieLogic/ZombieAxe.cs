@@ -9,7 +9,7 @@
 ///   3. SWING     → chém, nếu trúng gây sát thương + knockback
 ///
 /// Ngoài ra có:
-///   - Lunge Attack : lao thẳng vào player nếu player bỏ chạy xa
+///   - Rage Dash+Slam : khi vào Rage, lao đến player 1 lần rồi chém mạnh
 ///   - Rage Mode    : sau khi mất X% HP, tăng tốc + giảm cooldown
 /// </summary>
 public class ZombieAxe : ZombieBase
@@ -19,25 +19,25 @@ public class ZombieAxe : ZombieBase
     [Tooltip("Tầm chém rìu (nên dài hơn attackRange base ~2-2.5f)")]
     public float axeSwingRange = 2.2f;
 
-    [Tooltip("Thời gian lấy đà trước khi chém (giây)")]
-    public float windupDuration = 0.6f;
-
     [Tooltip("Knockback đẩy player ra sau khi trúng đòn")]
     public float knockbackForce = 4f;
 
-    [Header("Lunge Attack")]
-    [Tooltip("Khoảng cách player bỏ chạy để kích hoạt Lunge")]
-    public float lungeRange = 6f;
+    [Header("Rage Dash & Slam")]
+    [Tooltip("Tốc độ chạy khi Rage Dash")]
+    public float rageDashSpeed = 8f;
 
-    [Tooltip("Tốc độ lao người (Lunge)")]
-    public float lungeSpeed = 8f;
+    [Tooltip("Tầm tối đa Rage Dash — nếu player ra ngoài thì hủy")]
+    public float rageDashRange = 12f;
 
-    [Tooltip("Cooldown Lunge (giây)")]
-    public float lungeCooldown = 5f;
+    [Tooltip("Sát thương nhát chém Rage Slam (cao hơn đòn thường)")]
+    public float rageSlamDamage = 60f;
+
+    [Tooltip("Knockback mạnh hơn khi Rage Slam")]
+    public float rageSlamKnockback = 8f;
 
     [Header("Axe Prop — Gắn rìu vào tay")]
     [Tooltip("Tên GameObject điểm gắn rìu trong Hierarchy (AxePoint, fireaxePivotPoint,...)")]
-    public string axeAttachPointName = "fireaxePivotPoint";
+    public string axeAttachPointName = "AxePoint";
 
     [Tooltip("Prefab rìu dùng làm prop cầm tay (cùng prefab với pickup cũng được)")]
     public GameObject axePropPrefab;
@@ -70,16 +70,15 @@ public class ZombieAxe : ZombieBase
     public float rageDamageMultiplier = 1.3f;
 
     // ── Combat State Machine ─────────────────────────────────────────────────
-    private enum AxeCombatState { Approach, Windup, Swing, Lunge, Recover }
+    private enum AxeCombatState { Approach, Swing, Recover, RageDash, RageSlam }
     private AxeCombatState _combatState = AxeCombatState.Approach;
 
     // Timers / flags
-    private float _windupTimer = 0f;
     private float _recoverTimer = 0f;
-    private float _recoverDuration = 0.5f;   // thời gian hồi phục sau đòn đánh
-    private float _nextLungeTime = 0f;
-    private bool _lungeHit = false;
+    private float _recoverDuration = 0.5f;   // cooldown giữa các đòn   // thời gian hồi phục sau đòn đánh
     private bool _isRaging = false;
+    private bool _rageDashDone = false;       // Rage Dash + Slam chỉ 1 lần duy nhất
+    private bool _rageSlamHit = false;        // tránh slam 2 lần
     private bool _damageApplied = false;      // tránh gây sát thương 2 lần trong 1 swing
 
     // Cache
@@ -104,14 +103,13 @@ public class ZombieAxe : ZombieBase
     protected override void OnEnterCombat()
     {
         _combatState = AxeCombatState.Approach;
-        _nextLungeTime = Time.time + lungeCooldown * 0.5f; // lần đầu lunge nhanh hơn
     }
 
     protected override void OnExitCombat()
     {
-        // Reset về Approach khi mất player để lần sau sẵn sàng
         _combatState = AxeCombatState.Approach;
         _isRaging = false;
+        _rageDashDone = false;
     }
 
     // ── Core: UpdateCombatBehaviour ──────────────────────────────────────────
@@ -126,25 +124,18 @@ public class ZombieAxe : ZombieBase
         switch (_combatState)
         {
             case AxeCombatState.Approach: HandleApproach(dist); break;
-            case AxeCombatState.Windup: HandleWindup(dist); break;
             case AxeCombatState.Swing: HandleSwing(dist); break;
-            case AxeCombatState.Lunge: HandleLunge(dist); break;
             case AxeCombatState.Recover: HandleRecover(); break;
+            case AxeCombatState.RageDash: HandleRageDash(dist); break;
+            case AxeCombatState.RageSlam: HandleRageSlam(dist); break;
         }
     }
 
     // ── State Handlers ───────────────────────────────────────────────────────
 
-    /// <summary>Áp sát player. Nếu đủ gần → Windup. Nếu xa + cooldown → Lunge.</summary>
+    /// <summary>Áp sát player. Nếu đủ gần + cooldown xong → Swing.</summary>
     private void HandleApproach(float dist)
     {
-        // Lunge nếu player bỏ chạy xa và cooldown xong
-        if (dist >= lungeRange && Time.time >= _nextLungeTime)
-        {
-            EnterLunge();
-            return;
-        }
-
         // Di chuyển về phía player
         if (!agent.isActiveAndEnabled || !agent.isOnNavMesh) return;
 
@@ -158,35 +149,10 @@ public class ZombieAxe : ZombieBase
 
         anim.SetFloat("Speed", 2f, 0.1f, Time.deltaTime);
 
-        // Đủ tầm → vào Windup
-        if (dist <= axeSwingRange)
+        // Đủ tầm + cooldown xong → Swing thẳng
+        if (dist <= axeSwingRange && Time.time >= _nextAttackTime)
         {
-            EnterWindup();
-        }
-    }
-
-    /// <summary>Dừng lại, lấy đà — đây là "telegraph" để player có cơ hội né.</summary>
-    private void HandleWindup(float dist)
-    {
-        StopAgentCompletely();
-        FacePlayer();
-        anim.SetFloat("Speed", 0f, 0.1f, Time.deltaTime);
-
-        _windupTimer += Time.deltaTime;
-
-        // Nếu player bước ra khỏi tầm trong lúc lấy đà → hủy, Approach lại
-        if (dist > axeSwingRange * 1.4f)
-        {
-            _combatState = AxeCombatState.Approach;
-            anim.ResetTrigger("AxeWindup");
-            return;
-        }
-
-        if (_windupTimer >= windupDuration)
-        {
-            _combatState = AxeCombatState.Swing;
-            _damageApplied = false;
-            anim.SetTrigger("AxeSwing");   // Animator trigger → clip chém rìu
+            EnterSwing();
         }
     }
 
@@ -221,50 +187,115 @@ public class ZombieAxe : ZombieBase
     }
 
     /// <summary>Lao thẳng vào player — dùng NavMesh tốc độ cao.</summary>
-    private void HandleLunge(float dist)
+    /// <summary>Rage Dash — chạy nhanh về phía player bằng NavMesh. Nếu player ra ngoài rageDashRange → hủy.</summary>
+    private void HandleRageDash(float dist)
     {
         if (!agent.isActiveAndEnabled || !agent.isOnNavMesh) return;
 
-        float speed = _isRaging ? lungeSpeed * rageSpeedMultiplier : lungeSpeed;
+        // Player chạy ra ngoài tầm Dash → hủy, về Attack bình thường
+        if (dist > rageDashRange)
+        {
+            _rageDashDone = true;   // coi như xong, không dash nữa
+            ResumeAgent(runSpeed * rageSpeedMultiplier);
+            _combatState = AxeCombatState.Approach;
+            anim.SetFloat("Speed", 2f, 0.1f, Time.deltaTime);
+            return;
+        }
+
+        // Chạy về phía player tốc độ cao
         agent.isStopped = false;
-        agent.speed = speed;
-        agent.stoppingDistance = axeSwingRange * 0.7f;
+        agent.speed = rageDashSpeed;
+        agent.stoppingDistance = axeSwingRange * 0.8f;
         agent.updateRotation = true;
         agent.updatePosition = true;
         agent.SetDestination(player.position);
+        anim.SetFloat("Speed", 2f, 0.05f, Time.deltaTime);
 
-        anim.SetFloat("Speed", 3f, 0.1f, Time.deltaTime);  // blend tree: run nhanh
-
-        // Đến nơi → đánh ngay
+        // Đến tầm → vào RageSlam
         if (dist <= axeSwingRange)
         {
-            if (!_lungeHit)
-            {
-                _lungeHit = true;
-                anim.SetTrigger("AxeSwing");
-                ApplyDamageAndKnockback();
-            }
+            StopAgentCompletely();
+            _rageSlamHit = false;
+            _combatState = AxeCombatState.RageSlam;
+            anim.SetTrigger("AxeLunge");   // clip chém mạnh
+        }
+    }
 
-            _nextLungeTime = Time.time + lungeCooldown;
-            _nextAttackTime = Time.time + attackCooldown;
+    /// <summary>Rage Slam — nhát chém mạnh sau Dash, damage cao + knockback lớn.</summary>
+    private void HandleRageSlam(float dist)
+    {
+        StopAgentCompletely();
+        FacePlayer();
+        anim.SetFloat("Speed", 0f, 0.1f, Time.deltaTime);
+
+        // Sát thương gây qua Animation Event RageSlamDamage()
+        // Backup timer nếu không có Animation Event
+        if (!_rageSlamHit && Time.time >= _nextAttackTime)
+        {
+            RageSlamDamage();
+        }
+
+        // Sau khi slam xong → về Attack bình thường
+        if (_rageSlamHit && Time.time >= _nextAttackTime)
+        {
+            _rageDashDone = true;
             _recoverTimer = 0f;
             _combatState = AxeCombatState.Recover;
         }
     }
 
-    // ── Transitions vào state ─────────────────────────────────────────────────
-    private void EnterWindup()
+    /// <summary>Gọi từ Animation Event của clip RageSlam tại frame chém trúng.</summary>
+    public void RageSlamDamage()
     {
-        _combatState = AxeCombatState.Windup;
-        _windupTimer = 0f;
-        anim.SetTrigger("AxeWindup");   // clip lấy đà / raise axe
+        if (_rageSlamHit) return;
+        _rageSlamHit = true;
+
+        if (player == null) return;
+        if (Vector3.Distance(transform.position, player.position) > axeSwingRange * 1.4f) return;
+
+        _playerHealth ??= player.GetComponent<HealthSystem>();
+        _playerHealth?.TakeDamage(rageSlamDamage, gameObject);
+
+        // Knockback mạnh hơn đòn thường
+        Rigidbody rb = player.GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            Vector3 dir = (player.position - transform.position).normalized;
+            dir.y = 0.3f;
+            rb.AddForce(dir * rageSlamKnockback, ForceMode.Impulse);
+        }
+
+        _nextAttackTime = Time.time + attackCooldown * 1.5f;   // recovery dài hơn sau slam
+        Debug.Log($"[ZombieAxe] RAGE SLAM! {rageSlamDamage} damage!");
     }
 
-    private void EnterLunge()
+    // ── Transitions vào state ─────────────────────────────────────────────────
+    private void EnterSwing()
     {
-        _combatState = AxeCombatState.Lunge;
-        _lungeHit = false;
-        anim.SetTrigger("AxeLunge");    // clip chạy lao người
+        _combatState = AxeCombatState.Swing;
+        _damageApplied = false;
+        anim.SetTrigger("AxeSwing");
+    }
+
+    private void EnterRageDash()
+    {
+        _combatState = AxeCombatState.RageDash;
+        _rageSlamHit = false;
+        anim.applyRootMotion = false;
+
+        // Đảm bảo NavMesh sẵn sàng di chuyển
+        if (agent.isActiveAndEnabled && agent.isOnNavMesh)
+        {
+            agent.isStopped = false;
+            agent.updatePosition = true;
+            agent.updateRotation = true;
+            agent.speed = rageDashSpeed;
+            agent.stoppingDistance = axeSwingRange * 0.8f;
+            if (player != null) agent.SetDestination(player.position);
+        }
+
+        anim.SetFloat("Speed", 2f);
+        Debug.Log("[ZombieAxe] RAGE DASH START!");
     }
 
     // ── Damage & Knockback ────────────────────────────────────────────────────
@@ -313,8 +344,14 @@ public class ZombieAxe : ZombieBase
         if (hpRatio <= rageHpThreshold)
         {
             _isRaging = true;
-            anim.SetTrigger("EnterRage");   // optional: flash effect hoặc roar animation
-            Debug.Log($"[ZombieAxe] {gameObject.name} entered RAGE MODE!");
+            _rageDashDone = false;
+            attackCooldown *= 0.6f;
+            anim.SetTrigger("EnterRage");
+            Debug.Log($"[ZombieAxe] {gameObject.name} RAGE MODE! Cooldown → {attackCooldown:F2}s");
+
+            // Chỉ Rage Dash nếu chưa từng dash
+            if (!_rageDashDone)
+                EnterRageDash();
         }
     }
 
@@ -323,8 +360,7 @@ public class ZombieAxe : ZombieBase
     {
         base.TakeDamage(damage, attacker);
 
-        // Nếu đang Windup mà bị đánh → không hủy (zombie tức giận vẫn đánh tiếp)
-        // Nhưng nếu đang Recover → rút ngắn recover
+        // Nếu đang Recover → rút ngắn để phản ứng nhanh hơn
         if (_combatState == AxeCombatState.Recover)
             _recoverTimer = _recoverDuration * 0.8f;
     }
@@ -421,8 +457,8 @@ public class ZombieAxe : ZombieBase
         Gizmos.color = new Color(1f, 0.4f, 0f, 0.8f);
         Gizmos.DrawWireSphere(transform.position, axeSwingRange);
 
-        // Tầm Lunge
+        // Tầm Rage Dash tối đa
         Gizmos.color = new Color(1f, 0f, 0f, 0.4f);
-        Gizmos.DrawWireSphere(transform.position, lungeRange);
+        Gizmos.DrawWireSphere(transform.position, rageDashRange);
     }
 }
