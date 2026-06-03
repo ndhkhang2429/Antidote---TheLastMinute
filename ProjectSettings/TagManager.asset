@@ -8,6 +8,9 @@ TagManager:
   - Zombie
   - Target
   - Interactable
+  - EmergencyLight
+  - ElectricalBoxDoor
+  - ElectricalKey
   layers:
   - Default
   - TransparentFX
