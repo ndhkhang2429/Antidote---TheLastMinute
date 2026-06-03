@@ -76245,7 +76245,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67846d1f07fcde645bdae15cb8824119, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startsWithPowerOff: 0
+  startsWithPowerOff: 1
   fadeDuration: 1.5
 --- !u!4 &1001862002
 Transform:
@@ -125918,7 +125918,7 @@ PrefabInstance:
       objectReference: {fileID: 8386752586759161542}
     - target: {fileID: 2542996391809376946, guid: 0c35c567edf471e468153ecc8d798e64, type: 3}
       propertyPath: _interactLayer.m_Bits
-      value: 512
+      value: 640
       objectReference: {fileID: 0}
     - target: {fileID: 4987754158054562685, guid: 0c35c567edf471e468153ecc8d798e64, type: 3}
       propertyPath: m_LocalPosition.x
@@ -126196,7 +126196,7 @@ GameObject:
   - component: {fileID: 1642998266}
   - component: {fileID: 1642998265}
   - component: {fileID: 1642998267}
-  m_Layer: 9
+  m_Layer: 7
   m_Name: PanelTrigger
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -126253,7 +126253,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -126276,7 +126276,7 @@ MonoBehaviour:
   clickRayDistance: 10
   clickableLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 512
 --- !u!1001 &1643701783
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -163385,6 +163385,8 @@ GameObject:
   - component: {fileID: 3206290562022287547}
   - component: {fileID: 9097406045336319654}
   - component: {fileID: 8961804897701035262}
+  - component: {fileID: 9097406045336319655}
+  - component: {fileID: 9097406045336319656}
   m_Layer: 9
   m_Name: Knob010
   m_TagString: Untagged
@@ -164932,7 +164934,7 @@ Transform:
   m_GameObject: {fileID: 2130339897507397803}
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -0.103888646, y: 0.27749702, z: -0.06888853}
+  m_LocalPosition: {x: 0.03645783, y: 0.27749702, z: -0.06888853}
   m_LocalScale: {x: 1.1161001, y: 1.1161001, z: 0.443117}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -166135,6 +166137,7 @@ GameObject:
   - component: {fileID: 7466159368427925980}
   - component: {fileID: 8280549244883720313}
   - component: {fileID: 8280549244883720314}
+  - component: {fileID: 8280549244883720315}
   m_Layer: 9
   m_Name: Knob002
   m_TagString: Untagged
@@ -169014,6 +169017,8 @@ GameObject:
   - component: {fileID: 633588711354613303}
   - component: {fileID: 5972178958109985117}
   - component: {fileID: 4573645656485506444}
+  - component: {fileID: 5972178958109985118}
+  - component: {fileID: 5972178958109985119}
   m_Layer: 9
   m_Name: Knob005
   m_TagString: Untagged
@@ -169814,7 +169819,7 @@ Transform:
   m_GameObject: {fileID: 3890047924733429506}
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -0.033827797, y: 0.1497105, z: 0.46451145}
+  m_LocalPosition: {x: -0.034, y: 0.15, z: 0.465}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -170233,7 +170238,7 @@ Transform:
   m_GameObject: {fileID: 4834188363713365791}
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -0.103888646, y: 0.27749702, z: -0.44988853}
+  m_LocalPosition: {x: 0.03645783, y: 0.27749702, z: -0.44988853}
   m_LocalScale: {x: 1.1161001, y: 1.1161001, z: 0.443117}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -170357,6 +170362,7 @@ GameObject:
   - component: {fileID: 1738168228257900269}
   - component: {fileID: 8030289531714227823}
   - component: {fileID: 8030289531714227824}
+  - component: {fileID: 8030289531714227825}
   m_Layer: 9
   m_Name: Knob001
   m_TagString: Untagged
@@ -170440,7 +170446,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1001 &2545377023241864941
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -171281,6 +171287,8 @@ GameObject:
   - component: {fileID: 4759335056643756344}
   - component: {fileID: 7254477706088063947}
   - component: {fileID: 4463321016172577706}
+  - component: {fileID: 7254477706088063948}
+  - component: {fileID: 7254477706088063949}
   m_Layer: 9
   m_Name: Knob013
   m_TagString: Untagged
@@ -171898,7 +171906,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -171932,6 +171940,7 @@ GameObject:
   - component: {fileID: 6619575471877818421}
   - component: {fileID: 7385077804575016789}
   - component: {fileID: 7385077804575016790}
+  - component: {fileID: 7385077804575016791}
   m_Layer: 9
   m_Name: Knob008
   m_TagString: Untagged
@@ -173363,7 +173372,7 @@ Transform:
   m_GameObject: {fileID: 4613734795180068079}
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -0.103888646, y: 0.27749702, z: 0.46451145}
+  m_LocalPosition: {x: 0.03645783, y: 0.27749702, z: 0.46451145}
   m_LocalScale: {x: 1.1161001, y: 1.1161001, z: 0.443117}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -174906,6 +174915,7 @@ GameObject:
   - component: {fileID: 5824855650636797210}
   - component: {fileID: 7138618966520157692}
   - component: {fileID: 7138618966520157693}
+  - component: {fileID: 7138618966520157694}
   m_Layer: 9
   m_Name: Knob009
   m_TagString: Untagged
@@ -175484,6 +175494,7 @@ GameObject:
   - component: {fileID: 6337814022076253938}
   - component: {fileID: 6337814022076253939}
   - component: {fileID: 6337814022076253940}
+  - component: {fileID: 6337814022076253941}
   m_Layer: 9
   m_Name: Knob014
   m_TagString: Untagged
@@ -175874,6 +175885,7 @@ GameObject:
   - component: {fileID: 8034480131441566379}
   - component: {fileID: 8034480131441566380}
   - component: {fileID: 8034480131441566381}
+  - component: {fileID: 8034480131441566382}
   m_Layer: 9
   m_Name: Knob012
   m_TagString: Untagged
@@ -176334,7 +176346,7 @@ Transform:
   m_GameObject: {fileID: 2935344028918407825}
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -0.103888646, y: 0.27749702, z: 0.54071146}
+  m_LocalPosition: {x: 0.03645783, y: 0.27749702, z: 0.54071146}
   m_LocalScale: {x: 1.1161001, y: 1.1161001, z: 0.443117}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -176455,7 +176467,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -176551,6 +176563,8 @@ GameObject:
   - component: {fileID: 2493758078732844355}
   - component: {fileID: 6041018718301524978}
   - component: {fileID: 5338542351867527923}
+  - component: {fileID: 6041018718301524979}
+  - component: {fileID: 6041018718301524980}
   m_Layer: 9
   m_Name: Knob
   m_TagString: Untagged
@@ -178882,7 +178896,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -179415,6 +179429,7 @@ GameObject:
   - component: {fileID: 6433160508269467763}
   - component: {fileID: 6622940658658811501}
   - component: {fileID: 6622940658658811502}
+  - component: {fileID: 6622940658658811503}
   m_Layer: 9
   m_Name: Knob003
   m_TagString: Untagged
@@ -179431,7 +179446,7 @@ Transform:
   m_GameObject: {fileID: 4502853564738117414}
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -0.103888646, y: 0.27749702, z: 0.6169115}
+  m_LocalPosition: {x: 0.03645783, y: 0.27749702, z: 0.6169115}
   m_LocalScale: {x: 1.1161001, y: 1.1161001, z: 0.443117}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -180285,6 +180300,44 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2130339897507397803}
   m_Mesh: {fileID: -3915989553829767932, guid: e35379fad6334164186a552d0738df36, type: 3}
+--- !u!65 &5972178958109985118
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2130339897507397803}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.07005891, y: 0.038744655, z: 0.03474233}
+  m_Center: {x: 0.0000009537113, y: 4.452172e-15, z: -0.0027934518}
+--- !u!114 &5972178958109985119
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2130339897507397803}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adbcbeac7ac5b514686f43989621162b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isOn: 0
+  onOffset: {x: -0.127, y: 0, z: 0}
+  slideDuration: 0.15
+  panelZone: {fileID: 1642998265}
+  fusePanelManager: {fileID: 8386752586759161542}
 --- !u!23 &5987661488106756839
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -180692,6 +180745,44 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4834188363713365791}
   m_Mesh: {fileID: -7703621116727195458, guid: e35379fad6334164186a552d0738df36, type: 3}
+--- !u!65 &6041018718301524979
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4834188363713365791}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.07005891, y: 0.038744655, z: 0.03474233}
+  m_Center: {x: 0.0000019073857, y: 0.00000011920929, z: -0.0028010812}
+--- !u!114 &6041018718301524980
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4834188363713365791}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adbcbeac7ac5b514686f43989621162b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isOn: 0
+  onOffset: {x: -0.127, y: 0, z: 0}
+  slideDuration: 0.15
+  panelZone: {fileID: 1642998265}
+  fusePanelManager: {fileID: 8386752586759161542}
 --- !u!4 &6086890107280834822 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5360774824684982859, guid: 5e7a26b0a30ca3342bc4bcb926da62ab, type: 3}
@@ -180783,7 +180874,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -180907,7 +180998,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -181311,8 +181402,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isOn: 0
-  offPosition: {x: 0.03645783, y: 0.277497, z: 0.6169115}
-  onPosition: {x: -0.1038886, y: 0.277497, z: 0.6169115}
+  onOffset: {x: -0.127, y: 0, z: 0}
   slideDuration: 0.15
   panelZone: {fileID: 1642998265}
   fusePanelManager: {fileID: 8386752586759161542}
@@ -181328,7 +181418,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 851793ed4d2c8fa4d9cd7cbcdfc4a262, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highlightColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+  highlightColor: {r: 0.654902, g: 0.34509805, b: 0, a: 1}
+--- !u!65 &6337814022076253941
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4502853564738117414}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.07005891, y: 0.038744655, z: 0.03474233}
+  m_Center: {x: 0.0000019073857, y: 4.452172e-15, z: -0.0027972665}
 --- !u!1001 &6346055883676857451
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -181990,7 +182101,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -182236,9 +182347,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: adbcbeac7ac5b514686f43989621162b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isOn: 1
-  offPosition: {x: 0.03645783, y: 0.277497, z: -0.2212885}
-  onPosition: {x: -0.1038886, y: 0.277497, z: -0.2212885}
+  isOn: 0
+  onOffset: {x: -0.127, y: 0, z: 0}
   slideDuration: 0.15
   panelZone: {fileID: 1642998265}
   fusePanelManager: {fileID: 8386752586759161542}
@@ -182254,7 +182364,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 851793ed4d2c8fa4d9cd7cbcdfc4a262, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highlightColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+  highlightColor: {r: 0.654902, g: 0.34509805, b: 0, a: 1}
+--- !u!65 &6622940658658811503
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5677027858678890817}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.07005891, y: 0.038744655, z: 0.03474233}
+  m_Center: {x: 0.0000009537113, y: 0.00000011920929, z: -0.0027972665}
 --- !u!4 &6638729209198218388 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8407678046917281123, guid: a6fb8e9e3970cf34e97250c15d2b935c, type: 3}
@@ -183156,7 +183287,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -183312,7 +183443,7 @@ Transform:
   m_GameObject: {fileID: 4237522496677376435}
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -0.1039, y: 0.2777, z: 0.2361}
+  m_LocalPosition: {x: 0.03645783, y: 0.2777, z: 0.2361}
   m_LocalScale: {x: 1.1161001, y: 1.1161001, z: 0.443117}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -183331,8 +183462,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isOn: 0
-  offPosition: {x: 0.03645783, y: 0.277497, z: 0.2361}
-  onPosition: {x: -0.1038886, y: 0.277497, z: 0.2361}
+  onOffset: {x: -0.127, y: 0, z: 0}
   slideDuration: 0.15
   panelZone: {fileID: 1642998265}
   fusePanelManager: {fileID: 8386752586759161542}
@@ -183348,7 +183478,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 851793ed4d2c8fa4d9cd7cbcdfc4a262, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highlightColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+  highlightColor: {r: 0.654902, g: 0.34509805, b: 0, a: 1}
+--- !u!65 &7138618966520157694
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4237522496677376435}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.07005891, y: 0.038744655, z: 0.03474233}
+  m_Center: {x: 0.0000009537113, y: 0.00000011920929, z: -0.0027972665}
 --- !u!1001 &7210704039951639495
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -183508,7 +183659,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -183579,6 +183730,44 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2935344028918407825}
   m_Mesh: {fileID: 688024035387714244, guid: e35379fad6334164186a552d0738df36, type: 3}
+--- !u!65 &7254477706088063948
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2935344028918407825}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.07005891, y: 0.038744655, z: 0.03474233}
+  m_Center: {x: 0.0000019073857, y: -0.00000011920928, z: -0.0027972665}
+--- !u!114 &7254477706088063949
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2935344028918407825}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adbcbeac7ac5b514686f43989621162b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isOn: 0
+  onOffset: {x: -0.127, y: 0, z: 0}
+  slideDuration: 0.15
+  panelZone: {fileID: 1642998265}
+  fusePanelManager: {fileID: 8386752586759161542}
 --- !u!4 &7258984172316792639 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2745557526240165357, guid: 95d1e58cc2cec3c4daa84bd64ed82750, type: 3}
@@ -183902,7 +184091,7 @@ Transform:
   m_GameObject: {fileID: 7427967156937595980}
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -0.103888646, y: 0.27749702, z: -0.14508852}
+  m_LocalPosition: {x: 0.03645783, y: 0.27749702, z: -0.14508852}
   m_LocalScale: {x: 1.1161001, y: 1.1161001, z: 0.443117}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -183922,7 +184111,7 @@ Transform:
   m_GameObject: {fileID: 3297082557100849335}
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 0.0348, y: 0.2775, z: 0.1598}
+  m_LocalPosition: {x: 0.03645783, y: 0.2775, z: 0.1598}
   m_LocalScale: {x: 1.1161001, y: 1.1161001, z: 0.443117}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -183941,8 +184130,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isOn: 0
-  offPosition: {x: 0.03645783, y: 0.277497, z: 0.1598}
-  onPosition: {x: -0.1038886, y: 0.277497, z: 0.1598}
+  onOffset: {x: -0.127, y: 0, z: 0}
   slideDuration: 0.15
   panelZone: {fileID: 1642998265}
   fusePanelManager: {fileID: 8386752586759161542}
@@ -183958,7 +184146,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 851793ed4d2c8fa4d9cd7cbcdfc4a262, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highlightColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+  highlightColor: {r: 0.654902, g: 0.34509805, b: 0, a: 1}
+--- !u!65 &7385077804575016791
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3297082557100849335}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.07005891, y: 0.038744655, z: 0.03474233}
+  m_Center: {x: 0.0000009537113, y: 0.00000011920929, z: -0.0027934518}
 --- !u!1001 &7411562067692317539
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -184033,6 +184242,7 @@ GameObject:
   - component: {fileID: 3387685014890796516}
   - component: {fileID: 7427967156937595981}
   - component: {fileID: 7427967156937595982}
+  - component: {fileID: 7427967156937595983}
   m_Layer: 9
   m_Name: Knob004
   m_TagString: Untagged
@@ -184053,8 +184263,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isOn: 0
-  offPosition: {x: 0.03645783, y: 0.277497, z: -0.1450885}
-  onPosition: {x: -0.1038886, y: 0.277497, z: -0.1450885}
+  onOffset: {x: -0.127, y: 0, z: 0}
   slideDuration: 0.15
   panelZone: {fileID: 1642998265}
   fusePanelManager: {fileID: 8386752586759161542}
@@ -184070,7 +184279,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 851793ed4d2c8fa4d9cd7cbcdfc4a262, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highlightColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+  highlightColor: {r: 0.654902, g: 0.34509805, b: 0, a: 1}
+--- !u!65 &7427967156937595983
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7427967156937595980}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.07005891, y: 0.038744655, z: 0.03474233}
+  m_Center: {x: 0.0000009537113, y: 4.452172e-15, z: -0.0027972665}
 --- !u!1001 &7427968956522838999
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -184157,6 +184387,7 @@ GameObject:
   - component: {fileID: 4877032539893789346}
   - component: {fileID: 8072414310516190439}
   - component: {fileID: 8072414310516190440}
+  - component: {fileID: 8072414310516190441}
   m_Layer: 9
   m_Name: Knob006
   m_TagString: Untagged
@@ -184483,6 +184714,7 @@ GameObject:
   - component: {fileID: 8461763135135506598}
   - component: {fileID: 8464643884465600691}
   - component: {fileID: 8464643884465600692}
+  - component: {fileID: 8464643884465600693}
   m_Layer: 9
   m_Name: Knob011
   m_TagString: Untagged
@@ -184935,7 +185167,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -185083,6 +185315,7 @@ GameObject:
   - component: {fileID: 4225297254284971089}
   - component: {fileID: 7856249486447555438}
   - component: {fileID: 7856249486447555439}
+  - component: {fileID: 7856249486447555440}
   m_Layer: 9
   m_Name: Knob007
   m_TagString: Untagged
@@ -185103,8 +185336,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isOn: 0
-  offPosition: {x: 0.03645783, y: 0.277497, z: 0.08351146}
-  onPosition: {x: -0.1038886, y: 0.277497, z: 0.08351146}
+  onOffset: {x: -0.127, y: 0, z: 0}
   slideDuration: 0.15
   panelZone: {fileID: 1642998265}
   fusePanelManager: {fileID: 8386752586759161542}
@@ -185120,7 +185352,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 851793ed4d2c8fa4d9cd7cbcdfc4a262, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highlightColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+  highlightColor: {r: 0.654902, g: 0.34509805, b: 0, a: 1}
+--- !u!65 &7856249486447555440
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7856249486447555437}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.07005891, y: 0.038744655, z: 0.03474233}
+  m_Center: {x: 0.0000009537113, y: 0.00000011920929, z: -0.0027972665}
 --- !u!1001 &7882096263086692578
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -185292,7 +185545,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -185467,9 +185720,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: adbcbeac7ac5b514686f43989621162b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isOn: 1
-  offPosition: {x: 0.03645783, y: 0.277497, z: -0.3736885}
-  onPosition: {x: -0.1038886, y: 0.277497, z: -0.3736885}
+  isOn: 0
+  onOffset: {x: -0.127, y: 0, z: 0}
   slideDuration: 0.15
   panelZone: {fileID: 1642998265}
   fusePanelManager: {fileID: 8386752586759161542}
@@ -185485,7 +185737,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 851793ed4d2c8fa4d9cd7cbcdfc4a262, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highlightColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+  highlightColor: {r: 0.654902, g: 0.34509805, b: 0, a: 1}
+--- !u!65 &8030289531714227825
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2532217611284649273}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.07005891, y: 0.038744655, z: 0.03474233}
+  m_Center: {x: 0.0000009537113, y: -0.00000011920928, z: -0.0028010812}
 --- !u!23 &8034480131441566379
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -185541,8 +185814,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isOn: 0
-  offPosition: {x: 0.03645783, y: 0.277497, z: 0.4645115}
-  onPosition: {x: -0.1038886, y: 0.277497, z: 0.4645115}
+  onOffset: {x: -0.127, y: 0, z: 0}
   slideDuration: 0.15
   panelZone: {fileID: 1642998265}
   fusePanelManager: {fileID: 8386752586759161542}
@@ -185558,7 +185830,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 851793ed4d2c8fa4d9cd7cbcdfc4a262, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highlightColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+  highlightColor: {r: 0.654902, g: 0.34509805, b: 0, a: 1}
+--- !u!65 &8034480131441566382
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4613734795180068079}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.07005891, y: 0.038744655, z: 0.03474233}
+  m_Center: {x: 0.0000009537113, y: 4.452172e-15, z: -0.0028010812}
 --- !u!1001 &8050399066859486157
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -185709,8 +186002,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isOn: 0
-  offPosition: {x: 0.03645783, y: 0.277497, z: 0.007311466}
-  onPosition: {x: -0.1038886, y: 0.277497, z: 0.007311466}
+  onOffset: {x: -0.127, y: 0, z: 0}
   slideDuration: 0.15
   panelZone: {fileID: 1642998265}
   fusePanelManager: {fileID: 8386752586759161542}
@@ -185726,7 +186018,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 851793ed4d2c8fa4d9cd7cbcdfc4a262, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highlightColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+  highlightColor: {r: 0.654902, g: 0.34509805, b: 0, a: 1}
+--- !u!65 &8072414310516190441
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7428623823280340656}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.07005891, y: 0.038744655, z: 0.03474233}
+  m_Center: {x: 0.0000009537113, y: 0.00000011920929, z: -0.0028010812}
 --- !u!1 &8098027140682547143
 GameObject:
   m_ObjectHideFlags: 0
@@ -186191,7 +186504,7 @@ Transform:
   m_GameObject: {fileID: 991005131587074734}
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -0.103888646, y: 0.27749702, z: -0.2974885}
+  m_LocalPosition: {x: 0.03645783, y: 0.27749702, z: -0.2974885}
   m_LocalScale: {x: 1.1161001, y: 1.1161001, z: 0.443117}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -186210,8 +186523,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isOn: 0
-  offPosition: {x: 0.03645783, y: 0.277497, z: -0.2974885}
-  onPosition: {x: -0.1038886, y: 0.277497, z: -0.2974885}
+  onOffset: {x: -0.127, y: 0, z: 0}
   slideDuration: 0.15
   panelZone: {fileID: 1642998265}
   fusePanelManager: {fileID: 8386752586759161542}
@@ -186227,7 +186539,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 851793ed4d2c8fa4d9cd7cbcdfc4a262, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highlightColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+  highlightColor: {r: 0.654902, g: 0.34509805, b: 0, a: 1}
+--- !u!65 &8280549244883720315
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 991005131587074734}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.07005891, y: 0.038744655, z: 0.03474233}
+  m_Center: {x: 0.0000009537113, y: 0.00000011920929, z: -0.0027972665}
 --- !u!1001 &8288661626121022700
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -186509,7 +186842,7 @@ MonoBehaviour:
   - {fileID: 8464643884465600691}
   - {fileID: 8034480131441566380}
   - {fileID: 6337814022076253939}
-  correctSwitchStates: 
+  correctSwitchStates: 010001000101000100010001000100
   powerOKLight: {fileID: 3309880552203157243}
   lineBreakLight: {fileID: 6518556595415796646}
   matLightOn: {fileID: 0}
@@ -186647,7 +186980,7 @@ Transform:
   m_GameObject: {fileID: 7588227361574439857}
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -0.103888646, y: 0.27749702, z: 0.38831148}
+  m_LocalPosition: {x: 0.03645783, y: 0.27749702, z: 0.38831148}
   m_LocalScale: {x: 1.1161001, y: 1.1161001, z: 0.443117}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -186666,8 +186999,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isOn: 0
-  offPosition: {x: 0.03645783, y: 0.277497, z: 0.3883115}
-  onPosition: {x: -0.1038886, y: 0.277497, z: 0.3883115}
+  onOffset: {x: -0.127, y: 0, z: 0}
   slideDuration: 0.15
   panelZone: {fileID: 1642998265}
   fusePanelManager: {fileID: 8386752586759161542}
@@ -186683,7 +187015,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 851793ed4d2c8fa4d9cd7cbcdfc4a262, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highlightColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+  highlightColor: {r: 0.654902, g: 0.34509805, b: 0, a: 1}
+--- !u!65 &8464643884465600693
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7588227361574439857}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.07005891, y: 0.038744655, z: 0.03474233}
+  m_Center: {x: 0.0000019073857, y: 0.00000011920929, z: -0.0027972665}
 --- !u!4 &8502368276542905455 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4450030977667968413, guid: 004cf566a3c0f4940ab6088db62b44a8, type: 3}
@@ -187128,7 +187481,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -187249,7 +187602,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -187578,7 +187931,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -187999,7 +188352,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -188080,7 +188433,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -188220,6 +188573,44 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 76777477378658945}
   m_Mesh: {fileID: -6587049018223395562, guid: e35379fad6334164186a552d0738df36, type: 3}
+--- !u!65 &9097406045336319655
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 76777477378658945}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.07005891, y: 0.038744655, z: 0.03474233}
+  m_Center: {x: 0.0000009537113, y: 4.452172e-15, z: -0.0027934518}
+--- !u!114 &9097406045336319656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 76777477378658945}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adbcbeac7ac5b514686f43989621162b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isOn: 0
+  onOffset: {x: -0.127, y: 0, z: 0}
+  slideDuration: 0.15
+  panelZone: {fileID: 1642998265}
+  fusePanelManager: {fileID: 8386752586759161542}
 --- !u!1001 &9113015762121360021
 PrefabInstance:
   m_ObjectHideFlags: 0

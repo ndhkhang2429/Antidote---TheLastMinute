@@ -238,27 +238,45 @@ public class PlayerInteraction : MonoBehaviour
 
     public void EquipItem()
     {
-        if (_currentTarget == null) { PlayerState.Instance?.SetPickingUp(false); return; }
+        if (_currentTarget == null)
+        {
+            PlayerState.Instance?.SetPickingUp(false);
+            return;
+        }
 
         GameObject itemToPickUp = _currentTarget;
         ItemData data = itemToPickUp.GetComponent<ItemData>();
+
         if (data == null) return;
 
         ClearCurrentTarget();
 
-        var rb = itemToPickUp.GetComponent<Rigidbody>();
-        if (rb) rb.isKinematic = true;
+        // ── Giao tiếp với InventoryManager ──
+        InventoryManager inventory = GetComponent<InventoryManager>();
+        if (inventory != null)
+        {
+            // Cố gắng nhặt vật phẩm vào kho đồ
+            bool isPickedUp = inventory.TryPickupItem(data, 1);
 
-        var col = itemToPickUp.GetComponent<Collider>();
-        if (col) col.enabled = false;
+            if (isPickedUp)
+            {
+                // Nhặt thành công -> Hủy object ngoài môi trường
+                Destroy(itemToPickUp);
+                OnItemPickedUp?.Raise();
+            }
+            else
+            {
+                // Balo đầy hoặc không nhặt được
+                PlayerState.Instance?.SetPickingUp(false);
+                return;
+            }
+        }
+        else
+        {
+            Debug.LogWarning("[PlayerInteraction] Không tìm thấy InventoryManager trên Player!");
+        }
 
-        itemToPickUp.transform.SetParent(_weaponSlot);
-        itemToPickUp.transform.localPosition = data.holdPositionOffset;
-        itemToPickUp.transform.localRotation = Quaternion.Euler(data.holdRotationOffset);
-
-        PlayerState.Instance?.EquipWeapon(data.weaponType, itemToPickUp);
         PlayerState.Instance?.SetPickingUp(false);
-        OnItemPickedUp?.Raise();
     }
 
     private void DropCurrentItem()

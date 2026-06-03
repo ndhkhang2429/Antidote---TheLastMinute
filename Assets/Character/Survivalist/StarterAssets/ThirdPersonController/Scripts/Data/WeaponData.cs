@@ -1,26 +1,24 @@
 ﻿using UnityEngine;
 
-/// <summary>
-/// ScriptableObject chứa toàn bộ config của một loại vũ khí.
-/// Tạo asset: chuột phải → Create → ZombieGame → Weapon Data
-/// </summary>
-[CreateAssetMenu(fileName = "WeaponData_", menuName = "ZombieGame/Weapon Data")]
-public class WeaponDataSO : ScriptableObject
+[CreateAssetMenu(menuName = "Inventory/Weapon")]
+public class WeaponData : ItemData
 {
-    [Header("Thông tin")]
-    public string weaponName = "Tay không";
-    public int weaponType = 0;   // 0=Unarmed | 1=Melee | 2=Pistol | 3=Rifle
+    [Header("Inventory & Gun Stats")]
+    public WeaponSlotType slotType;   // Primary, Secondary, Melee, Grenade
+    public AmmoType ammoType;
+    public int magazineSize;
+    public int damage;
 
-    [Header("Damage")]
-    public float damage = 10f;
-    public float cooldown = 0.4f;
+    [Header("Melee & Attack Stats")]
+    public float cooldown = 0.5f;
+    public int comboSteps = 3;
+    public float comboResetTime = 1.0f;
 
-    [Header("Melee Hitbox")]
-    public float hitRadius = 1.2f;
+    [Header("Hitbox (Melee)")]
     public float hitDistance = 1.0f;
     public float hitHeight = 1.0f;
-
-    [Header("Combo (chỉ WeaponType = 0)")]
-    public int comboSteps = 2;           // số bước combo
-    public float comboResetTime = 0.8f;
+    public float hitRadius = 0.5f;
 }
+
+public enum WeaponSlotType { Primary, Secondary, Melee, Grenade }
+public enum AmmoType { Ammo556, Ammo762, Ammo12Gauge, ThrowableNone }

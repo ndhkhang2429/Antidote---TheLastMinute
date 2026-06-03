@@ -1,66 +1,55 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-/// <summary>
-/// Gắn vào từng Switch001-014.
-/// Chỉ cho click khi đang trong panel mode.
-/// Click → toggle ON/OFF + animate trượt.
-/// </summary>
 public class SwitchSlider : MonoBehaviour
 {
     [Header("Config")]
-    [Tooltip("Trạng thái mặc định ban đầu")]
     public bool isOn = false;
 
-    [Tooltip("Vị trí local của fuse khi OFF")]
-    public Vector3 offPosition = new Vector3(-0.03f, 0f, 0f);
+    [Tooltip("Trục và khoảng cách dịch chuyển từ vị trí gốc khi ON.\n" +
+             "Ví dụ: (0, 0, 0.03) = dịch 3cm theo trục Z khi ON\n" +
+             "Khi OFF sẽ ở vị trí gốc ban đầu.")]
+    public Vector3 onOffset = new Vector3(0f, 0f, 0.03f);
 
-    [Tooltip("Vị trí local của fuse khi ON")]
-    public Vector3 onPosition = new Vector3(0.03f, 0f, 0f);
-
-    [Tooltip("Thời gian trượt (giây)")]
     public float slideDuration = 0.15f;
 
     [Header("References")]
-    [Tooltip("Kéo PanelInteractZone của thùng điện vào")]
     public PanelInteractZone panelZone;
-
-    [Tooltip("Kéo FusePanelManager vào để trigger kiểm tra sau khi toggle")]
     public FusePanelManager fusePanelManager;
 
     // ── State ──────────────────────────────────────────────
+    private Vector3 _originPosition; // Vị trí gốc lúc Start
     private bool _isAnimating = false;
 
     void Start()
     {
-        // Set vị trí ban đầu theo isOn
-        transform.localPosition = isOn ? onPosition : offPosition;
+        // Ghi nhớ vị trí gốc
+        _originPosition = transform.localPosition;
+
+        // Set trạng thái ban đầu
+        if (isOn)
+            transform.localPosition = _originPosition + onOffset;
     }
 
     void OnMouseDown()
     {
-        // Chỉ cho tương tác khi đang trong panel mode
         if (panelZone == null || !panelZone.IsInPanelMode) return;
         if (_isAnimating) return;
-
         Toggle();
     }
 
     public void Toggle()
     {
         isOn = !isOn;
-        StartCoroutine(AnimateSlide(isOn ? onPosition : offPosition));
-
-        // Báo cho FusePanelManager kiểm tra lại trạng thái tổng
+        Vector3 target = isOn ? _originPosition + onOffset : _originPosition;
+        StartCoroutine(AnimateSlide(target));
         fusePanelManager?.UpdatePanelState();
-
         Debug.Log($"[Switch {gameObject.name}] → {(isOn ? "ON" : "OFF")}");
     }
 
     IEnumerator AnimateSlide(Vector3 targetPos)
     {
         _isAnimating = true;
-
         Vector3 startPos = transform.localPosition;
         float elapsed = 0f;
 
@@ -76,17 +65,13 @@ public class SwitchSlider : MonoBehaviour
         _isAnimating = false;
     }
 
-    // Gizmo: preview vị trí ON/OFF trong editor
     void OnDrawGizmosSelected()
     {
+        // Preview vị trí ON trong editor
+        Vector3 origin = transform.localPosition;
         Gizmos.color = Color.green;
         Gizmos.DrawSphere(transform.parent != null
-            ? transform.parent.TransformPoint(onPosition)
-            : transform.position + onPosition, 0.005f);
-
-        Gizmos.color = Color.red;
-        Gizmos.DrawSphere(transform.parent != null
-            ? transform.parent.TransformPoint(offPosition)
-            : transform.position + offPosition, 0.005f);
+            ? transform.parent.TransformPoint(origin + onOffset)
+            : transform.position + onOffset, 0.005f);
     }
 }

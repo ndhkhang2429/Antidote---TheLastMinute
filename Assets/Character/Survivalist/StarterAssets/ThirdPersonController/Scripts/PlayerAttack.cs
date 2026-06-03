@@ -10,8 +10,8 @@ using StarterAssets;  // ThirdPersonController input
 public class PlayerAttack : MonoBehaviour
 {
     [Header("Weapon Configs — tạo asset WeaponData_ trong Project")]
-    [SerializeField] private WeaponDataSO _unarmedData;   // kéo WeaponData_Unarmed vào
-    [SerializeField] private WeaponDataSO _meleeData;     // kéo WeaponData_Melee vào
+    [SerializeField] private WeaponData _unarmedData;   // kéo WeaponData_Unarmed vào
+    [SerializeField] private WeaponData _meleeData;     // kéo WeaponData_Melee vào
 
     [Header("Zombie Layer")]
     [SerializeField] private LayerMask _zombieLayer;
@@ -56,7 +56,7 @@ public class PlayerAttack : MonoBehaviour
     private void Update()
     {
         // Reset combo nếu lâu không bấm
-        WeaponDataSO current = CurrentWeaponData();
+        WeaponData current = CurrentWeaponData();
         if (current != null && Time.time - _lastPunchTime > current.comboResetTime)
             _punchComboIndex = 0;
 
@@ -81,7 +81,7 @@ public class PlayerAttack : MonoBehaviour
         }
 
         int weaponType = PlayerState.Instance.WeaponType;
-        WeaponDataSO data = weaponType == 0 ? _unarmedData : _meleeData;
+        WeaponData data = weaponType == 0 ? _unarmedData : _meleeData;
 
         if (data == null)
         {
@@ -100,7 +100,7 @@ public class PlayerAttack : MonoBehaviour
         OnWeaponFired?.Raise();
     }
 
-    private void PerformPunch(WeaponDataSO data)
+    private void PerformPunch(WeaponData data)
     {
         if (_animator == null) return;
 
@@ -113,12 +113,13 @@ public class PlayerAttack : MonoBehaviour
         Debug.Log($"[PlayerAttack] Punch combo {_punchComboIndex}");
     }
 
-    private void PerformWeaponAttack(WeaponDataSO data)
+    private void PerformWeaponAttack(WeaponData data)
     {
         if (_animator == null) return;
 
         _animator.SetTrigger(_paramWeaponAttack);
-        Debug.Log($"[PlayerAttack] Tấn công: {data.weaponName}");
+        // Sửa weaponName thành itemName (kế thừa từ ItemData)
+        Debug.Log($"[PlayerAttack] Tấn công: {data.itemName}");
     }
 
     // ── Animation Event (gắn vào đúng frame trong Animator) ──
@@ -128,7 +129,7 @@ public class PlayerAttack : MonoBehaviour
     /// </summary>
     public void OnMeleeHit()
     {
-        WeaponDataSO data = CurrentWeaponData();
+        WeaponData data = CurrentWeaponData();
         if (data == null) return;
 
         Vector3 hitCenter = transform.position
@@ -160,7 +161,7 @@ public class PlayerAttack : MonoBehaviour
 
     // ── Helper ─────────────────────────────────────────────
 
-    private WeaponDataSO CurrentWeaponData()
+    private WeaponData CurrentWeaponData()
     {
         if (PlayerState.Instance == null) return null;
         return PlayerState.Instance.WeaponType == 0 ? _unarmedData : _meleeData;
@@ -170,7 +171,7 @@ public class PlayerAttack : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        WeaponDataSO data = CurrentWeaponData() ?? _unarmedData;
+        WeaponData data = CurrentWeaponData() ?? _unarmedData;
         if (data == null) return;
 
         Gizmos.color = Color.red;
