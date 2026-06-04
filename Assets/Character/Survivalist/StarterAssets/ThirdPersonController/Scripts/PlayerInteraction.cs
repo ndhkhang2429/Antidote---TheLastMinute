@@ -95,7 +95,7 @@ public class PlayerInteraction : MonoBehaviour
                 if (highlight != null) highlight.ToggleHighlight(true);
 
                 // ── Phân loại UI prompt ────────────────────
-                var itemData = hitObject.GetComponent<ItemData>();
+                var itemData = hitObject.GetComponent<ItemDataSO>();
                 var door = hitObject.GetComponentInParent<ElectricalDoor>();
                 var mainSwitch = hitObject.GetComponentInParent<MainSwitchInteractable>();
                 var fuseItem = hitObject.GetComponent<FuseItem>();
@@ -166,7 +166,7 @@ public class PlayerInteraction : MonoBehaviour
     // ── Interact ───────────────────────────────────────────
     private void InteractWithCurrentTarget()
     {
-        var itemData = _currentTarget.GetComponent<ItemData>();
+        var itemData = _currentTarget.GetComponent<ItemDataSO>();
         var door = _currentTarget.GetComponentInParent<ElectricalDoor>();
         var mainSwitch = _currentTarget.GetComponentInParent<MainSwitchInteractable>();
         var fuseItem = _currentTarget.GetComponent<FuseItem>();
@@ -245,35 +245,33 @@ public class PlayerInteraction : MonoBehaviour
         }
 
         GameObject itemToPickUp = _currentTarget;
-        ItemData data = itemToPickUp.GetComponent<ItemData>();
 
-        if (data == null) return;
+        // Lấy data từ WorldItem thay vì GetComponent<ItemDataSO>()
+        WorldItem worldItem = itemToPickUp.GetComponent<WorldItem>();
+        if (worldItem == null || worldItem.itemData == null)
+        {
+            PlayerState.Instance?.SetPickingUp(false);
+            return;
+        }
+
+        ItemDataSO data = worldItem.itemData;
+        int quantity = worldItem.quantity;
 
         ClearCurrentTarget();
 
-        // ── Giao tiếp với InventoryManager ──
-        InventoryManager inventory = GetComponent<InventoryManager>();
-        if (inventory != null)
-        {
-            // Cố gắng nhặt vật phẩm vào kho đồ
-            bool isPickedUp = inventory.TryPickupItem(data, 1);
+        // Dùng PickupItem public thay vì TryAddToGrid private
+        bool picked = InventorySystem.Instance != null
+                      ? InventorySystem.Instance.PickupItem(data, quantity)
+                      : false;
 
-            if (isPickedUp)
-            {
-                // Nhặt thành công -> Hủy object ngoài môi trường
-                Destroy(itemToPickUp);
-                OnItemPickedUp?.Raise();
-            }
-            else
-            {
-                // Balo đầy hoặc không nhặt được
-                PlayerState.Instance?.SetPickingUp(false);
-                return;
-            }
+        if (picked)
+        {
+            Destroy(itemToPickUp);
+            OnItemPickedUp?.Raise();
         }
         else
         {
-            Debug.LogWarning("[PlayerInteraction] Không tìm thấy InventoryManager trên Player!");
+            Debug.Log("[PlayerInteraction] Balo đầy hoặc không nhặt được!");
         }
 
         PlayerState.Instance?.SetPickingUp(false);
