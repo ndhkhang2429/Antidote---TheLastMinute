@@ -52,19 +52,44 @@ public class ItemSlotUI : MonoBehaviour,
         _dragSource = this;
 
         _dragGhost = new GameObject("DragGhost");
-        _dragGhost.transform.SetParent(transform.root, false); // top canvas
+
+        // Đặt vào Canvas gốc (top-level)
+        Canvas rootCanvas = GetComponentInParent<Canvas>().rootCanvas;
+        _dragGhost.transform.SetParent(rootCanvas.transform, false);
+
         var img = _dragGhost.AddComponent<Image>();
         img.sprite = BoundSlot.item.icon;
-        img.raycastTarget = false;
+        img.raycastTarget = false; // QUAN TRỌNG: không chặn raycast
+        img.color = new Color(1, 1, 1, 0.8f);
+
         var rt = _dragGhost.GetComponent<RectTransform>();
         rt.sizeDelta = new Vector2(48, 48);
-        rt.anchoredPosition = e.position;
+        rt.pivot = new Vector2(0.5f, 0.5f);
+
+        // Dùng position thực thay vì anchoredPosition
+        MoveGhostToPointer(e);
     }
 
     public void OnDrag(PointerEventData e)
     {
         if (_dragGhost == null) return;
-        _dragGhost.GetComponent<RectTransform>().anchoredPosition += e.delta;
+        MoveGhostToPointer(e);
+    }
+
+    void MoveGhostToPointer(PointerEventData e)
+    {
+        var rt = _dragGhost.GetComponent<RectTransform>();
+        Canvas rootCanvas = GetComponentInParent<Canvas>().rootCanvas;
+
+        // Convert screen position sang local position của root canvas
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            rootCanvas.GetComponent<RectTransform>(),
+            e.position,
+            rootCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : e.pressEventCamera,
+            out Vector2 localPoint
+        );
+
+        rt.localPosition = localPoint;
     }
 
     public void OnEndDrag(PointerEventData e)

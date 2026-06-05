@@ -120,21 +120,15 @@ public class PlayerInteraction : MonoBehaviour
             return;
         }
 
-        // ── Fuse item ─────────────────────────────────────
-        var fuseItem = hitObject.GetComponent<FuseItem>();
-        if (fuseItem != null)
-        {
-            InteractionUIManager.Instance.ShowPrompt($"[F] Nhặt {fuseItem.displayName}");
-            return;
-        }
-
-        // ── Fuse slot ─────────────────────────────────────
+        // ── FuseSlot trên thùng điện ──────────────────────
         var fuseSlot = hitObject.GetComponentInParent<FuseSlot>();
         if (fuseSlot != null && fuseSlot.requiresFuse && !fuseSlot.HasFuse)
         {
-            string msg = (_fusePanelManager != null && _fusePanelManager.HasFuseInHand)
+            // Kiểm tra inventory có đúng fuse không
+            bool hasCorrectFuse = HasFuseInInventory(fuseSlot.correctFuseID);
+            string msg = hasCorrectFuse
                 ? $"[F] Gắn cầu chì vào slot {fuseSlot.slotIndex}"
-                : $"Slot {fuseSlot.slotIndex} trống – cần cầu chì";
+                : $"Cần cầu chì {fuseSlot.correctFuseID} – kiểm tra inventory";
             InteractionUIManager.Instance.ShowPrompt(msg);
             return;
         }
@@ -147,11 +141,16 @@ public class PlayerInteraction : MonoBehaviour
             return;
         }
 
-        // ── WorldItem (nhặt đồ vào inventory) ────────────
+        // ── WorldItem — bao gồm cả FuseItem mới ──────────
         var worldItem = hitObject.GetComponent<WorldItem>();
         if (worldItem != null && worldItem.itemData != null)
         {
-            InteractionUIManager.Instance.ShowPrompt($"[F] Nhặt {worldItem.itemData.itemName}");
+            // Hiện tên item, nếu là FuseItemDataSO thì hiện thêm ID
+            string itemDisplayName = worldItem.itemData.itemName;
+            if (worldItem.itemData is FuseItemDataSO fuseData)
+                itemDisplayName = $"Cầu chì [{fuseData.fuseID}]";
+
+            InteractionUIManager.Instance.ShowPrompt($"[F] Nhặt {itemDisplayName}");
             return;
         }
 
@@ -159,7 +158,8 @@ public class PlayerInteraction : MonoBehaviour
         var door = hitObject.GetComponentInParent<ElectricalDoor>();
         if (door != null)
         {
-            InteractionUIManager.Instance.ShowPrompt(door.isOpen ? "[F] Đóng cửa" : "[F] Mở tủ điện");
+            InteractionUIManager.Instance.ShowPrompt(
+                door.isOpen ? "[F] Đóng cửa" : "[F] Mở tủ điện");
             return;
         }
 
@@ -208,30 +208,26 @@ public class PlayerInteraction : MonoBehaviour
             return;
         }
 
-        // ── Fuse item ─────────────────────────────────────
-        var fuseItem = _currentTarget.GetComponent<FuseItem>();
-        if (fuseItem != null)
-        {
-            _fusePanelManager?.PickUpFuse(fuseItem.fuseID);
-            InteractionUIManager.Instance.ShowPrompt($"Đã nhặt {fuseItem.displayName}");
-            Destroy(_currentTarget);
-            ClearCurrentTarget();
-            return;
-        }
-
-        // ── Fuse slot ─────────────────────────────────────
+        // ── FuseSlot — gắn fuse từ inventory ─────────────
         var fuseSlot = _currentTarget.GetComponentInParent<FuseSlot>();
         if (fuseSlot != null && fuseSlot.requiresFuse && !fuseSlot.HasFuse)
         {
-            if (_fusePanelManager != null && _fusePanelManager.HasFuseInHand)
+            bool hasCorrectFuse = HasFuseInInventory(fuseSlot.correctFuseID);
+            if (!hasCorrectFuse)
+            {
+                InteractionUIManager.Instance.ShowPrompt(
+                    $"Cần cầu chì {fuseSlot.correctFuseID} trong inventory!");
+                ClearCurrentTarget();
+                return;
+            }
+
+            if (_fusePanelManager != null)
             {
                 bool success = _fusePanelManager.TryInsertHeldFuse(fuseSlot);
                 InteractionUIManager.Instance.ShowPrompt(
-                    success ? "Gắn cầu chì thành công!" : "Sai cầu chì cho slot này!");
-            }
-            else
-            {
-                InteractionUIManager.Instance.ShowPrompt("Không có cầu chì trong tay!");
+                    success
+                    ? $"✓ Gắn {fuseSlot.correctFuseID} thành công!"
+                    : $"✗ Gắn thất bại!");
             }
             ClearCurrentTarget();
             return;
@@ -245,7 +241,8 @@ public class PlayerInteraction : MonoBehaviour
             return;
         }
 
-        // ── WorldItem ─────────────────────────────────────
+        // ── WorldItem — nhặt vào inventory ───────────────
+        // Bao gồm cả FuseItem mới (dùng FuseItemDataSO + WorldItem)
         var worldItem = _currentTarget.GetComponent<WorldItem>();
         if (worldItem != null)
         {
@@ -280,7 +277,7 @@ public class PlayerInteraction : MonoBehaviour
     }
 
     /// <summary>
-    /// Gọi từ Animation Event khi animation nhặt đồ chạm frame pickup.
+    /// Gọi từ Animation Event khi frame pickup của animation.
     /// </summary>
     public void EquipItem()
     {
@@ -306,7 +303,7 @@ public class PlayerInteraction : MonoBehaviour
         ClearCurrentTarget();
 
         bool picked = InventorySystem.Instance != null
-                      && InventorySystem.Instance.PickupItem(data, qty);
+                   && InventorySystem.Instance.PickupItem(data, qty);
 
         if (picked)
         {
@@ -328,6 +325,19 @@ public class PlayerInteraction : MonoBehaviour
         if (PlayerState.Instance?.CurrentItemInHand == null) return;
         PlayerState.Instance.DropCurrentItem();
         OnItemDropped?.Raise();
+    }
+
+    // ── Helper: kiểm tra inventory có fuse đúng ID không ──
+    private bool HasFuseInInventory(string fuseID)
+    {
+        if (InventorySystem.Instance == null) return false;
+        foreach (var slot in InventorySystem.Instance.GetItemSlots())
+        {
+            if (slot.IsEmpty) continue;
+            if (slot.item is FuseItemDataSO fuse && fuse.fuseID == fuseID)
+                return true;
+        }
+        return false;
     }
 
     // ── Helpers ────────────────────────────────────────────

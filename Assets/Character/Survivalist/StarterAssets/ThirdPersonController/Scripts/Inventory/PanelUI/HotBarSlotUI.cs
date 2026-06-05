@@ -23,6 +23,8 @@ public class HotbarSlotUI : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
             keyLabel.text = slotIndex < KeyNames.Length ? KeyNames[slotIndex] : "";
     }
 
+
+
     // ── Refresh UI từ data ────────────────────────────────
     public void Refresh()
     {
@@ -43,16 +45,24 @@ public class HotbarSlotUI : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
     // ── Nhận drag từ ItemSlotUI ───────────────────────────
     public void OnDrop(PointerEventData e)
     {
+        Debug.Log($"[HotbarSlot {slotIndex}] OnDrop fired! drag object: {e.pointerDrag?.name ?? "NULL"}");
+
         var source = e.pointerDrag?.GetComponent<ItemSlotUI>();
-        if (source == null || source.BoundSlot == null || source.BoundSlot.IsEmpty) return;
+        if (source == null)
+        {
+            Debug.Log("[HotbarSlot] Không tìm thấy ItemSlotUI trên drag object!");
+            return;
+        }
+        if (source.BoundSlot == null || source.BoundSlot.IsEmpty)
+        {
+            Debug.Log("[HotbarSlot] BoundSlot trống!");
+            return;
+        }
 
         var item = source.BoundSlot.item;
-
-        // Chặn Equipment và Weapon thuần vào hotbar
-        if (item.category == ItemCategory.Equipment ||
-            item.category == ItemCategory.Weapon)
+        if (item.category == ItemCategory.Equipment || item.category == ItemCategory.Weapon)
         {
-            Debug.Log("[HotbarSlot] Vũ khí/trang bị không vào hotbar được.");
+            Debug.Log("[HotbarSlot] Không cho vũ khí/trang bị vào hotbar");
             return;
         }
 

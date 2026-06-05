@@ -1,17 +1,10 @@
 ﻿using UnityEngine;
 
-/// <summary>
-/// Não trung tâm của thùng điện.
-/// Kiểm tra: đủ fuse + tất cả switch đúng ON/OFF → cho phép gạt.
-/// </summary>
 public class FusePanelManager : MonoBehaviour
 {
     [Header("References")]
     public FuseSlot[] allSlots;
     public SwitchSlider[] allSwitches;
-
-    [Tooltip("Trạng thái đúng của từng switch (true=ON, false=OFF). " +
-             "Thứ tự phải khớp với allSwitches.")]
     public bool[] correctSwitchStates;
 
     [Header("Indicators")]
@@ -20,73 +13,84 @@ public class FusePanelManager : MonoBehaviour
     public Material matLightOn;
     public Material matLightOff;
 
-    // ── State ──────────────────────────────────────────────
     public bool IsPanelReady { get; private set; } = false;
 
-    private string _heldFuseID = null;
-    public bool HasFuseInHand => _heldFuseID != null;
-    public string HeldFuseID => _heldFuseID;
+    // Không còn _heldFuseID — dùng inventory
+    public bool HasFuseInHand => HasAnyFuseInInventory();
 
-    void Start()
+    void Start() => UpdatePanelState();
+
+    // ── Kiểm tra inventory có fuse nào không ─────────────
+    bool HasAnyFuseInInventory()
     {
-        UpdatePanelState();
+        if (InventorySystem.Instance == null) return false;
+        foreach (var slot in InventorySystem.Instance.GetItemSlots())
+            if (!slot.IsEmpty && slot.item is FuseItemDataSO) return true;
+        return false;
     }
 
-    public void PickUpFuse(string fuseID)
+    // ── Tìm fuse đúng ID trong inventory ─────────────────
+    FuseItemDataSO GetFuseFromInventory(string fuseID)
     {
-        _heldFuseID = fuseID;
-        Debug.Log($"[FusePanel] Player đang cầm fuse: {fuseID}");
+        if (InventorySystem.Instance == null) return null;
+        foreach (var slot in InventorySystem.Instance.GetItemSlots())
+        {
+            if (slot.IsEmpty) continue;
+            if (slot.item is FuseItemDataSO fuse && fuse.fuseID == fuseID)
+                return fuse;
+        }
+        return null;
     }
 
+    // ── Gắn fuse vào slot ────────────────────────────────
     public bool TryInsertHeldFuse(FuseSlot slot)
     {
-        if (_heldFuseID == null) return false;
+        // Tìm đúng fuse cần cho slot này
+        var fuse = GetFuseFromInventory(slot.correctFuseID);
+        if (fuse == null)
+        {
+            Debug.Log($"[FusePanel] Không có {slot.correctFuseID} trong inventory!");
+            return false;
+        }
 
-        bool success = slot.TryInsertFuse(_heldFuseID);
+        bool success = slot.TryInsertFuse(slot.correctFuseID);
         if (success)
         {
-            _heldFuseID = null;
+            InventorySystem.Instance.RemoveItem(fuse, 1);
             UpdatePanelState();
         }
         return success;
     }
 
-    /// <summary>
-    /// Gọi mỗi khi switch toggle hoặc fuse được gắn.
-    /// </summary>
+    // ── Giữ lại để không lỗi tham chiếu cũ ──────────────
+    public void PickUpFuse(string fuseID)
+    {
+        Debug.Log($"[FusePanel] PickUpFuse gọi nhưng giờ dùng inventory: {fuseID}");
+    }
+
     public void UpdatePanelState()
     {
         bool fusesOK = CheckAllFuses();
         bool switchesOK = CheckAllSwitches();
-
         IsPanelReady = fusesOK && switchesOK;
         UpdateIndicatorLights();
-
-        Debug.Log($"[FusePanel] Fuse: {fusesOK} | Switch: {switchesOK} | Ready: {IsPanelReady}");
+        Debug.Log($"[FusePanel] Fuse:{fusesOK} | Switch:{switchesOK} | Ready:{IsPanelReady}");
     }
 
     bool CheckAllFuses()
     {
         foreach (var slot in allSlots)
-        {
-            if (slot.requiresFuse && !slot.IsCorrect)
-                return false;
-        }
+            if (slot.requiresFuse && !slot.IsCorrect) return false;
         return true;
     }
 
     bool CheckAllSwitches()
     {
-        // Nếu chưa setup correctSwitchStates thì bỏ qua bước check này
-        if (correctSwitchStates == null || correctSwitchStates.Length == 0)
-            return true;
-
+        if (correctSwitchStates == null || correctSwitchStates.Length == 0) return true;
         for (int i = 0; i < allSwitches.Length; i++)
         {
             if (i >= correctSwitchStates.Length) break;
-
-            if (allSwitches[i].isOn != correctSwitchStates[i])
-                return false;
+            if (allSwitches[i].isOn != correctSwitchStates[i]) return false;
         }
         return true;
     }
@@ -95,7 +99,6 @@ public class FusePanelManager : MonoBehaviour
     {
         if (powerOKLight != null)
             powerOKLight.material = IsPanelReady ? matLightOn : matLightOff;
-
         if (lineBreakLight != null)
             lineBreakLight.material = IsPanelReady ? matLightOff : matLightOn;
     }
