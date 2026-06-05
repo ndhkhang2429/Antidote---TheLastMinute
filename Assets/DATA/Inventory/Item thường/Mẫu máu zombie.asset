@@ -9,12 +9,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 3e1cce4b68029a74dbfe8a0d8443f1e3, type: 3}
   m_Name: "M\u1EABu m\xE1u zombie"
   m_EditorClassIdentifier: 
   itemName: 
   icon: {fileID: 0}
-  category: 4
-  weight: 1
-  maxStack: 5
+  worldPrefab: {fileID: 0}
   description: 
+  category: 0
+  weaponSlotType: 0
+  maxStack: 1
+  weightPerUnit: 0
+  autoEquip: 0

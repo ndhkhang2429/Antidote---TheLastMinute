@@ -6,9 +6,12 @@ public class InventorySystem : MonoBehaviour
 {
     public static InventorySystem Instance { get; private set; }
 
+    [Header("Starting Equipment")]
+    [SerializeField] private BackpackDataSO _startingBackpack;
+
     [Header("Equipment Slots")]
-    public ItemDataSO equippedHelmet;
-    public ItemDataSO equippedVest;
+    public HelmetDataSO equippedHelmet;
+    public VestDataSO equippedVest;
     public BackpackDataSO equippedBackpack;
 
     [Header("Weapon Slots (index 0-3 = ô 1-4)")]
@@ -19,18 +22,14 @@ public class InventorySystem : MonoBehaviour
     [SerializeField] private int maxItemSlots = 32;
 
     [Header("Hotbar")]
-    public InventorySlot[] hotbarSlots = new InventorySlot[3]; // Q, E, R
+    public InventorySlot[] hotbarSlots = new InventorySlot[3];
 
-    // ── Events ──────────────────────────────────────────────
+    // ── Events ───────────────────────────────────────────────
     public event Action OnInventoryChanged;
     public event Action<ItemDataSO> OnWeaponEquipped;
-    public event Action<int> OnHotbarUsed; // index hotbar
+    public event Action<int> OnHotbarUsed;
 
-    // Thêm method public này để các class khác trigger event
-    public void NotifyInventoryChanged()
-    {
-        OnInventoryChanged?.Invoke();
-    }
+    public void NotifyInventoryChanged() => OnInventoryChanged?.Invoke();
 
     // ── Capacity ─────────────────────────────────────────────
     public int MaxCapacity => equippedBackpack != null ? equippedBackpack.capacity : 0;
@@ -43,7 +42,7 @@ public class InventorySystem : MonoBehaviour
             foreach (var slot in itemSlots)
                 if (!slot.IsEmpty)
                     used += slot.item.weightPerUnit * slot.quantity;
-            // Lựu đạn trong weapon slot 4 cũng tính
+
             var grenadeSlot = weaponSlots[3];
             if (!grenadeSlot.IsEmpty)
                 used += grenadeSlot.item.weightPerUnit * grenadeSlot.quantity;
@@ -51,7 +50,7 @@ public class InventorySystem : MonoBehaviour
         }
     }
 
-    // ────────────────────────────────────────────────────────
+    // ── Lifecycle ─────────────────────────────────────────────
     void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
@@ -62,41 +61,65 @@ public class InventorySystem : MonoBehaviour
         for (int i = 0; i < hotbarSlots.Length; i++) hotbarSlots[i] = new InventorySlot();
     }
 
-    // ── Nhặt item ────────────────────────────────────────────
-    /// <returns>true nếu nhặt được ít nhất 1</returns>
+    void Start()
+    {
+        if (equippedBackpack == null && _startingBackpack != null)
+            equippedBackpack = _startingBackpack;
+
+        // Pre-allocate toàn bộ slot ngay từ đầu
+        itemSlots.Clear();
+        for (int i = 0; i < maxItemSlots; i++)
+            itemSlots.Add(new InventorySlot());
+    }
+
+    // ── Pickup ────────────────────────────────────────────────
     public bool PickupItem(ItemDataSO item, int amount = 1)
     {
+        if (item == null) return false;
+
         switch (item.category)
         {
             case ItemCategory.Equipment:
                 return TryEquipEquipment(item);
-
             case ItemCategory.Weapon:
                 return TryEquipWeapon(item as WeaponDataSO);
-
             case ItemCategory.Grenade:
-                // Lựu đạn vào item grid trước, người chơi tự kéo vào ô 4
                 return TryAddToGrid(item, amount);
-
-            default: // Consumable, Ammo, QuestItem
+            default:
                 return TryAddToGrid(item, amount);
         }
     }
 
-    // ── Equipment ────────────────────────────────────────────
+    // ── Equipment ─────────────────────────────────────────────
     bool TryEquipEquipment(ItemDataSO item)
     {
-        if (item is BackpackDataSO bp) { equippedBackpack = bp; OnInventoryChanged?.Invoke(); return true; }
-        // phân loại nón/giáp qua itemName hoặc thêm enum con
-        // ở đây dùng category phụ đơn giản:
-        if (item.itemName.ToLower().Contains("nón") || item.itemName.ToLower().Contains("helmet"))
-        { equippedHelmet = item; OnInventoryChanged?.Invoke(); return true; }
-        equippedVest = item;
-        OnInventoryChanged?.Invoke();
-        return true;
+        if (item is BackpackDataSO bp)
+        {
+            equippedBackpack = bp;
+            OnInventoryChanged?.Invoke();
+            return true;
+        }
+
+        if (item is HelmetDataSO helmet)
+        {
+            equippedHelmet = helmet;
+            OnInventoryChanged?.Invoke();
+            Debug.Log($"[Inventory] Đội nón: {helmet.itemName} | Giảm {helmet.damageReduction * 100}% sát thương");
+            return true;
+        }
+
+        if (item is VestDataSO vest)
+        {
+            equippedVest = vest;
+            OnInventoryChanged?.Invoke();
+            Debug.Log($"[Inventory] Mặc áo giáp: {vest.itemName} | Level {vest.vestLevel}");
+            return true;
+        }
+
+        return false;
     }
 
-    // ── Weapon ───────────────────────────────────────────────
+    // ── Weapon ────────────────────────────────────────────────
     public bool TryEquipWeapon(WeaponDataSO weapon)
     {
         if (weapon == null) return false;
@@ -119,23 +142,46 @@ public class InventorySystem : MonoBehaviour
     };
 
     // ── Item Grid ─────────────────────────────────────────────
-    bool TryAddToGrid(ItemDataSO item, int amount)
+    public bool TryAddToGrid(ItemDataSO item, int amount)
     {
+        Debug.Log($"[DEBUG] TryAddToGrid called: {item.itemName} x{amount}");
         if (equippedBackpack == null)
         {
-            Debug.Log("Không có balo!");
+            Debug.Log("[Inventory] Không có balo!");
             return false;
         }
 
-        int weightNeeded = item.weightPerUnit * amount;
-        if (UsedCapacity + weightNeeded > MaxCapacity)
+        // ── Fix: item không có weight thì không giới hạn theo weight ──
+        if (item.weightPerUnit <= 0)
         {
-            // Thêm được 1 phần
-            int canFit = (MaxCapacity - UsedCapacity) / item.weightPerUnit;
-            if (canFit <= 0) { Debug.Log("Balo đầy!"); return false; }
-            amount = canFit;
+            // Chỉ giới hạn số slot
+            return AddToSlots(item, amount);
         }
 
+        // Kiểm tra sức chứa
+        int remaining = amount;
+        int freeCapacity = MaxCapacity - UsedCapacity;
+
+        if (freeCapacity <= 0)
+        {
+            Debug.Log("[Inventory] Balo đầy!");
+            return false;
+        }
+
+        // Tính số lượng thực sự có thể nhặt
+        int canFit = freeCapacity / item.weightPerUnit;
+        if (canFit <= 0)
+        {
+            Debug.Log("[Inventory] Balo không đủ chỗ!");
+            return false;
+        }
+
+        remaining = Mathf.Min(amount, canFit);
+        return AddToSlots(item, remaining);
+    }
+
+    bool AddToSlots(ItemDataSO item, int amount)
+    {
         int remaining = amount;
 
         // 1. Stack vào ô đã có cùng loại
@@ -148,20 +194,31 @@ public class InventorySystem : MonoBehaviour
             }
         }
 
-        // 2. Mở ô mới
-        while (remaining > 0 && itemSlots.Count < maxItemSlots)
+        // 2. Tìm ô trống đầu tiên — KHÔNG tạo slot mới
+        if (remaining > 0)
         {
-            var newSlot = new InventorySlot();
-            newSlot.Set(item, 0);
-            remaining = newSlot.Add(remaining);
-            itemSlots.Add(newSlot);
+            foreach (var slot in itemSlots)
+            {
+                if (slot.IsEmpty)
+                {
+                    slot.Set(item, 0);
+                    remaining = slot.Add(remaining);
+                    if (remaining == 0) break;
+                }
+            }
         }
 
-        OnInventoryChanged?.Invoke();
-        return remaining < amount; // true nếu ít nhất 1 cái được thêm
+        if (remaining < amount)
+        {
+            OnInventoryChanged?.Invoke();
+            return true;
+        }
+
+        Debug.Log("[Inventory] Balo đầy, không còn ô trống!");
+        return false;
     }
 
-    // ── Remove ───────────────────────────────────────────────
+    // ── Remove ────────────────────────────────────────────────
     public bool RemoveItem(ItemDataSO item, int amount = 1)
     {
         int toRemove = amount;
@@ -174,12 +231,12 @@ public class InventorySystem : MonoBehaviour
             if (slot.quantity <= 0) slot.Clear();
             if (toRemove <= 0) break;
         }
+
         if (toRemove < amount) { OnInventoryChanged?.Invoke(); return true; }
         return false;
     }
 
     // ── Hotbar ────────────────────────────────────────────────
-    /// Gán item vào hotbar (gọi từ UI khi drag)
     public void AssignHotbar(int index, ItemDataSO item, int qty)
     {
         if (index < 0 || index >= hotbarSlots.Length) return;
@@ -187,16 +244,13 @@ public class InventorySystem : MonoBehaviour
         OnInventoryChanged?.Invoke();
     }
 
-    /// Sử dụng hotbar (nhấn Q/E/R)
     public void UseHotbar(int index)
     {
         if (index < 0 || index >= hotbarSlots.Length) return;
         var slot = hotbarSlots[index];
         if (slot.IsEmpty) return;
 
-        // Gọi logic dùng item – delegate sang ItemUser
         ItemUser.Use(slot.item, gameObject);
-
         slot.quantity--;
         if (slot.quantity <= 0) slot.Clear();
 
@@ -204,17 +258,18 @@ public class InventorySystem : MonoBehaviour
         OnInventoryChanged?.Invoke();
     }
 
-    // ── Lựu đạn vào ô 4 (drag từ grid sang weapon slot) ─────
+    // ── Grenade → Weapon Slot 4 ───────────────────────────────
     public bool MoveGrenadeToWeaponSlot(InventorySlot fromGridSlot)
     {
-        if (fromGridSlot.IsEmpty || fromGridSlot.item.category != ItemCategory.Grenade) return false;
+        if (fromGridSlot.IsEmpty || fromGridSlot.item.category != ItemCategory.Grenade)
+            return false;
 
         var grenadeSlot = weaponSlots[3];
         if (!grenadeSlot.IsEmpty && grenadeSlot.item != fromGridSlot.item)
         {
-            // swap về grid
-            itemSlots.Add(new InventorySlot());
-            itemSlots[^1].Set(grenadeSlot.item, grenadeSlot.quantity);
+            var swapSlot = new InventorySlot();
+            swapSlot.Set(grenadeSlot.item, grenadeSlot.quantity);
+            itemSlots.Add(swapSlot);
         }
 
         grenadeSlot.Set(fromGridSlot.item, fromGridSlot.quantity);
@@ -223,7 +278,7 @@ public class InventorySystem : MonoBehaviour
         return true;
     }
 
-    // ── Helpers ──────────────────────────────────────────────
+    // ── Helpers ───────────────────────────────────────────────
     public List<InventorySlot> GetItemSlots() => itemSlots;
 
     public bool HasItem(ItemDataSO item, int amount = 1)
@@ -241,4 +296,4 @@ public class InventorySystem : MonoBehaviour
             if (!slot.IsEmpty && slot.item == item) count += slot.quantity;
         return count;
     }
-}           
+}

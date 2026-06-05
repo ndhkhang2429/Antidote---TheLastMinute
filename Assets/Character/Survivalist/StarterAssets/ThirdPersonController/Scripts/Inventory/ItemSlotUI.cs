@@ -19,16 +19,30 @@ public class ItemSlotUI : MonoBehaviour,
     public void Bind(InventorySlot slot)
     {
         BoundSlot = slot;
+        Debug.Log($"[SlotUI] Bind — slot null:{slot == null} | empty:{slot?.IsEmpty} | item:{slot?.item?.itemName ?? "NULL"}");
         Refresh();
     }
 
     public void Refresh()
     {
         bool empty = BoundSlot == null || BoundSlot.IsEmpty;
-        iconImage.enabled = !empty;
-        quantityText.text = empty ? "" : (BoundSlot.quantity > 1 ? $"x{BoundSlot.quantity}" : "");
-        weightText.text = empty ? "" : $"{BoundSlot.item.weightPerUnit * BoundSlot.quantity}";
-        if (!empty) iconImage.sprite = BoundSlot.item.icon;
+
+        if (!empty)
+        {
+            iconImage.sprite = BoundSlot.item.icon != null ? BoundSlot.item.icon : null;
+            iconImage.enabled = true;
+            iconImage.color = Color.white; // ← THÊM DÒNG NÀY
+            quantityText.text = BoundSlot.quantity > 1 ? $"{BoundSlot.quantity}" : "";
+            weightText.text = BoundSlot.item.weightPerUnit > 0
+                                ? $"{BoundSlot.item.weightPerUnit * BoundSlot.quantity}" : "";
+        }
+        else
+        {
+            iconImage.enabled = false;
+            iconImage.color = Color.white;
+            quantityText.text = "";
+            weightText.text = "";
+        }
     }
 
     // ── Drag ─────────────────────────────────────────────────

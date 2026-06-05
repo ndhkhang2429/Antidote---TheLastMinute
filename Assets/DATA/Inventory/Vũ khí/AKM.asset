@@ -9,10 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe2c600d733d08f4f85e6c3dc52d56e5, type: 3}
-  m_Name: Balo 3
+  m_Script: {fileID: 11500000, guid: 04ce8e414680cba4aa1845a9e8740ae4, type: 3}
+  m_Name: AKM
   m_EditorClassIdentifier: 
-  itemName: Balo_3
+  itemName: 
   icon: {fileID: 0}
   worldPrefab: {fileID: 0}
   description: 
@@ -21,7 +21,15 @@ MonoBehaviour:
   maxStack: 1
   weightPerUnit: 0
   autoEquip: 0
-  capacity: 250
-  backpackMesh: {fileID: 7713738557091187532, guid: 0e55d5c42cc96404f872b45455603f8b, type: 3}
-  backpackMaterials:
-  - {fileID: 2100000, guid: bc58aa514ab258f4893db2112f1454c6, type: 2}
+  damage: 0
+  fireRate: 0
+  magazineSize: 0
+  compatibleAmmo: {fileID: 0}
+  weaponPrefab: {fileID: 0}
+  attachPointName: 
+  comboResetTime: 1.2
+  comboSteps: 3
+  cooldown: 0.5
+  hitDistance: 1.2
+  hitHeight: 0.8
+  hitRadius: 0.6

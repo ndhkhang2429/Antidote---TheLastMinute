@@ -9,12 +9,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 3e1cce4b68029a74dbfe8a0d8443f1e3, type: 3}
   m_Name: "B\u0103ng g\u1EA1c"
   m_EditorClassIdentifier: 
-  itemName: "B\u0103ng g\u1EA1c"
+  itemName: 
   icon: {fileID: 0}
-  category: 2
-  weight: 5
-  maxStack: 10
+  worldPrefab: {fileID: 0}
   description: 
+  category: 0
+  weaponSlotType: 0
+  maxStack: 1
+  weightPerUnit: 0
+  autoEquip: 0

@@ -9,10 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe2c600d733d08f4f85e6c3dc52d56e5, type: 3}
-  m_Name: Balo 3
+  m_Script: {fileID: 11500000, guid: 3e1cce4b68029a74dbfe8a0d8443f1e3, type: 3}
+  m_Name: Slot Q
   m_EditorClassIdentifier: 
-  itemName: Balo_3
+  itemName: 
   icon: {fileID: 0}
   worldPrefab: {fileID: 0}
   description: 
@@ -21,7 +21,3 @@ MonoBehaviour:
   maxStack: 1
   weightPerUnit: 0
   autoEquip: 0
-  capacity: 250
-  backpackMesh: {fileID: 7713738557091187532, guid: 0e55d5c42cc96404f872b45455603f8b, type: 3}
-  backpackMaterials:
-  - {fileID: 2100000, guid: bc58aa514ab258f4893db2112f1454c6, type: 2}

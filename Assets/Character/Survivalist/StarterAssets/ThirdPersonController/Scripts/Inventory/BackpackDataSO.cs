@@ -4,5 +4,9 @@
 public class BackpackDataSO : ItemDataSO
 {
     [Header("Backpack")]
-    public int capacity; // tổng sức chứa
+    public int capacity;
+
+    [Header("Visual — mesh gắn trên player")]
+    public Mesh backpackMesh;
+    public Material[] backpackMaterials;
 }

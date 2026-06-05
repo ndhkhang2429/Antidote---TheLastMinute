@@ -19,8 +19,6 @@ public class PlayerInteraction : MonoBehaviour
     // ── Private ────────────────────────────────────────────
     private Animator _animator;
     private GameObject _currentTarget = null;
-
-    // Lưu PanelInteractZone đang active (nếu có)
     private PanelInteractZone _activePanelZone = null;
 
     [Header("Quest Items")]
@@ -31,6 +29,7 @@ public class PlayerInteraction : MonoBehaviour
 
     private float InteractionRadius => _statsSO != null ? _statsSO.interactionRadius : 3f;
 
+    // ── Lifecycle ──────────────────────────────────────────
     private void Start()
     {
         _animator = GetComponentInChildren<Animator>();
@@ -51,20 +50,20 @@ public class PlayerInteraction : MonoBehaviour
 
     private void Update()
     {
-        // ── Khi đang examine (đọc tờ giấy) ───────────────
+        // ── Đang đọc tờ giấy ──────────────────────────────
         if (ExamineUIController.Instance != null && ExamineUIController.Instance.IsExamining)
         {
             if (Input.GetKeyDown(KeyCode.F) || Input.GetKeyDown(KeyCode.Escape))
                 ExamineUIController.Instance.CloseExamine();
-            return; // Không xử lý gì khác khi đang đọc
+            return;
         }
 
-        // ── Khi đang trong panel mode ──────────────────────
+        // ── Đang trong panel mode ──────────────────────────
         if (_activePanelZone != null && _activePanelZone.IsInPanelMode)
         {
             if (Input.GetKeyDown(KeyCode.F) || Input.GetKeyDown(KeyCode.Escape))
                 _activePanelZone.TogglePanelMode();
-            return; // Input còn lại (click switch...) do PanelInteractZone tự xử lý
+            return;
         }
 
         // ── Gameplay bình thường ───────────────────────────
@@ -92,58 +91,9 @@ public class PlayerInteraction : MonoBehaviour
                 _currentTarget = hitObject;
 
                 var highlight = _currentTarget.GetComponent<ItemHighlight>();
-                if (highlight != null) highlight.ToggleHighlight(true);
+                highlight?.ToggleHighlight(true);
 
-                // ── Phân loại UI prompt ────────────────────
-                var itemData = hitObject.GetComponent<ItemDataSO>();
-                var door = hitObject.GetComponentInParent<ElectricalDoor>();
-                var mainSwitch = hitObject.GetComponentInParent<MainSwitchInteractable>();
-                var fuseItem = hitObject.GetComponent<FuseItem>();
-                var fuseSlot = hitObject.GetComponentInParent<FuseSlot>();
-                var panelZone = hitObject.GetComponentInParent<PanelInteractZone>();   // NEW
-                var examinable = hitObject.GetComponent<ExaminableObject>();             // NEW
-
-                if (examinable != null)
-                {
-                    // Tờ giấy / vật phẩm đọc được
-                    InteractionUIManager.Instance.ShowPrompt($"[F] Đọc {examinable.objectName}");
-                }
-                else if (panelZone != null)
-                {
-                    // Workstation có thể zoom vào
-                    InteractionUIManager.Instance.ShowPrompt(panelZone.enterPrompt);
-                }
-                else if (fuseItem != null)
-                {
-                    InteractionUIManager.Instance.ShowPrompt($"[F] Nhặt {fuseItem.displayName}");
-                }
-                else if (fuseSlot != null && fuseSlot.requiresFuse && !fuseSlot.HasFuse)
-                {
-                    if (_fusePanelManager != null && _fusePanelManager.HasFuseInHand)
-                        InteractionUIManager.Instance.ShowPrompt($"[F] Gắn cầu chì vào slot {fuseSlot.slotIndex}");
-                    else
-                        InteractionUIManager.Instance.ShowPrompt($"Slot {fuseSlot.slotIndex} trống – cần cầu chì");
-                }
-                else if (mainSwitch != null)
-                {
-                    InteractionUIManager.Instance.ShowPrompt("[F] Gạt cần điện");
-                }
-                else if (itemData != null)
-                {
-                    InteractionUIManager.Instance.ShowPrompt($"[F] Nhặt {itemData.itemName}");
-                }
-                else if (door != null)
-                {
-                    InteractionUIManager.Instance.ShowPrompt(door.isOpen ? "[F] Đóng cửa" : "[F] Mở tủ điện");
-                }
-                else if (hitObject.CompareTag("ElectricalKey"))
-                {
-                    InteractionUIManager.Instance.ShowPrompt("[F] Lấy chìa khóa");
-                }
-                else
-                {
-                    _currentTarget = null;
-                }
+                ShowPromptForTarget(hitObject);
             }
         }
         else
@@ -152,12 +102,84 @@ public class PlayerInteraction : MonoBehaviour
         }
     }
 
+    private void ShowPromptForTarget(GameObject hitObject)
+    {
+        // ── Examinable ────────────────────────────────────
+        var examinable = hitObject.GetComponent<ExaminableObject>();
+        if (examinable != null)
+        {
+            InteractionUIManager.Instance.ShowPrompt($"[F] Đọc {examinable.objectName}");
+            return;
+        }
+
+        // ── Panel zone ────────────────────────────────────
+        var panelZone = hitObject.GetComponentInParent<PanelInteractZone>();
+        if (panelZone != null)
+        {
+            InteractionUIManager.Instance.ShowPrompt(panelZone.enterPrompt);
+            return;
+        }
+
+        // ── Fuse item ─────────────────────────────────────
+        var fuseItem = hitObject.GetComponent<FuseItem>();
+        if (fuseItem != null)
+        {
+            InteractionUIManager.Instance.ShowPrompt($"[F] Nhặt {fuseItem.displayName}");
+            return;
+        }
+
+        // ── Fuse slot ─────────────────────────────────────
+        var fuseSlot = hitObject.GetComponentInParent<FuseSlot>();
+        if (fuseSlot != null && fuseSlot.requiresFuse && !fuseSlot.HasFuse)
+        {
+            string msg = (_fusePanelManager != null && _fusePanelManager.HasFuseInHand)
+                ? $"[F] Gắn cầu chì vào slot {fuseSlot.slotIndex}"
+                : $"Slot {fuseSlot.slotIndex} trống – cần cầu chì";
+            InteractionUIManager.Instance.ShowPrompt(msg);
+            return;
+        }
+
+        // ── Main switch ───────────────────────────────────
+        var mainSwitch = hitObject.GetComponentInParent<MainSwitchInteractable>();
+        if (mainSwitch != null)
+        {
+            InteractionUIManager.Instance.ShowPrompt("[F] Gạt cần điện");
+            return;
+        }
+
+        // ── WorldItem (nhặt đồ vào inventory) ────────────
+        var worldItem = hitObject.GetComponent<WorldItem>();
+        if (worldItem != null && worldItem.itemData != null)
+        {
+            InteractionUIManager.Instance.ShowPrompt($"[F] Nhặt {worldItem.itemData.itemName}");
+            return;
+        }
+
+        // ── Electrical door ───────────────────────────────
+        var door = hitObject.GetComponentInParent<ElectricalDoor>();
+        if (door != null)
+        {
+            InteractionUIManager.Instance.ShowPrompt(door.isOpen ? "[F] Đóng cửa" : "[F] Mở tủ điện");
+            return;
+        }
+
+        // ── Electrical key ────────────────────────────────
+        if (hitObject.CompareTag("ElectricalKey"))
+        {
+            InteractionUIManager.Instance.ShowPrompt("[F] Lấy chìa khóa");
+            return;
+        }
+
+        // Không nhận dạng được → bỏ target
+        _currentTarget = null;
+    }
+
     private void ClearCurrentTarget()
     {
         if (_currentTarget != null)
         {
             var highlight = _currentTarget.GetComponent<ItemHighlight>();
-            if (highlight != null) highlight.ToggleHighlight(false);
+            highlight?.ToggleHighlight(false);
             _currentTarget = null;
         }
         InteractionUIManager.Instance?.HidePrompt();
@@ -166,34 +188,40 @@ public class PlayerInteraction : MonoBehaviour
     // ── Interact ───────────────────────────────────────────
     private void InteractWithCurrentTarget()
     {
-        var itemData = _currentTarget.GetComponent<ItemDataSO>();
-        var door = _currentTarget.GetComponentInParent<ElectricalDoor>();
-        var mainSwitch = _currentTarget.GetComponentInParent<MainSwitchInteractable>();
-        var fuseItem = _currentTarget.GetComponent<FuseItem>();
-        var fuseSlot = _currentTarget.GetComponentInParent<FuseSlot>();
-        var panelZone = _currentTarget.GetComponentInParent<PanelInteractZone>();
-        var examinable = _currentTarget.GetComponent<ExaminableObject>();
+        if (_currentTarget == null) return;
 
+        // ── Examinable ────────────────────────────────────
+        var examinable = _currentTarget.GetComponent<ExaminableObject>();
         if (examinable != null)
         {
-            // Mở UI đọc - object vẫn còn nguyên tại chỗ
             ExamineUIController.Instance?.OpenExamine(examinable);
+            return;
         }
-        else if (panelZone != null)
+
+        // ── Panel zone ────────────────────────────────────
+        var panelZone = _currentTarget.GetComponentInParent<PanelInteractZone>();
+        if (panelZone != null)
         {
-            // Zoom camera vào panel
             _activePanelZone = panelZone;
             panelZone.TogglePanelMode();
             ClearCurrentTarget();
+            return;
         }
-        else if (fuseItem != null)
+
+        // ── Fuse item ─────────────────────────────────────
+        var fuseItem = _currentTarget.GetComponent<FuseItem>();
+        if (fuseItem != null)
         {
             _fusePanelManager?.PickUpFuse(fuseItem.fuseID);
             InteractionUIManager.Instance.ShowPrompt($"Đã nhặt {fuseItem.displayName}");
             Destroy(_currentTarget);
             ClearCurrentTarget();
+            return;
         }
-        else if (fuseSlot != null && fuseSlot.requiresFuse && !fuseSlot.HasFuse)
+
+        // ── Fuse slot ─────────────────────────────────────
+        var fuseSlot = _currentTarget.GetComponentInParent<FuseSlot>();
+        if (fuseSlot != null && fuseSlot.requiresFuse && !fuseSlot.HasFuse)
         {
             if (_fusePanelManager != null && _fusePanelManager.HasFuseInHand)
             {
@@ -206,21 +234,36 @@ public class PlayerInteraction : MonoBehaviour
                 InteractionUIManager.Instance.ShowPrompt("Không có cầu chì trong tay!");
             }
             ClearCurrentTarget();
+            return;
         }
-        else if (mainSwitch != null)
+
+        // ── Main switch ───────────────────────────────────
+        var mainSwitch = _currentTarget.GetComponentInParent<MainSwitchInteractable>();
+        if (mainSwitch != null)
         {
             mainSwitch.Interact();
+            return;
         }
-        else if (itemData != null)
+
+        // ── WorldItem ─────────────────────────────────────
+        var worldItem = _currentTarget.GetComponent<WorldItem>();
+        if (worldItem != null)
         {
             PerformPickup();
+            return;
         }
-        else if (door != null)
+
+        // ── Electrical door ───────────────────────────────
+        var door = _currentTarget.GetComponentInParent<ElectricalDoor>();
+        if (door != null)
         {
             door.InteractWithDoor(hasElectricalKey);
             ClearCurrentTarget();
+            return;
         }
-        else if (_currentTarget.CompareTag("ElectricalKey"))
+
+        // ── Electrical key ────────────────────────────────
+        if (_currentTarget.CompareTag("ElectricalKey"))
         {
             hasElectricalKey = true;
             Destroy(_currentTarget);
@@ -228,7 +271,7 @@ public class PlayerInteraction : MonoBehaviour
         }
     }
 
-    // ── Pickup / Drop ──────────────────────────────────────
+    // ── Pickup ─────────────────────────────────────────────
     private void PerformPickup()
     {
         if (_animator == null || _currentTarget == null) return;
@@ -236,6 +279,9 @@ public class PlayerInteraction : MonoBehaviour
         _animator.SetTrigger(_paramPickUp);
     }
 
+    /// <summary>
+    /// Gọi từ Animation Event khi animation nhặt đồ chạm frame pickup.
+    /// </summary>
     public void EquipItem()
     {
         if (_currentTarget == null)
@@ -246,28 +292,27 @@ public class PlayerInteraction : MonoBehaviour
 
         GameObject itemToPickUp = _currentTarget;
 
-        // Lấy data từ WorldItem thay vì GetComponent<ItemDataSO>()
         WorldItem worldItem = itemToPickUp.GetComponent<WorldItem>();
         if (worldItem == null || worldItem.itemData == null)
         {
+            Debug.LogWarning("[PlayerInteraction] Không tìm thấy WorldItem hoặc itemData!");
             PlayerState.Instance?.SetPickingUp(false);
             return;
         }
 
         ItemDataSO data = worldItem.itemData;
-        int quantity = worldItem.quantity;
+        int qty = worldItem.quantity;
 
         ClearCurrentTarget();
 
-        // Dùng PickupItem public thay vì TryAddToGrid private
         bool picked = InventorySystem.Instance != null
-                      ? InventorySystem.Instance.PickupItem(data, quantity)
-                      : false;
+                      && InventorySystem.Instance.PickupItem(data, qty);
 
         if (picked)
         {
             Destroy(itemToPickUp);
             OnItemPickedUp?.Raise();
+            Debug.Log($"[PlayerInteraction] Đã nhặt: {data.itemName} x{qty}");
         }
         else
         {
@@ -277,6 +322,7 @@ public class PlayerInteraction : MonoBehaviour
         PlayerState.Instance?.SetPickingUp(false);
     }
 
+    // ── Drop ───────────────────────────────────────────────
     private void DropCurrentItem()
     {
         if (PlayerState.Instance?.CurrentItemInHand == null) return;
@@ -284,18 +330,18 @@ public class PlayerInteraction : MonoBehaviour
         OnItemDropped?.Raise();
     }
 
+    // ── Helpers ────────────────────────────────────────────
     private void SyncAnimatorWeaponType(int weaponType)
     {
-        if (_animator != null) _animator.SetInteger(_paramWeaponType, weaponType);
+        if (_animator != null)
+            _animator.SetInteger(_paramWeaponType, weaponType);
     }
 
     private void OnDrawGizmos()
     {
-        if (_mainCamera != null)
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawRay(_mainCamera.transform.position,
-                           _mainCamera.transform.forward * InteractionRadius);
-        }
+        if (_mainCamera == null) return;
+        Gizmos.color = Color.red;
+        Gizmos.DrawRay(_mainCamera.transform.position,
+                       _mainCamera.transform.forward * InteractionRadius);
     }
 }

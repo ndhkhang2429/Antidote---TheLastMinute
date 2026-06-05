@@ -34,18 +34,25 @@ public class InventoryUI : MonoBehaviour
     {
         _isOpen = !_isOpen;
         inventoryPanel.SetActive(_isOpen);
-        // Lock / unlock cursor
+
         Cursor.lockState = _isOpen ? CursorLockMode.None : CursorLockMode.Locked;
         Cursor.visible = _isOpen;
+
+        // Refresh ngay khi mở
         if (_isOpen) Refresh();
     }
 
     void Refresh()
     {
+        // Hotbar luôn refresh dù panel đóng hay mở
+        hotbarPanel.Refresh();
+
+        // Các panel khác chỉ refresh khi đang mở
+        if (!_isOpen) return;
+
         equipmentPanel.Refresh();
         weaponPanel.Refresh();
         itemGridPanel.Refresh();
-        hotbarPanel.Refresh();
     }
 
     void OnDestroy()

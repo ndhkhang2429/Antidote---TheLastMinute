@@ -9,10 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe2c600d733d08f4f85e6c3dc52d56e5, type: 3}
-  m_Name: Balo 3
+  m_Script: {fileID: 11500000, guid: 280260e696277ca47b32020734ecc0e8, type: 3}
+  m_Name: Helmet_01
   m_EditorClassIdentifier: 
-  itemName: Balo_3
+  itemName: Helmet_01
   icon: {fileID: 0}
   worldPrefab: {fileID: 0}
   description: 
@@ -21,7 +21,8 @@ MonoBehaviour:
   maxStack: 1
   weightPerUnit: 0
   autoEquip: 0
-  capacity: 250
-  backpackMesh: {fileID: 7713738557091187532, guid: 0e55d5c42cc96404f872b45455603f8b, type: 3}
-  backpackMaterials:
-  - {fileID: 2100000, guid: bc58aa514ab258f4893db2112f1454c6, type: 2}
+  damageReduction: 0.1
+  durability: 100
+  helmetMesh: {fileID: 6625263807930785595, guid: 0e55d5c42cc96404f872b45455603f8b, type: 3}
+  helmetMaterials:
+  - {fileID: 2100000, guid: 9e2e0aa2d3552f44ca191a0594ed99fc, type: 2}
