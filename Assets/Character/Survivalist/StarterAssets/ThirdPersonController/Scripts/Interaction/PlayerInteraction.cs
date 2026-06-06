@@ -16,7 +16,6 @@ public class PlayerInteraction : MonoBehaviour
     [SerializeField] private GameEventSO OnItemPickedUp;
     [SerializeField] private GameEventSO OnItemDropped;
 
-    // ── Private ────────────────────────────────────────────
     private Animator _animator;
     private GameObject _currentTarget = null;
     private PanelInteractZone _activePanelZone = null;
@@ -26,11 +25,10 @@ public class PlayerInteraction : MonoBehaviour
 
     private int _paramPickUp;
     private int _paramWeaponType;
-
     private float InteractionRadius => _statsSO != null ? _statsSO.interactionRadius : 3f;
 
     // ── Lifecycle ──────────────────────────────────────────
-    private void Start()
+    void Start()
     {
         _animator = GetComponentInChildren<Animator>();
         if (_mainCamera == null) _mainCamera = Camera.main;
@@ -42,15 +40,14 @@ public class PlayerInteraction : MonoBehaviour
             PlayerState.Instance.OnWeaponChanged += SyncAnimatorWeaponType;
     }
 
-    private void OnDestroy()
+    void OnDestroy()
     {
         if (PlayerState.Instance != null)
             PlayerState.Instance.OnWeaponChanged -= SyncAnimatorWeaponType;
     }
 
-    private void Update()
+    void Update()
     {
-        // ── Đang đọc tờ giấy ──────────────────────────────
         if (ExamineUIController.Instance != null && ExamineUIController.Instance.IsExamining)
         {
             if (Input.GetKeyDown(KeyCode.F) || Input.GetKeyDown(KeyCode.Escape))
@@ -58,7 +55,6 @@ public class PlayerInteraction : MonoBehaviour
             return;
         }
 
-        // ── Đang trong panel mode ──────────────────────────
         if (_activePanelZone != null && _activePanelZone.IsInPanelMode)
         {
             if (Input.GetKeyDown(KeyCode.F) || Input.GetKeyDown(KeyCode.Escape))
@@ -66,7 +62,6 @@ public class PlayerInteraction : MonoBehaviour
             return;
         }
 
-        // ── Gameplay bình thường ───────────────────────────
         HandleRaycast();
 
         if (_currentTarget != null && Input.GetKeyDown(KeyCode.F))
@@ -77,22 +72,18 @@ public class PlayerInteraction : MonoBehaviour
     }
 
     // ── Raycast ────────────────────────────────────────────
-    private void HandleRaycast()
+    void HandleRaycast()
     {
         Ray ray = new Ray(_mainCamera.transform.position, _mainCamera.transform.forward);
 
         if (Physics.Raycast(ray, out RaycastHit hit, InteractionRadius, _interactLayer))
         {
             GameObject hitObject = hit.collider.gameObject;
-
             if (hitObject != _currentTarget)
             {
                 ClearCurrentTarget();
                 _currentTarget = hitObject;
-
-                var highlight = _currentTarget.GetComponent<ItemHighlight>();
-                highlight?.ToggleHighlight(true);
-
+                _currentTarget.GetComponent<ItemHighlight>()?.ToggleHighlight(true);
                 ShowPromptForTarget(hitObject);
             }
         }
@@ -102,8 +93,20 @@ public class PlayerInteraction : MonoBehaviour
         }
     }
 
-    private void ShowPromptForTarget(GameObject hitObject)
+    void ShowPromptForTarget(GameObject hitObject)
     {
+        // ── IInteractable — tất cả quest slot ─────────────
+        var interactable = hitObject.GetComponentInParent<IInteractable>();
+        if (interactable != null)
+        {
+            string prompt = interactable.GetPrompt();
+            if (prompt != null)
+                InteractionUIManager.Instance.ShowPrompt(prompt);
+            else
+                _currentTarget = null;
+            return;
+        }
+
         // ── Examinable ────────────────────────────────────
         var examinable = hitObject.GetComponent<ExaminableObject>();
         if (examinable != null)
@@ -120,53 +123,22 @@ public class PlayerInteraction : MonoBehaviour
             return;
         }
 
-        // ── FuseSlot trên thùng điện ──────────────────────
-        var fuseSlot = _currentTarget.GetComponentInParent<FuseSlot>();
-        if (fuseSlot != null && fuseSlot.requiresFuse && !fuseSlot.HasFuse)
-        {
-            var inv = InventorySystem.Instance;
-            bool holdingCorrectFuse = inv.activeSlot == 4
-                && inv.heldItemSlot.item is FuseItemDataSO f
-                && f.fuseID == fuseSlot.correctFuseID;
-
-            if (holdingCorrectFuse)
-            {
-                bool success = _fusePanelManager.TryInsertHeldFuse(fuseSlot);
-                InteractionUIManager.Instance.ShowPrompt(
-                    success ? $"✓ Gắn {fuseSlot.correctFuseID} thành công!"
-                            : "✗ Gắn thất bại!");
-                // Nếu gắn xong → cất item
-                if (success) inv.SelectWeaponSlot(0);
-            }
-            else
-            {
-                string msg = HasFuseInInventory(fuseSlot.correctFuseID)
-                    ? $"Nhấn [5] để cầm cầu chì, rồi gắn vào"
-                    : $"Cần {fuseSlot.correctFuseID} trong inventory";
-                InteractionUIManager.Instance.ShowPrompt(msg);
-            }
-            ClearCurrentTarget();
-            return;
-        }
-
-            // ── Main switch ───────────────────────────────────
-            var mainSwitch = hitObject.GetComponentInParent<MainSwitchInteractable>();
+        // ── Main switch ───────────────────────────────────
+        var mainSwitch = hitObject.GetComponentInParent<MainSwitchInteractable>();
         if (mainSwitch != null)
         {
             InteractionUIManager.Instance.ShowPrompt("[F] Gạt cần điện");
             return;
         }
 
-        // ── WorldItem — bao gồm cả FuseItem mới ──────────
+        // ── WorldItem ─────────────────────────────────────
         var worldItem = hitObject.GetComponent<WorldItem>();
         if (worldItem != null && worldItem.itemData != null)
         {
-            // Hiện tên item, nếu là FuseItemDataSO thì hiện thêm ID
-            string itemDisplayName = worldItem.itemData.itemName;
-            if (worldItem.itemData is FuseItemDataSO fuseData)
-                itemDisplayName = $"Cầu chì [{fuseData.fuseID}]";
-
-            InteractionUIManager.Instance.ShowPrompt($"[F] Nhặt {itemDisplayName}");
+            string name = worldItem.itemData is FuseItemDataSO f
+                ? $"Cầu chì [{f.fuseID}]"
+                : worldItem.itemData.itemName;
+            InteractionUIManager.Instance.ShowPrompt($"[F] Nhặt {name}");
             return;
         }
 
@@ -186,25 +158,33 @@ public class PlayerInteraction : MonoBehaviour
             return;
         }
 
-        // Không nhận dạng được → bỏ target
         _currentTarget = null;
     }
 
-    private void ClearCurrentTarget()
+    void ClearCurrentTarget()
     {
         if (_currentTarget != null)
         {
-            var highlight = _currentTarget.GetComponent<ItemHighlight>();
-            highlight?.ToggleHighlight(false);
+            _currentTarget.GetComponent<ItemHighlight>()?.ToggleHighlight(false);
             _currentTarget = null;
         }
         InteractionUIManager.Instance?.HidePrompt();
     }
 
     // ── Interact ───────────────────────────────────────────
-    private void InteractWithCurrentTarget()
+    void InteractWithCurrentTarget()
     {
         if (_currentTarget == null) return;
+        var inv = InventorySystem.Instance;
+
+        // ── IInteractable ─────────────────────────────────
+        var interactable = _currentTarget.GetComponentInParent<IInteractable>();
+        if (interactable != null)
+        {
+            interactable.TryInteract(inv);
+            ClearCurrentTarget();
+            return;
+        }
 
         // ── Examinable ────────────────────────────────────
         var examinable = _currentTarget.GetComponent<ExaminableObject>();
@@ -224,31 +204,6 @@ public class PlayerInteraction : MonoBehaviour
             return;
         }
 
-        // ── FuseSlot — gắn fuse từ inventory ─────────────
-        var fuseSlot = _currentTarget.GetComponentInParent<FuseSlot>();
-        if (fuseSlot != null && fuseSlot.requiresFuse && !fuseSlot.HasFuse)
-        {
-            bool hasCorrectFuse = HasFuseInInventory(fuseSlot.correctFuseID);
-            if (!hasCorrectFuse)
-            {
-                InteractionUIManager.Instance.ShowPrompt(
-                    $"Cần cầu chì {fuseSlot.correctFuseID} trong inventory!");
-                ClearCurrentTarget();
-                return;
-            }
-
-            if (_fusePanelManager != null)
-            {
-                bool success = _fusePanelManager.TryInsertHeldFuse(fuseSlot);
-                InteractionUIManager.Instance.ShowPrompt(
-                    success
-                    ? $"✓ Gắn {fuseSlot.correctFuseID} thành công!"
-                    : $"✗ Gắn thất bại!");
-            }
-            ClearCurrentTarget();
-            return;
-        }
-
         // ── Main switch ───────────────────────────────────
         var mainSwitch = _currentTarget.GetComponentInParent<MainSwitchInteractable>();
         if (mainSwitch != null)
@@ -257,8 +212,7 @@ public class PlayerInteraction : MonoBehaviour
             return;
         }
 
-        // ── WorldItem — nhặt vào inventory ───────────────
-        // Bao gồm cả FuseItem mới (dùng FuseItemDataSO + WorldItem)
+        // ── WorldItem ─────────────────────────────────────
         var worldItem = _currentTarget.GetComponent<WorldItem>();
         if (worldItem != null)
         {
@@ -285,16 +239,13 @@ public class PlayerInteraction : MonoBehaviour
     }
 
     // ── Pickup ─────────────────────────────────────────────
-    private void PerformPickup()
+    void PerformPickup()
     {
         if (_animator == null || _currentTarget == null) return;
         PlayerState.Instance?.SetPickingUp(true);
         _animator.SetTrigger(_paramPickUp);
     }
 
-    /// <summary>
-    /// Gọi từ Animation Event khi frame pickup của animation.
-    /// </summary>
     public void EquipItem()
     {
         if (_currentTarget == null)
@@ -304,11 +255,11 @@ public class PlayerInteraction : MonoBehaviour
         }
 
         GameObject itemToPickUp = _currentTarget;
-
         WorldItem worldItem = itemToPickUp.GetComponent<WorldItem>();
+
         if (worldItem == null || worldItem.itemData == null)
         {
-            Debug.LogWarning("[PlayerInteraction] Không tìm thấy WorldItem hoặc itemData!");
+            Debug.LogWarning("[PlayerInteraction] Không tìm thấy WorldItem!");
             PlayerState.Instance?.SetPickingUp(false);
             return;
         }
@@ -335,35 +286,20 @@ public class PlayerInteraction : MonoBehaviour
         PlayerState.Instance?.SetPickingUp(false);
     }
 
-    // ── Drop ───────────────────────────────────────────────
-    private void DropCurrentItem()
+    void DropCurrentItem()
     {
         if (PlayerState.Instance?.CurrentItemInHand == null) return;
         PlayerState.Instance.DropCurrentItem();
         OnItemDropped?.Raise();
     }
 
-    // ── Helper: kiểm tra inventory có fuse đúng ID không ──
-    private bool HasFuseInInventory(string fuseID)
-    {
-        if (InventorySystem.Instance == null) return false;
-        foreach (var slot in InventorySystem.Instance.GetItemSlots())
-        {
-            if (slot.IsEmpty) continue;
-            if (slot.item is FuseItemDataSO fuse && fuse.fuseID == fuseID)
-                return true;
-        }
-        return false;
-    }
-
-    // ── Helpers ────────────────────────────────────────────
-    private void SyncAnimatorWeaponType(int weaponType)
+    void SyncAnimatorWeaponType(int weaponType)
     {
         if (_animator != null)
             _animator.SetInteger(_paramWeaponType, weaponType);
     }
 
-    private void OnDrawGizmos()
+    void OnDrawGizmos()
     {
         if (_mainCamera == null) return;
         Gizmos.color = Color.red;

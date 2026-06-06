@@ -84,8 +84,15 @@ public class InventorySystem : MonoBehaviour
         {
             case ItemCategory.Equipment:
                 return TryEquipEquipment(item);
+
             case ItemCategory.Weapon:
                 return TryEquipWeapon(item as WeaponDataSO);
+
+            case ItemCategory.QuestItem:
+                // QuestItem → vào grid, không tự vào slot 5
+                // Player phải tự kéo vào slot 5
+                return TryAddToGrid(item, amount);
+
             default:
                 return TryAddToGrid(item, amount);
         }

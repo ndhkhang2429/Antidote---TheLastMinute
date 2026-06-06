@@ -7,7 +7,7 @@ public class FuseSlot : MonoBehaviour
     public bool requiresFuse = false;
     public string correctFuseID = "FUSE_01";
 
-    [Header("Fuse Item SO — kéo FuseItemDataSO tương ứng vào")]
+    [Header("Fuse Item SO")]
     public FuseItemDataSO requiredFuseSO;
 
     [Header("Visual")]
@@ -31,12 +31,37 @@ public class FuseSlot : MonoBehaviour
         if (panelZone == null || !panelZone.IsInPanelMode) return;
         if (!requiresFuse || HasFuse) return;
 
+        var inv = InventorySystem.Instance;
+        if (inv == null) return;
+
+        // BẮT BUỘC phải đang cầm đúng fuse ở slot 5
+        if (!inv.IsHoldingFuse(correctFuseID))
+        {
+            if (HasFuseInInventory(correctFuseID))
+                InteractionUIManager.Instance?.ShowPrompt(
+                    $"Nhấn [5] để cầm {correctFuseID} trước!");
+            else
+                InteractionUIManager.Instance?.ShowPrompt(
+                    $"Cần {correctFuseID} trong inventory!");
+            return;
+        }
+
+        // Đang cầm đúng → gắn vào
         if (fusePanelManager != null)
         {
             bool success = fusePanelManager.TryInsertHeldFuse(this);
-            InteractionUIManager.Instance?.ShowPrompt(
-                success ? $"✓ Gắn {correctFuseID} thành công!"
-                        : $"✗ Không có {correctFuseID} trong inventory!");
+            if (success)
+            {
+                InteractionUIManager.Instance?.ShowPrompt(
+                    $"✓ Gắn {correctFuseID} thành công!");
+                inv.DeselectAll();
+                if (requiredFuseSO != null && !inv.HasItem(requiredFuseSO))
+                    inv.ClearItemSlot();
+            }
+            else
+            {
+                InteractionUIManager.Instance?.ShowPrompt("✗ Gắn thất bại!");
+            }
         }
     }
 
@@ -47,7 +72,7 @@ public class FuseSlot : MonoBehaviour
 
         HasFuse = true;
         SetVisual(true);
-        Debug.Log($"[FuseSlot {slotIndex}] Gắn đúng {fuseID}!");
+        Debug.Log($"[FuseSlot {slotIndex}] Gắn {fuseID} thành công!");
         return true;
     }
 
@@ -56,10 +81,25 @@ public class FuseSlot : MonoBehaviour
         if (fuseVisual != null) fuseVisual.SetActive(show);
     }
 
+    bool HasFuseInInventory(string id)
+    {
+        if (InventorySystem.Instance == null) return false;
+        foreach (var slot in InventorySystem.Instance.GetItemSlots())
+        {
+            if (slot.IsEmpty) continue;
+            if (slot.item is FuseItemDataSO f && f.fuseID == id)
+                return true;
+        }
+        return false;
+    }
+
+    // Bọc trong #if để tránh lỗi khi build
+#if UNITY_EDITOR
     void OnDrawGizmosSelected()
     {
         UnityEditor.Handles.Label(
             transform.position + Vector3.up * 0.1f,
             $"Slot {slotIndex}\n{(requiresFuse ? $"Cần: {correctFuseID}" : "Sẵn có")}");
     }
+#endif
 }

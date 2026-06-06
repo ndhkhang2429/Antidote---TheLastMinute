@@ -15,9 +15,10 @@ MonoBehaviour:
   itemName: "\u0110\xE8n pin"
   icon: {fileID: 21300000, guid: 4c568998c7c6a2f4289b2ef3fe042e80, type: 3}
   worldPrefab: {fileID: 1002705123656268, guid: d86ca2f4159e6a942abd8dfc52b38395, type: 3}
+  equipPrefab: {fileID: 2563050338911216061, guid: 557df357c0b423e4a94f101a5c3aa98c, type: 3}
   description: 
   category: 5
-  weaponSlotType: 0
+  weaponSlotType: 5
   maxStack: 1
   weightPerUnit: 0
   autoEquip: 0

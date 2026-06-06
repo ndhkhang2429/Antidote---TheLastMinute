@@ -45,24 +45,27 @@ public class FusePanelManager : MonoBehaviour
     // ── Gắn fuse vào slot ────────────────────────────────
     public bool TryInsertHeldFuse(FuseSlot slot)
     {
-        // Tìm đúng fuse cần cho slot này
-        var fuse = GetFuseFromInventory(slot.correctFuseID);
-        if (fuse == null)
+        var inv = InventorySystem.Instance;
+        if (inv == null) return false;
+
+        // ── Bắt buộc phải đang cầm đúng fuse ở slot 5 ───────
+        if (!inv.IsHoldingFuse(slot.correctFuseID))
         {
-            Debug.Log($"[FusePanel] Không có {slot.correctFuseID} trong inventory!");
+            Debug.Log($"[FusePanel] Chưa cầm {slot.correctFuseID}! Nhấn [5] trước.");
             return false;
         }
 
         bool success = slot.TryInsertFuse(slot.correctFuseID);
         if (success)
         {
-            InventorySystem.Instance.RemoveItem(fuse, 1);
+            inv.RemoveItem(inv.heldItemSlot.item, 1);
             UpdatePanelState();
         }
         return success;
     }
 
     // ── Giữ lại để không lỗi tham chiếu cũ ──────────────
+
     public void PickUpFuse(string fuseID)
     {
         Debug.Log($"[FusePanel] PickUpFuse gọi nhưng giờ dùng inventory: {fuseID}");

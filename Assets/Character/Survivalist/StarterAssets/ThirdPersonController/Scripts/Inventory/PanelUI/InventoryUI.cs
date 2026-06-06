@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class InventoryUI : MonoBehaviour
 {
@@ -10,11 +9,13 @@ public class InventoryUI : MonoBehaviour
     public ItemGridUI itemGridPanel;
 
     bool _isOpen;
-    bool _tabWasPressed; // chống double-trigger
+    bool _tabWasPressed;
 
     void Start()
     {
-        InventorySystem.Instance.OnInventoryChanged += Refresh;
+        if (InventorySystem.Instance != null)
+            InventorySystem.Instance.OnInventoryChanged += Refresh;
+
         inventoryPanel.SetActive(false);
         _isOpen = false;
     }
@@ -27,27 +28,33 @@ public class InventoryUI : MonoBehaviour
 
     void Update()
     {
-        // ── Dùng GetKeyDown thay vì Input System để tránh double-trigger ──
+        // ── Toggle inventory ──────────────────────────────
         bool tabDown = Input.GetKeyDown(KeyCode.Tab);
-
         if (tabDown && !_tabWasPressed)
         {
             _tabWasPressed = true;
             Toggle();
         }
-
         if (!tabDown) _tabWasPressed = false;
 
-        // Nhấn Escape để đóng nếu đang mở
         if (_isOpen && Input.GetKeyDown(KeyCode.Escape))
             CloseInventory();
 
-        // Phím số chuyển slot — dù inventory mở hay đóng
-        if (Input.GetKeyDown(KeyCode.Alpha1)) InventorySystem.Instance.SelectWeaponSlot(0);
-        if (Input.GetKeyDown(KeyCode.Alpha2)) InventorySystem.Instance.SelectWeaponSlot(1);
-        if (Input.GetKeyDown(KeyCode.Alpha3)) InventorySystem.Instance.SelectWeaponSlot(2);
-        if (Input.GetKeyDown(KeyCode.Alpha4)) InventorySystem.Instance.SelectWeaponSlot(3);
-        if (Input.GetKeyDown(KeyCode.Alpha5)) InventorySystem.Instance.SelectItemSlot();
+        // ── Slot selection — hoạt động dù inventory mở/đóng
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+            InventorySystem.Instance?.SelectWeaponSlot(0);
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+            InventorySystem.Instance?.SelectWeaponSlot(1);
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+            InventorySystem.Instance?.SelectWeaponSlot(2);
+        if (Input.GetKeyDown(KeyCode.Alpha4))
+            InventorySystem.Instance?.SelectWeaponSlot(3);
+        if (Input.GetKeyDown(KeyCode.Alpha5))
+            InventorySystem.Instance?.SelectItemSlot();
+
+        // ── X → tay không ────────────────────────────────
+        if (Input.GetKeyDown(KeyCode.X))
+            InventorySystem.Instance?.DeselectAll();
     }
 
     void Toggle()
@@ -60,12 +67,9 @@ public class InventoryUI : MonoBehaviour
     {
         _isOpen = true;
         inventoryPanel.SetActive(true);
-
-        // Dừng player input khi mở inventory
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
-        // Tắt ThirdPersonController input
         var tpc = FindObjectOfType<StarterAssets.ThirdPersonController>();
         if (tpc != null) tpc.enabled = false;
 
@@ -76,17 +80,14 @@ public class InventoryUI : MonoBehaviour
     {
         _isOpen = false;
         inventoryPanel.SetActive(false);
-
-        // Trả lại player input
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        // Bật lại ThirdPersonController
         var tpc = FindObjectOfType<StarterAssets.ThirdPersonController>();
         if (tpc != null) tpc.enabled = true;
     }
 
-    public void Refresh()
+    void Refresh()
     {
         if (!_isOpen) return;
         equipmentPanel?.Refresh();

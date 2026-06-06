@@ -76,7 +76,6 @@ public class PlayerAttack : MonoBehaviour
     // ── Update ────────────────────────────────────────────
     void Update()
     {
-        // Reset combo nếu lâu không bấm
         var current = CurrentWeapon();
         if (current != null && Time.time - _lastPunchTime > current.comboResetTime)
             _punchComboIndex = 0;
@@ -84,6 +83,14 @@ public class PlayerAttack : MonoBehaviour
         if (_input != null && _input.shoot)
         {
             _input.shoot = false;
+
+            // Chặn tấn công khi đang cầm item (slot 5)
+            if (PlayerState.Instance != null && !PlayerState.Instance.CanAttack())
+            {
+                Debug.Log("[PlayerAttack] Đang cầm item, không thể tấn công!");
+                return;
+            }
+
             TryAttack();
         }
     }
@@ -93,19 +100,22 @@ public class PlayerAttack : MonoBehaviour
     {
         if (Time.time < _nextAttackTime) return;
 
+        // Chặn khi đang cầm item slot 5
+        if (PlayerState.Instance != null && !PlayerState.Instance.CanAttack())
+        {
+            Debug.Log("[PlayerAttack] Đang cầm item, không thể tấn công!");
+            return;
+        }
+
         var data = CurrentWeapon();
         if (data == null) return;
 
         _currentDamage = data.damage;
         _nextAttackTime = Time.time + data.cooldown;
 
-        // Phân loại: Melee hay unarmed (punch)
         bool isMelee = data.weaponSlotType == WeaponSlotType.Melee;
-
-        if (isMelee)
-            PerformWeaponAttack(data);
-        else
-            PerformPunch(data);
+        if (isMelee) PerformWeaponAttack(data);
+        else PerformPunch(data);
 
         OnWeaponFired?.Raise();
     }

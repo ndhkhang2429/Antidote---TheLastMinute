@@ -13,10 +13,11 @@ public enum ItemCategory
 public enum WeaponSlotType
 {
     None,
-    PistolOrShotgun,  // Ô 1
-    Rifle,            // Ô 2
-    Melee,            // Ô 3
-    Grenade           // Ô 4
+    Rifle,             // Ô 1
+    PistolOrShotgun,   // Ô 2
+    Melee,             // Ô 3
+    Grenade,           // Ô 4
+    QuestItem          // Ô 5
 }
 
 [CreateAssetMenu(fileName = "New Item", menuName = "Inventory/Item Data")]
@@ -26,6 +27,11 @@ public class ItemDataSO : ScriptableObject
     public string itemName;
     public Sprite icon;
     public GameObject worldPrefab;   // prefab rơi ra ngoài world
+
+    [Header("Equip Models")]
+    // Prefab này là model đã căn chỉnh góc xoay/vị trí chuẩn để cầm trên tay
+    public GameObject equipPrefab;
+
     [TextArea] public string description;
 
     [Header("Category")]

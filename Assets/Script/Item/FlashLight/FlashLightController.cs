@@ -65,4 +65,14 @@ public class FlashlightController : MonoBehaviour
             flashlightSpotlight.enabled = false;
         }
     }
+
+    public void OnEquip()
+    {
+        SetEquippedState(true); // Tự động bật quyền cầm đèn pin
+    }
+
+    public void OnUnequip()
+    {
+        SetEquippedState(false); // Cất đi thì tắt quyền
+    }
 }

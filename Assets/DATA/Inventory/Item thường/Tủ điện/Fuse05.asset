@@ -15,9 +15,10 @@ MonoBehaviour:
   itemName: Fuse05
   icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   worldPrefab: {fileID: 2351112037769843233, guid: c75d03ca741f3234eb6696cb9bcdbf24, type: 3}
+  equipPrefab: {fileID: 2351112037769843233, guid: c75d03ca741f3234eb6696cb9bcdbf24, type: 3}
   description: 
   category: 5
-  weaponSlotType: 0
+  weaponSlotType: 5
   maxStack: 1
   weightPerUnit: 1
   autoEquip: 0
