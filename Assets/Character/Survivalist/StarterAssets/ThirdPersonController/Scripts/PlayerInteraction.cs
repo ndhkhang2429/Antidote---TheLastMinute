@@ -121,20 +121,36 @@ public class PlayerInteraction : MonoBehaviour
         }
 
         // ── FuseSlot trên thùng điện ──────────────────────
-        var fuseSlot = hitObject.GetComponentInParent<FuseSlot>();
+        var fuseSlot = _currentTarget.GetComponentInParent<FuseSlot>();
         if (fuseSlot != null && fuseSlot.requiresFuse && !fuseSlot.HasFuse)
         {
-            // Kiểm tra inventory có đúng fuse không
-            bool hasCorrectFuse = HasFuseInInventory(fuseSlot.correctFuseID);
-            string msg = hasCorrectFuse
-                ? $"[F] Gắn cầu chì vào slot {fuseSlot.slotIndex}"
-                : $"Cần cầu chì {fuseSlot.correctFuseID} – kiểm tra inventory";
-            InteractionUIManager.Instance.ShowPrompt(msg);
+            var inv = InventorySystem.Instance;
+            bool holdingCorrectFuse = inv.activeSlot == 4
+                && inv.heldItemSlot.item is FuseItemDataSO f
+                && f.fuseID == fuseSlot.correctFuseID;
+
+            if (holdingCorrectFuse)
+            {
+                bool success = _fusePanelManager.TryInsertHeldFuse(fuseSlot);
+                InteractionUIManager.Instance.ShowPrompt(
+                    success ? $"✓ Gắn {fuseSlot.correctFuseID} thành công!"
+                            : "✗ Gắn thất bại!");
+                // Nếu gắn xong → cất item
+                if (success) inv.SelectWeaponSlot(0);
+            }
+            else
+            {
+                string msg = HasFuseInInventory(fuseSlot.correctFuseID)
+                    ? $"Nhấn [5] để cầm cầu chì, rồi gắn vào"
+                    : $"Cần {fuseSlot.correctFuseID} trong inventory";
+                InteractionUIManager.Instance.ShowPrompt(msg);
+            }
+            ClearCurrentTarget();
             return;
         }
 
-        // ── Main switch ───────────────────────────────────
-        var mainSwitch = hitObject.GetComponentInParent<MainSwitchInteractable>();
+            // ── Main switch ───────────────────────────────────
+            var mainSwitch = hitObject.GetComponentInParent<MainSwitchInteractable>();
         if (mainSwitch != null)
         {
             InteractionUIManager.Instance.ShowPrompt("[F] Gạt cần điện");

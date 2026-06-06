@@ -8,7 +8,6 @@ public class InventoryUI : MonoBehaviour
     public EquipmentPanelUI equipmentPanel;
     public WeaponPanelUI weaponPanel;
     public ItemGridUI itemGridPanel;
-    public HotbarUI hotbarPanel;
 
     bool _isOpen;
     bool _tabWasPressed; // chống double-trigger
@@ -43,13 +42,12 @@ public class InventoryUI : MonoBehaviour
         if (_isOpen && Input.GetKeyDown(KeyCode.Escape))
             CloseInventory();
 
-        // Hotbar shortcuts — chỉ khi inventory đóng
-        if (!_isOpen)
-        {
-            if (Input.GetKeyDown(KeyCode.Q)) InventorySystem.Instance.UseHotbar(0);
-            if (Input.GetKeyDown(KeyCode.E)) InventorySystem.Instance.UseHotbar(1);
-            if (Input.GetKeyDown(KeyCode.R)) InventorySystem.Instance.UseHotbar(2);
-        }
+        // Phím số chuyển slot — dù inventory mở hay đóng
+        if (Input.GetKeyDown(KeyCode.Alpha1)) InventorySystem.Instance.SelectWeaponSlot(0);
+        if (Input.GetKeyDown(KeyCode.Alpha2)) InventorySystem.Instance.SelectWeaponSlot(1);
+        if (Input.GetKeyDown(KeyCode.Alpha3)) InventorySystem.Instance.SelectWeaponSlot(2);
+        if (Input.GetKeyDown(KeyCode.Alpha4)) InventorySystem.Instance.SelectWeaponSlot(3);
+        if (Input.GetKeyDown(KeyCode.Alpha5)) InventorySystem.Instance.SelectItemSlot();
     }
 
     void Toggle()
@@ -94,6 +92,5 @@ public class InventoryUI : MonoBehaviour
         equipmentPanel?.Refresh();
         weaponPanel?.Refresh();
         itemGridPanel?.Refresh();
-        hotbarPanel?.Refresh();
     }
 }
