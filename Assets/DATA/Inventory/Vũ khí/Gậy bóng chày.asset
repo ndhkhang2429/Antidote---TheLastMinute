@@ -12,24 +12,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04ce8e414680cba4aa1845a9e8740ae4, type: 3}
   m_Name: "G\u1EADy b\xF3ng ch\xE0y"
   m_EditorClassIdentifier: 
-  itemName: 
-  icon: {fileID: 0}
-  worldPrefab: {fileID: 0}
+  itemName: "G\u1EADy b\xF3ng ch\xE0y"
+  icon: {fileID: 21300012, guid: 7ab74e659e1f0a34d9cfec21c478fc12, type: 3}
+  worldPrefab: {fileID: 1602661717803204, guid: 903c43007ef77274bad19ed037b02892, type: 3}
+  equipPrefab: {fileID: 1653613484792568894, guid: 69d24115426ad5d408e7eb764e3a267e, type: 3}
   description: 
-  category: 0
-  weaponSlotType: 0
+  category: 1
+  weaponSlotType: 3
   maxStack: 1
   weightPerUnit: 0
   autoEquip: 0
-  damage: 0
+  damage: 30
   fireRate: 0
   magazineSize: 0
   compatibleAmmo: {fileID: 0}
-  weaponPrefab: {fileID: 0}
   attachPointName: 
-  comboResetTime: 1.2
+  comboResetTime: 1.5
   comboSteps: 3
-  cooldown: 0.5
+  cooldown: 0.8
   hitDistance: 1.2
   hitHeight: 0.8
   hitRadius: 0.6

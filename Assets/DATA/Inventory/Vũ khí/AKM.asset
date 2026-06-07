@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: AKM
   m_EditorClassIdentifier: 
   itemName: 
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 7ab74e659e1f0a34d9cfec21c478fc12, type: 3}
   worldPrefab: {fileID: 0}
+  equipPrefab: {fileID: 0}
   description: 
   category: 0
   weaponSlotType: 0
@@ -25,7 +26,6 @@ MonoBehaviour:
   fireRate: 0
   magazineSize: 0
   compatibleAmmo: {fileID: 0}
-  weaponPrefab: {fileID: 0}
   attachPointName: 
   comboResetTime: 1.2
   comboSteps: 3

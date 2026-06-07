@@ -324,6 +324,33 @@ namespace StarterAssets
             return Mathf.Clamp(lfAngle, lfMin, lfMax);
         }
 
+        // Gọi hàm này để bắt đầu tiến trình xoay mượt
+        public void SmoothFaceCameraDirection()
+        {
+            StartCoroutine(SmoothTurnRoutine());
+        }
+
+        // Tiến trình chạy ngầm giúp nhân vật xoay từ từ
+        private System.Collections.IEnumerator SmoothTurnRoutine()
+        {
+            float time = 0f;
+            float duration = 0.15f; // Thời gian xoay (0.15 giây là vừa đủ nhanh để nhặt đồ)
+
+            Quaternion startRot = transform.rotation;
+            Quaternion targetRot = Quaternion.Euler(0f, _cameraTargetYaw, 0f);
+
+            // Bắt đầu nội suy góc xoay
+            while (time < duration)
+            {
+                transform.rotation = Quaternion.Slerp(startRot, targetRot, time / duration);
+                time += Time.deltaTime;
+                yield return null; // Đợi khung hình tiếp theo
+            }
+
+            // Ép chuẩn góc cuối cùng để không bị sai số
+            transform.rotation = targetRot;
+        }
+
         private void OnDrawGizmosSelected()
         {
             Color transparentGreen = new Color(0.0f, 1.0f, 0.0f, 0.35f);

@@ -9,15 +9,27 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e1cce4b68029a74dbfe8a0d8443f1e3, type: 3}
-  m_Name: Slot R
+  m_Script: {fileID: 11500000, guid: 04ce8e414680cba4aa1845a9e8740ae4, type: 3}
+  m_Name: Unarmed_Data
   m_EditorClassIdentifier: 
-  itemName: 
+  itemName: Unarmed
   icon: {fileID: 0}
   worldPrefab: {fileID: 0}
+  equipPrefab: {fileID: 0}
   description: 
-  category: 0
+  category: 1
   weaponSlotType: 0
   maxStack: 1
   weightPerUnit: 0
   autoEquip: 0
+  damage: 10
+  fireRate: 0
+  magazineSize: 0
+  compatibleAmmo: {fileID: 0}
+  attachPointName: 
+  comboResetTime: 1.2
+  comboSteps: 3
+  cooldown: 0.5
+  hitDistance: 1.2
+  hitHeight: 0.8
+  hitRadius: 0.4

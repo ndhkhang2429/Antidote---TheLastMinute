@@ -28,9 +28,9 @@ public class PlayerState : MonoBehaviour
 
     // ── WeaponType map ────────────────────────────────────
     // 0 = Tay không (đánh tay)
-    // 1 = Melee (gậy, rìu...)
+    // 3 = Melee (gậy, rìu...)
     // 2 = Pistol/Shotgun
-    // 3 = Rifle
+    // 1 = Rifle
     // 4 = Grenade
     // 5 = Cầm item (slot 5) — KHÔNG đánh, chỉ cầm
     public int WeaponType { get; private set; } = 0;
@@ -79,19 +79,19 @@ public class PlayerState : MonoBehaviour
                 SetWeaponType(0);
                 break;
 
-            case 0:
+            case 1:
                 // Slot 1 — Pistol/Shotgun
                 SetWeaponType(2);
                 break;
 
-            case 1:
+            case 0:
                 // Slot 2 — Rifle
-                SetWeaponType(3);
+                SetWeaponType(1);
                 break;
 
             case 2:
                 // Slot 3 — Melee
-                SetWeaponType(1);
+                SetWeaponType(3);
                 break;
 
             case 3:
@@ -139,9 +139,9 @@ public class PlayerState : MonoBehaviour
     string GetWeaponTypeName(int type) => type switch
     {
         0 => "Tay không",
-        1 => "Melee",
+        1 => "Rifle",
         2 => "Pistol/Shotgun",
-        3 => "Rifle",
+        3 => "Melee",
         4 => "Grenade",
         5 => "Cầm item",
         _ => "Unknown"

@@ -8,7 +8,6 @@ public class WeaponDataSO : ItemDataSO
     public float fireRate;
     public int magazineSize;
     public ItemDataSO compatibleAmmo; // SO của loại đạn tương thích
-    public GameObject weaponPrefab;   // prefab spawn trên tay player
     public string attachPointName;    // tên bone/transform để gắn vào
     [Header("Melee Combat")]
     public float comboResetTime = 1.2f;

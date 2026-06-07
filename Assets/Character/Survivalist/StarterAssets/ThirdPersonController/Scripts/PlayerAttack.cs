@@ -28,6 +28,7 @@ public class PlayerAttack : MonoBehaviour
     private int _hashWeaponAttack;
     private int _hashPunch;
     private int _hashPunchIndex;
+    private int _paramWeaponType;
 
     // ─────────────────────────────────────────────────────
     void Start()
@@ -42,34 +43,33 @@ public class PlayerAttack : MonoBehaviour
         _hashWeaponAttack = Animator.StringToHash("WeaponAttack");
         _hashPunch = Animator.StringToHash("Punch");
         _hashPunchIndex = Animator.StringToHash("PunchIndex");
+        _paramWeaponType = Animator.StringToHash("WeaponType");
 
-        // Lắng nghe khi trang bị vũ khí mới từ Inventory
+        // [SỬA LỖI]: Lắng nghe sự kiện OnHeldItemChanged (Khi thực sự RÚT vũ khí ra tay)
         if (InventorySystem.Instance != null)
-            InventorySystem.Instance.OnWeaponEquipped += OnWeaponEquipped;
+            InventorySystem.Instance.OnHeldItemChanged += OnHeldItemChangedCallback;
     }
 
     void OnDestroy()
     {
         if (InventorySystem.Instance != null)
-            InventorySystem.Instance.OnWeaponEquipped -= OnWeaponEquipped;
+            InventorySystem.Instance.OnHeldItemChanged -= OnHeldItemChangedCallback;
     }
 
     // ── Vũ khí hiện tại lấy từ Inventory ─────────────────
-    // Ưu tiên: Melee slot (index 2) → Pistol slot (index 0) → unarmed
     WeaponDataSO CurrentWeapon()
     {
         if (InventorySystem.Instance == null) return _unarmedData;
 
-        var slots = InventorySystem.Instance.weaponSlots;
+        // [SỬA LỖI]: Chỉ lấy vũ khí mà người chơi ĐANG CẦM TRÊN TAY (Active Slot)
+        ItemDataSO heldItem = InventorySystem.Instance.GetHeldItem();
 
-        // Ô 2 = cận chiến
-        if (!slots[2].IsEmpty && slots[2].item is WeaponDataSO melee)
-            return melee;
+        if (heldItem != null && heldItem is WeaponDataSO weapon)
+        {
+            return weapon;
+        }
 
-        // Ô 0 = súng lục/shotgun (dùng khi có)
-        if (!slots[0].IsEmpty && slots[0].item is WeaponDataSO pistol)
-            return pistol;
-
+        // Nếu đang không cầm gì, hoặc đồ cầm không phải vũ khí -> Trả về tay không
         return _unarmedData;
     }
 
@@ -84,10 +84,9 @@ public class PlayerAttack : MonoBehaviour
         {
             _input.shoot = false;
 
-            // Chặn tấn công khi đang cầm item (slot 5)
             if (PlayerState.Instance != null && !PlayerState.Instance.CanAttack())
             {
-                Debug.Log("[PlayerAttack] Đang cầm item, không thể tấn công!");
+                Debug.Log("[PlayerAttack] Đang bận, không thể tấn công!");
                 return;
             }
 
@@ -100,12 +99,7 @@ public class PlayerAttack : MonoBehaviour
     {
         if (Time.time < _nextAttackTime) return;
 
-        // Chặn khi đang cầm item slot 5
-        if (PlayerState.Instance != null && !PlayerState.Instance.CanAttack())
-        {
-            Debug.Log("[PlayerAttack] Đang cầm item, không thể tấn công!");
-            return;
-        }
+        if (PlayerState.Instance != null && !PlayerState.Instance.CanAttack()) return;
 
         var data = CurrentWeapon();
         if (data == null) return;
@@ -141,7 +135,6 @@ public class PlayerAttack : MonoBehaviour
     }
 
     // ── Animation Event ───────────────────────────────────
-    /// <summary>Gắn vào đúng frame trong Animation Clip</summary>
     public void OnMeleeHit()
     {
         var data = CurrentWeapon();
@@ -168,17 +161,41 @@ public class PlayerAttack : MonoBehaviour
             hit.GetComponentInParent<ZombieBloodFXHandler>()
                ?.OnHitMelee(hitPoint, hitNormal);
 
-            break; // chỉ hit 1 zombie gần nhất
+            break;
         }
     }
 
-    // ── Callback khi Inventory trang bị vũ khí mới ───────
-    void OnWeaponEquipped(ItemDataSO item)
+    // ── Callback khi ĐỔI ĐỒ TRÊN TAY ───────────────────────
+    void OnHeldItemChangedCallback(ItemDataSO item)
     {
-        // Reset cooldown để dùng vũ khí mới ngay
-        _nextAttackTime = 0f;
+        _nextAttackTime = Time.time + 0.5f;
         _punchComboIndex = 0;
-        Debug.Log($"[PlayerAttack] Trang bị vũ khí mới: {item.itemName}");
+
+        Debug.Log($"[PlayerAttack] Chuyển đồ trên tay: {item?.itemName ?? "Tay Không"}");
+
+        if (_input != null) _input.shoot = false;
+
+        if (_animator != null)
+        {
+            _animator.ResetTrigger(_hashWeaponAttack);
+            _animator.ResetTrigger(_hashPunch);
+
+            if (item is WeaponDataSO weapon)
+            {
+                int poseID = 0;
+                switch (weapon.weaponSlotType)
+                {
+                    case WeaponSlotType.Rifle: poseID = 1; break;
+                    case WeaponSlotType.PistolOrShotgun: poseID = 2; break;
+                    case WeaponSlotType.Melee: poseID = 3; break;
+                }
+                _animator.SetInteger(_paramWeaponType, poseID);
+            }
+            else
+            {
+                _animator.SetInteger(_paramWeaponType, 0);
+            }
+        }
     }
 
     // ── Gizmos ────────────────────────────────────────────

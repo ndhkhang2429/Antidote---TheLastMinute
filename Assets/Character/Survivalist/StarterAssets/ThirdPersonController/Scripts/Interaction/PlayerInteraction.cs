@@ -17,6 +17,7 @@ public class PlayerInteraction : MonoBehaviour
     [SerializeField] private GameEventSO OnItemDropped;
 
     private Animator _animator;
+    private ThirdPersonController _tpc; // [THÊM MỚI] Biến lưu trữ ThirdPersonController
     private GameObject _currentTarget = null;
     private PanelInteractZone _activePanelZone = null;
 
@@ -31,6 +32,8 @@ public class PlayerInteraction : MonoBehaviour
     void Start()
     {
         _animator = GetComponentInChildren<Animator>();
+        _tpc = GetComponent<ThirdPersonController>(); // [THÊM MỚI] Lấy component TPC
+
         if (_mainCamera == null) _mainCamera = Camera.main;
 
         _paramPickUp = Animator.StringToHash("PickUp");
@@ -65,7 +68,15 @@ public class PlayerInteraction : MonoBehaviour
         HandleRaycast();
 
         if (_currentTarget != null && Input.GetKeyDown(KeyCode.F))
+        {
+            // [THÊM MỚI] Ép thân người xoay mặt về hướng Camera ngay lập tức trước khi tương tác
+            if (_tpc != null)
+            {
+                _tpc.SmoothFaceCameraDirection();
+            }
+
             InteractWithCurrentTarget();
+        }
 
         if (Input.GetKeyDown(KeyCode.G))
             DropCurrentItem();
