@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class FlashlightController : MonoBehaviour
+public class FlashlightController : MonoBehaviour, IEquippable
 {
     [Header("Component References")]
     [Tooltip("Kéo thả object Spotlight (con của Flashlight) vào đây")]

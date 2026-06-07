@@ -209,10 +209,13 @@ namespace StarterAssets
 
             Vector3 moveDirection = camRight * _input.move.x + camForward * _input.move.y;
 
-            _controller.Move(
-                moveDirection.normalized * (_speed * Time.deltaTime) +
-                new Vector3(0f, _verticalVelocity, 0f) * Time.deltaTime
-            );
+            if (_controller != null && _controller.enabled && _controller.gameObject.activeInHierarchy)
+            {
+                _controller.Move(
+                    moveDirection.normalized * (_speed * Time.deltaTime) +
+                    new Vector3(0f, _verticalVelocity, 0f) * Time.deltaTime
+                );
+            }
 
             if (_hasAnimator)
             {
