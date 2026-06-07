@@ -4,7 +4,6 @@ public class InventoryUI : MonoBehaviour
 {
     [Header("Panels")]
     public GameObject inventoryPanel;
-    public EquipmentPanelUI equipmentPanel;
     public WeaponPanelUI weaponPanel;
     public ItemGridUI itemGridPanel;
 
@@ -90,7 +89,6 @@ public class InventoryUI : MonoBehaviour
     void Refresh()
     {
         if (!_isOpen) return;
-        equipmentPanel?.Refresh();
         weaponPanel?.Refresh();
         itemGridPanel?.Refresh();
     }
