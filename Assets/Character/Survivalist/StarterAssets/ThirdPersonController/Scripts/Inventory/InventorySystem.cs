@@ -198,58 +198,136 @@ public class InventorySystem : MonoBehaviour
 
     // ── Grenade → Weapon Slot 4 ───────────────────────────
     // ── Grenade → Weapon Slot 4 ───────────────────────────
-    // ── Grenade → Weapon Slot 4 ───────────────────────────
+    // Chỉ tách đúng 1 quả lựu đạn từ balo ra để trang bị
     public bool MoveGrenadeToWeaponSlot(InventorySlot fromGridSlot)
     {
         if (fromGridSlot.IsEmpty || fromGridSlot.item.category != ItemCategory.Grenade)
             return false;
 
+        ItemDataSO draggedItem = fromGridSlot.item;
         var grenadeSlot = weaponSlots[3];
 
-        if (!grenadeSlot.IsEmpty)
+        // TRƯỜNG HỢP 1: Slot lựu đạn đang trống hoàn toàn
+        if (grenadeSlot.IsEmpty)
         {
-            var oldItem = grenadeSlot.item;
-            var oldQty = grenadeSlot.quantity;
+            // Trừ đúng 1 quả khỏi ô chứa trong balo
+            fromGridSlot.quantity -= 1;
+            if (fromGridSlot.quantity <= 0) fromGridSlot.Clear();
 
-            grenadeSlot.Set(fromGridSlot.item, fromGridSlot.quantity);
-            fromGridSlot.Set(oldItem, oldQty);
+            // Gắn đúng 1 quả vào slot trang bị
+            grenadeSlot.Set(draggedItem, 1);
+
+            OnInventoryChanged?.Invoke();
+            return true;
+        }
+
+        // TRƯỜNG HỢP 2: Slot đang chứa CHÍNH LOẠI LỰU ĐẠN ĐÓ
+        // Vì trên tay/thắt lưng chỉ treo tối đa 1 quả, không làm gì cả
+        if (grenadeSlot.item == draggedItem)
+        {
+            Debug.Log("[Inventory] Đã trang bị 1 quả lựu đạn loại này trên người rồi!");
+            return false;
+        }
+
+        // TRƯỜNG HỢP 3: Đổi sang loại lựu đạn KHÁC (Cần tráo đổi)
+        ItemDataSO oldItem = grenadeSlot.item;
+        int oldQty = grenadeSlot.quantity;
+
+        // Tạm thời trừ 1 quả mới khỏi balo
+        fromGridSlot.quantity -= 1;
+        bool wasCleared = false;
+        if (fromGridSlot.quantity <= 0)
+        {
+            fromGridSlot.Clear();
+            wasCleared = true;
+        }
+
+        // Thử tìm chỗ trống trong balo để nhét quả lựu đạn cũ vào
+        bool canReturnOldItem = TryAddToGrid(oldItem, oldQty);
+
+        if (canReturnOldItem)
+        {
+            // Nếu balo nhận lại đồ cũ thành công -> Gắn đồ mới vào ô trang bị
+            grenadeSlot.Set(draggedItem, 1);
+            OnInventoryChanged?.Invoke();
+            return true;
         }
         else
         {
-            grenadeSlot.Set(fromGridSlot.item, fromGridSlot.quantity);
-            fromGridSlot.Clear();
-        }
+            // Balo không còn chỗ chứa đồ cũ -> Hoàn tác (Rollback) lại số lượng ban đầu
+            if (wasCleared) fromGridSlot.Set(draggedItem, 1);
+            else fromGridSlot.quantity += 1;
 
-        OnInventoryChanged?.Invoke();
-        return true;
+            Debug.Log("[Inventory] Không thể đổi! Balo không còn chỗ trống để cất lựu đạn cũ.");
+            return false;
+        }
     }
 
     // ── QuestItem → Slot 5 ────────────────────────────────
-    // ── QuestItem → Slot 5 ────────────────────────────────
+    // Chỉ tách đúng 1 QuestItem từ balo ra để cầm trên tay
     public bool MoveQuestItemToSlot5(InventorySlot fromGridSlot)
     {
         if (fromGridSlot.IsEmpty || fromGridSlot.item.category != ItemCategory.QuestItem)
             return false;
 
-        // BỎ điều kiện kiểm tra khác đồ. Cứ Slot 5 có đồ là Swap!
-        if (!heldItemSlot.IsEmpty)
-        {
-            var oldItem = heldItemSlot.item;
-            var oldQty = heldItemSlot.quantity;
+        ItemDataSO draggedItem = fromGridSlot.item;
 
-            heldItemSlot.Set(fromGridSlot.item, fromGridSlot.quantity);
-            fromGridSlot.Set(oldItem, oldQty); // Trả đồ cũ về lại chính cái ô vừa kéo
+        // TRƯỜNG HỢP 1: Slot 5 đang trống hoàn toàn
+        if (heldItemSlot.IsEmpty)
+        {
+            // Trừ đúng 1 cái khỏi ô chứa trong balo
+            fromGridSlot.quantity -= 1;
+            if (fromGridSlot.quantity <= 0) fromGridSlot.Clear();
+
+            // Gắn đúng 1 cái vào Slot 5 trên tay
+            heldItemSlot.Set(draggedItem, 1);
+
+            OnHeldItemChanged?.Invoke(heldItemSlot.item);
+            OnInventoryChanged?.Invoke();
+            return true;
+        }
+
+        // TRƯỜNG HỢP 2: Slot 5 đang cầm CHÍNH NÓ rồi
+        if (heldItemSlot.item == draggedItem)
+        {
+            Debug.Log("[Inventory] Nhân vật đang cầm vật phẩm này trên tay rồi!");
+            return false;
+        }
+
+        // TRƯỜNG HỢP 3: Đổi sang vật phẩm nhiệm vụ KHÁC (Cần tráo đổi)
+        ItemDataSO oldItem = heldItemSlot.item;
+        int oldQty = heldItemSlot.quantity;
+
+        // Tạm thời trừ 1 cái mới khỏi balo
+        fromGridSlot.quantity -= 1;
+        bool wasCleared = false;
+        if (fromGridSlot.quantity <= 0)
+        {
+            fromGridSlot.Clear();
+            wasCleared = true;
+        }
+
+        // Thử tìm một ô trống khác trong lưới balo để cất vật phẩm cũ vào
+        bool canReturnOldItem = TryAddToGrid(oldItem, oldQty);
+
+        if (canReturnOldItem)
+        {
+            // Cất đồ cũ thành công -> Trao đồ mới vào tay (Slot 5)
+            heldItemSlot.Set(draggedItem, 1);
+
+            OnHeldItemChanged?.Invoke(heldItemSlot.item);
+            OnInventoryChanged?.Invoke();
+            return true;
         }
         else
         {
-            heldItemSlot.Set(fromGridSlot.item, fromGridSlot.quantity);
-            fromGridSlot.Clear(); // Làm trống ô trong balo
-        }
+            // Balo không còn chỗ để nhét đồ cũ -> Hoàn tác (Rollback) dữ liệu ô balo
+            if (wasCleared) fromGridSlot.Set(draggedItem, 1);
+            else fromGridSlot.quantity += 1;
 
-        OnHeldItemChanged?.Invoke(heldItemSlot.item);
-        OnInventoryChanged?.Invoke();
-        Debug.Log($"[Inventory] Slot 5 đã cầm: {heldItemSlot.item.itemName}");
-        return true;
+            Debug.Log("[Inventory] Không thể đổi! Balo không còn chỗ trống để cất vật phẩm cũ.");
+            return false;
+        }
     }
 
     // ── Active Slot ───────────────────────────────────────

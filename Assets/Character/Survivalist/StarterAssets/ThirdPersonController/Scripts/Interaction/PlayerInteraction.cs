@@ -93,56 +93,61 @@ public class PlayerInteraction : MonoBehaviour
             if (hitObject != _currentTarget)
             {
                 ClearCurrentTarget();
-                _currentTarget = hitObject;
-                _currentTarget.GetComponent<ItemHighlight>()?.ToggleHighlight(true);
-                ShowPromptForTarget(hitObject);
+
+                // Kiểm tra xem vật thể trúng tia có tương tác được không
+                bool hasPrompt = ShowPromptForTarget(hitObject);
+
+                if (hasPrompt)
+                {
+                    _currentTarget = hitObject;
+                    _currentTarget.GetComponent<ItemHighlight>()?.ToggleHighlight(true);
+                }
+                else
+                {
+                    // Trúng vật nhưng không có script tương tác (ví dụ: tường, đất)
+                    ClearCurrentTarget();
+                }
             }
         }
         else
         {
-            if (_currentTarget != null) ClearCurrentTarget();
+            // Bắn vào không khí -> Xóa sạch mọi thứ mà không cần kiểm tra null
+            ClearCurrentTarget();
         }
     }
 
-    void ShowPromptForTarget(GameObject hitObject)
+    // Đổi sang kiểu bool để báo về cho HandleRaycast biết có chữ hay không
+    bool ShowPromptForTarget(GameObject hitObject)
     {
-        // ── IInteractable — tất cả quest slot ─────────────
         var interactable = hitObject.GetComponentInParent<IInteractable>();
         if (interactable != null)
         {
             string prompt = interactable.GetPrompt();
-            if (prompt != null)
-                InteractionUIManager.Instance.ShowPrompt(prompt);
-            else
-                _currentTarget = null;
-            return;
+            if (prompt != null) InteractionUIManager.Instance.ShowPrompt(prompt);
+            return prompt != null;
         }
 
-        // ── Examinable ────────────────────────────────────
         var examinable = hitObject.GetComponent<ExaminableObject>();
         if (examinable != null)
         {
             InteractionUIManager.Instance.ShowPrompt($"[F] Đọc {examinable.objectName}");
-            return;
+            return true;
         }
 
-        // ── Panel zone ────────────────────────────────────
         var panelZone = hitObject.GetComponentInParent<PanelInteractZone>();
         if (panelZone != null)
         {
             InteractionUIManager.Instance.ShowPrompt(panelZone.enterPrompt);
-            return;
+            return true;
         }
 
-        // ── Main switch ───────────────────────────────────
         var mainSwitch = hitObject.GetComponentInParent<MainSwitchInteractable>();
         if (mainSwitch != null)
         {
             InteractionUIManager.Instance.ShowPrompt("[F] Gạt cần điện");
-            return;
+            return true;
         }
 
-        // ── WorldItem ─────────────────────────────────────
         var worldItem = hitObject.GetComponent<WorldItem>();
         if (worldItem != null && worldItem.itemData != null)
         {
@@ -150,26 +155,23 @@ public class PlayerInteraction : MonoBehaviour
                 ? $"Cầu chì [{f.fuseID}]"
                 : worldItem.itemData.itemName;
             InteractionUIManager.Instance.ShowPrompt($"[F] Nhặt {name}");
-            return;
+            return true;
         }
 
-        // ── Electrical door ───────────────────────────────
         var door = hitObject.GetComponentInParent<ElectricalDoor>();
         if (door != null)
         {
-            InteractionUIManager.Instance.ShowPrompt(
-                door.isOpen ? "[F] Đóng cửa" : "[F] Mở tủ điện");
-            return;
+            InteractionUIManager.Instance.ShowPrompt(door.isOpen ? "[F] Đóng cửa" : "[F] Mở tủ điện");
+            return true;
         }
 
-        // ── Electrical key ────────────────────────────────
         if (hitObject.CompareTag("ElectricalKey"))
         {
             InteractionUIManager.Instance.ShowPrompt("[F] Lấy chìa khóa");
-            return;
+            return true;
         }
 
-        _currentTarget = null;
+        return false; // Không khớp với bất kỳ loại đồ vật nào
     }
 
     void ClearCurrentTarget()
@@ -179,6 +181,8 @@ public class PlayerInteraction : MonoBehaviour
             _currentTarget.GetComponent<ItemHighlight>()?.ToggleHighlight(false);
             _currentTarget = null;
         }
+
+        // Đưa lệnh ẩn chữ ra ngoài, LUÔN LUÔN được gọi để quét sạch UI kẹt
         InteractionUIManager.Instance?.HidePrompt();
     }
 
@@ -244,6 +248,7 @@ public class PlayerInteraction : MonoBehaviour
         if (_currentTarget.CompareTag("ElectricalKey"))
         {
             hasElectricalKey = true;
+            _currentTarget.GetComponent<Collider>().enabled = false;
             Destroy(_currentTarget);
             ClearCurrentTarget();
         }
@@ -285,6 +290,7 @@ public class PlayerInteraction : MonoBehaviour
 
         if (picked)
         {
+            itemToPickUp.GetComponent<Collider>().enabled = false;
             Destroy(itemToPickUp);
             OnItemPickedUp?.Raise();
             Debug.Log($"[PlayerInteraction] Đã nhặt: {data.itemName} x{qty}");

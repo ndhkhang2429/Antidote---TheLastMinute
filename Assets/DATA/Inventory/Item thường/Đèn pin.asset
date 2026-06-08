@@ -19,6 +19,6 @@ MonoBehaviour:
   description: 
   category: 5
   weaponSlotType: 5
-  maxStack: 1
+  maxStack: 5
   weightPerUnit: 8
   autoEquip: 0

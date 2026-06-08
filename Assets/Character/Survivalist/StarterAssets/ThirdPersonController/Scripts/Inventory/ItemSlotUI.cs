@@ -13,75 +13,84 @@ public class ItemSlotUI : MonoBehaviour,
 
     public InventorySlot BoundSlot { get; private set; }
 
-    static GameObject _dragGhost;      // ghost icon theo chuột
-    static ItemSlotUI _dragSource;
+    static GameObject _dragGhost;      // Ghost icon bay theo chuột
+    static ItemSlotUI _dragSource;     // Ô gốc đang bị kéo
 
     public void Bind(InventorySlot slot)
     {
         BoundSlot = slot;
-        Debug.Log($"[SlotUI] Bind — slot null:{slot == null} | empty:{slot?.IsEmpty} | item:{slot?.item?.itemName ?? "NULL"}");
         Refresh();
     }
 
     public void Refresh()
     {
-        bool empty = BoundSlot == null || BoundSlot.IsEmpty;
+        if (BoundSlot == null || BoundSlot.IsEmpty)
+        {
+            if (iconImage != null)
+            {
+                iconImage.enabled = false;
+                iconImage.sprite = null;
+            }
+            if (quantityText != null) quantityText.text = "";
+            if (weightText != null) weightText.text = "";
+            return;
+        }
 
-        if (!empty)
+        if (iconImage != null)
         {
-            iconImage.sprite = BoundSlot.item.icon != null ? BoundSlot.item.icon : null;
+            iconImage.sprite = BoundSlot.item.icon;
             iconImage.enabled = true;
-            iconImage.color = Color.white; // ← THÊM DÒNG NÀY
-            quantityText.text = BoundSlot.quantity > 1 ? $"{BoundSlot.quantity}" : "";
-            weightText.text = BoundSlot.item.weightPerUnit > 0
-                                ? $"{BoundSlot.item.weightPerUnit * BoundSlot.quantity}" : "";
-        }
-        else
-        {
-            iconImage.enabled = false;
             iconImage.color = Color.white;
-            quantityText.text = "";
-            weightText.text = "";
         }
+
+        if (quantityText != null)
+            quantityText.text = BoundSlot.quantity > 1 ? $"{BoundSlot.quantity}" : "";
+
+        if (weightText != null)
+            weightText.text = BoundSlot.item.weightPerUnit > 0 ? $"{BoundSlot.item.weightPerUnit * BoundSlot.quantity}" : "";
     }
 
-    // ── Drag ─────────────────────────────────────────────────
+    // ── Drag (Bắt đầu kéo thả ô Balo) ────────────────────────
     public void OnBeginDrag(PointerEventData e)
     {
         if (BoundSlot == null || BoundSlot.IsEmpty) return;
         _dragSource = this;
 
-        _dragGhost = new GameObject("DragGhost");
-
-        // Đặt vào Canvas gốc (top-level)
-        Canvas rootCanvas = GetComponentInParent<Canvas>().rootCanvas;
-        _dragGhost.transform.SetParent(rootCanvas.transform, false);
+        _dragGhost = new GameObject("DragGhost_Grid");
+        Canvas canvas = GetComponentInParent<Canvas>();
+        if (canvas != null)
+        {
+            _dragGhost.transform.SetParent(canvas.rootCanvas.transform, false);
+            _dragGhost.transform.SetAsLastSibling(); // Ép icon nổi lên trên cùng
+        }
 
         var img = _dragGhost.AddComponent<Image>();
         img.sprite = BoundSlot.item.icon;
-        img.raycastTarget = false; // QUAN TRỌNG: không chặn raycast
-        img.color = new Color(1, 1, 1, 0.8f);
+        img.raycastTarget = false; // QUAN TRỌNG: Để chuột xuyên qua icon ảo
+        img.color = new Color(1f, 1f, 1f, 0.7f);
+        img.preserveAspect = true;
 
         var rt = _dragGhost.GetComponent<RectTransform>();
-        rt.sizeDelta = new Vector2(48, 48);
-        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.sizeDelta = new Vector2(60, 60);
 
-        // Dùng position thực thay vì anchoredPosition
         MoveGhostToPointer(e);
+
+        // Làm mờ icon ở ô gốc đi một chút để báo hiệu đang cầm nó
+        if (iconImage != null) iconImage.color = new Color(1f, 1f, 1f, 0.3f);
     }
 
     public void OnDrag(PointerEventData e)
     {
-        if (_dragGhost == null) return;
-        MoveGhostToPointer(e);
+        if (_dragGhost != null) MoveGhostToPointer(e);
     }
 
     void MoveGhostToPointer(PointerEventData e)
     {
         var rt = _dragGhost.GetComponent<RectTransform>();
-        Canvas rootCanvas = GetComponentInParent<Canvas>().rootCanvas;
+        Canvas canvas = GetComponentInParent<Canvas>();
+        if (canvas == null) return;
 
-        // Convert screen position sang local position của root canvas
+        Canvas rootCanvas = canvas.rootCanvas;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
             rootCanvas.GetComponent<RectTransform>(),
             e.position,
@@ -96,38 +105,101 @@ public class ItemSlotUI : MonoBehaviour,
     {
         if (_dragGhost != null) Destroy(_dragGhost);
         _dragSource = null;
+
+        // Trả lại độ sáng cho ô gốc nếu nó chưa bị xóa
+        if (iconImage != null && BoundSlot != null && !BoundSlot.IsEmpty)
+            iconImage.color = Color.white;
     }
 
-    // ── Drop ─────────────────────────────────────────────────
+    // ── Drop (Xử lý khi thả đồ vào ô) ────────────────────────
     public void OnDrop(PointerEventData e)
     {
-        if (_dragSource == null || _dragSource == this) return;
+        var inv = InventorySystem.Instance;
+        if (inv == null) return;
 
-        // Không swap nếu 1 trong 2 slot null
+        // --- TRƯỜNG HỢP 1: Nhận đồ từ Slot 5 (tay nhân vật) kéo vào Balo ---
+        var slot5 = e.pointerDrag?.GetComponent<ItemSlot5UI>();
+        if (slot5 != null)
+        {
+            if (!inv.heldItemSlot.IsEmpty)
+            {
+                ItemDataSO itemFromSlot5 = inv.heldItemSlot.item;
+                int qtyFromSlot5 = inv.heldItemSlot.quantity;
+
+                if (BoundSlot.IsEmpty)
+                {
+                    // Ô đang trống -> Cất thẳng vào đây
+                    BoundSlot.Set(itemFromSlot5, qtyFromSlot5);
+                    inv.ClearItemSlot();
+                }
+                else if (BoundSlot.item == itemFromSlot5 && !BoundSlot.IsFull)
+                {
+                    // Cùng loại -> Gộp (Stack) lại
+                    int remain = BoundSlot.Add(qtyFromSlot5);
+                    if (remain > 0) inv.heldItemSlot.quantity = remain;
+                    else inv.ClearItemSlot();
+                }
+                else
+                {
+                    // Khác loại -> Swap với điều kiện vật cũ PHẢI LÀ QuestItem
+                    if (BoundSlot.item.category == ItemCategory.QuestItem)
+                    {
+                        ItemDataSO tempItem = BoundSlot.item;
+                        int tempQty = BoundSlot.quantity;
+
+                        BoundSlot.Set(itemFromSlot5, qtyFromSlot5);
+                        inv.heldItemSlot.Set(tempItem, tempQty);
+                    }
+                    else
+                    {
+                        // Nếu đang cố tráo Đèn pin với Súng AK, hệ thống sẽ đẩy đèn pin 
+                        // vào 1 ô trống tự động thay vì cố swap, chống lỗi mất đồ.
+                        bool canAdd = inv.TryAddToGrid(itemFromSlot5, qtyFromSlot5);
+                        if (canAdd) inv.ClearItemSlot();
+                    }
+                }
+                inv.NotifyInventoryChanged();
+            }
+            return; // Xong việc với Slot 5 thì ngắt hàm
+        }
+
+        // --- TRƯỜNG HỢP 2: Kéo thả giữa các ô trong Balo với nhau ---
+        if (_dragSource == null || _dragSource == this) return;
         if (BoundSlot == null || _dragSource.BoundSlot == null) return;
 
-        var inv = InventorySystem.Instance;
+        // Cùng loại -> Gộp đồ
+        if (!BoundSlot.IsEmpty && BoundSlot.item == _dragSource.BoundSlot.item && !BoundSlot.IsFull)
+        {
+            int remain = BoundSlot.Add(_dragSource.BoundSlot.quantity);
+            if (remain > 0) _dragSource.BoundSlot.quantity = remain;
+            else _dragSource.BoundSlot.Clear();
+        }
+        else
+        {
+            // Khác loại hoặc ô trống -> Tráo đổi
+            var tmpItem = BoundSlot.item;
+            var tmpQty = BoundSlot.quantity;
 
-        // Swap
-        var tmpItem = BoundSlot.item;
-        var tmpQty = BoundSlot.quantity;
+            BoundSlot.Set(_dragSource.BoundSlot.item, _dragSource.BoundSlot.quantity);
+            _dragSource.BoundSlot.Set(tmpItem, tmpQty);
+        }
 
-        BoundSlot.Set(_dragSource.BoundSlot.item, _dragSource.BoundSlot.quantity);
-        _dragSource.BoundSlot.Set(tmpItem, tmpQty);
-
-        // Dùng method public thay vì gọi event trực tiếp
-        inv?.NotifyInventoryChanged();
-
-        Refresh();
-        _dragSource.Refresh();
+        inv.NotifyInventoryChanged();
     }
 
     // ── Tooltip ───────────────────────────────────────────────
     public void OnPointerEnter(PointerEventData e)
     {
-        if (BoundSlot == null || BoundSlot.IsEmpty) return;
-        TooltipUI.Show(BoundSlot.item);
+        if (BoundSlot != null && !BoundSlot.IsEmpty)
+            TooltipUI.Show(BoundSlot.item);
     }
 
     public void OnPointerExit(PointerEventData e) => TooltipUI.Hide();
+
+    // Hàm phụ trợ dọn dẹp ô
+    public void ClearSlot()
+    {
+        if (BoundSlot != null) BoundSlot.Clear();
+        Refresh();
+    }
 }
