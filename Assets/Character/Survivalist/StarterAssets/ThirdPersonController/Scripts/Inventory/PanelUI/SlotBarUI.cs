@@ -9,52 +9,54 @@ public class SlotBarUI : MonoBehaviour
     {
         public GameObject root;
         public Image background;
-        public Image activeBorder;
         public Image iconImage;
         public TextMeshProUGUI keyLabel;
-        public TextMeshProUGUI nameLabel;
-        public TextMeshProUGUI ammoLabel;   // chỉ dùng cho slot 1-4
     }
 
-    [Header("5 Slots (0=Pistol, 1=Rifle, 2=Melee, 3=Grenade, 4=Item)")]
+    [Header("5 Slots")]
     public SlotBarItem[] slots = new SlotBarItem[5];
 
+    [Header("Layout")]
+    public float slotHeight = 36f;
+    public float slotSpacing = 4f;
+    public float dividerGap = 8f; // khoảng cách thêm trước slot 5
+
     [Header("Colors")]
-    public Color colorActive = new Color(1f, 0.78f, 0.2f, 1f);
-    public Color colorInactive = new Color(1f, 1f, 1f, 0.15f);
-    public Color colorBgActive = new Color(0f, 0f, 0f, 0.75f);
-    public Color colorBgInactive = new Color(0f, 0f, 0f, 0.4f);
-    public Color colorQuestItem = new Color(0.4f, 0.75f, 1f, 1f);   // xanh nhạt
-    public Color colorEmpty = new Color(1f, 1f, 1f, 0.25f);
+    public Color colorActiveBg = new Color(1f, 1f, 1f, 0.08f);
+    public Color colorInactiveBg = new Color(1f, 1f, 1f, 0f);
+    public Color colorActiveIcon = Color.white;
+    public Color colorInactiveIcon = new Color(1f, 1f, 1f, 0.35f);
+    public Color colorActiveText = new Color(1f, 0.85f, 0.25f, 1f);
+    public Color colorInactiveText = new Color(1f, 1f, 1f, 0.25f);
+    public Color colorActiveItem = new Color(0.4f, 0.75f, 1f, 1f);
 
     static readonly string[] KeyLabels = { "1", "2", "3", "4", "5" };
     static readonly string[] SlotNames =
     {
-        "Súng lục",
         "Súng trường",
+        "Súng lục",
         "Cận chiến",
         "Lựu đạn",
         "Item"
     };
 
-    // ── Lifecycle ─────────────────────────────────────────
     void Start()
     {
         InitLabels();
+        PositionSlots();
 
         if (InventorySystem.Instance != null)
         {
-            InventorySystem.Instance.OnActiveSlotChanged += OnActiveSlotChanged;
+            InventorySystem.Instance.OnActiveSlotChanged += _ => RefreshAll();
             InventorySystem.Instance.OnInventoryChanged += RefreshAll;
         }
-
         RefreshAll();
     }
 
     void OnDestroy()
     {
         if (InventorySystem.Instance == null) return;
-        InventorySystem.Instance.OnActiveSlotChanged -= OnActiveSlotChanged;
+        InventorySystem.Instance.OnActiveSlotChanged -= _ => RefreshAll();
         InventorySystem.Instance.OnInventoryChanged -= RefreshAll;
     }
 
@@ -62,21 +64,43 @@ public class SlotBarUI : MonoBehaviour
     {
         for (int i = 0; i < slots.Length; i++)
         {
-            if (slots[i].keyLabel != null)
-                slots[i].keyLabel.text = KeyLabels[i];
+            if (slots[i].keyLabel != null) slots[i].keyLabel.text = KeyLabels[i];
         }
     }
 
-    // ── Refresh ───────────────────────────────────────────
-    void OnActiveSlotChanged(int activeIndex) => RefreshAll();
+    // Tự đặt vị trí từng slot bằng code
+    void PositionSlots()
+    {
+        float y = 0f;
+        for (int i = 0; i < slots.Length; i++)
+        {
+            if (slots[i].root == null) continue;
+
+            // Thêm khoảng cách trước slot 5
+            if (i == 4) y -= dividerGap;
+
+            var rt = slots[i].root.GetComponent<RectTransform>();
+            if (rt == null) continue;
+
+            rt.anchorMin = new Vector2(0, 1);
+            rt.anchorMax = new Vector2(1, 1);
+            rt.pivot = new Vector2(0.5f, 1f);
+            rt.offsetMin = new Vector2(0, -(y + slotHeight));
+            rt.offsetMax = new Vector2(0, -y);
+
+            y += slotHeight + slotSpacing;
+        }
+
+        // Set chiều cao SlotBarUI = tổng slot + divider
+        var selfRt = GetComponent<RectTransform>();
+        selfRt.sizeDelta = new Vector2(200, y + dividerGap);
+    }
 
     public void RefreshAll()
     {
         var inv = InventorySystem.Instance;
         if (inv == null) return;
-
         int active = inv.activeSlot;
-
         for (int i = 0; i < slots.Length; i++)
             RefreshSlot(i, active, inv);
     }
@@ -85,62 +109,32 @@ public class SlotBarUI : MonoBehaviour
     {
         var s = slots[i];
         if (s == null || s.root == null) return;
-
         bool isActive = (i == activeIndex);
 
-        // Background + border
         if (s.background != null)
-            s.background.color = isActive ? colorBgActive : colorBgInactive;
-        if (s.activeBorder != null)
-            s.activeBorder.color = isActive ? colorActive : colorInactive;
+            s.background.color = isActive ? colorActiveBg : colorInactiveBg;
 
-        if (i < 4)
-            RefreshWeaponSlot(s, i, isActive, inv);
-        else
-            RefreshItemSlot(s, isActive, inv);
+        if (s.iconImage != null)
+            s.iconImage.color = isActive ? colorActiveIcon : colorInactiveIcon;
+
+        if (s.keyLabel != null)
+            s.keyLabel.color = isActive
+                ? new Color(1f, 1f, 1f, 0.7f)
+                : new Color(1f, 1f, 1f, 0.25f);
+
+        if (i < 4) RefreshWeaponSlot(s, i, isActive, inv);
+        else RefreshItemSlot(s, isActive, inv);
     }
 
     void RefreshWeaponSlot(SlotBarItem s, int i, bool isActive, InventorySystem inv)
     {
         var weapSlot = inv.weaponSlots[i];
 
-        if (weapSlot.IsEmpty)
-        {
-            // Trống
-            if (s.iconImage != null) s.iconImage.enabled = false;
-            if (s.nameLabel != null)
-            {
-                s.nameLabel.text = SlotNames[i];
-                s.nameLabel.color = colorEmpty;
-            }
-            if (s.ammoLabel != null) s.ammoLabel.text = "";
-            return;
-        }
-
-        // Có vũ khí
         if (s.iconImage != null)
         {
-            s.iconImage.enabled = weapSlot.item.icon != null;
-            if (weapSlot.item.icon != null)
-            {
-                s.iconImage.sprite = weapSlot.item.icon;
-                s.iconImage.color = Color.white;
-            }
-        }
-
-        if (s.nameLabel != null)
-        {
-            s.nameLabel.text = weapSlot.item.itemName;
-            s.nameLabel.color = isActive ? colorActive : Color.white;
-        }
-
-        // Ammo — chỉ hiện khi là WeaponDataSO
-        if (s.ammoLabel != null)
-        {
-            if (weapSlot.item is WeaponDataSO wd && wd.magazineSize > 0)
-                s.ammoLabel.text = $"{wd.magazineSize}";
-            else
-                s.ammoLabel.text = "";
+            bool hasIcon = !weapSlot.IsEmpty && weapSlot.item.icon != null;
+            s.iconImage.enabled = hasIcon;
+            if (hasIcon) s.iconImage.sprite = weapSlot.item.icon;
         }
     }
 
@@ -148,42 +142,11 @@ public class SlotBarUI : MonoBehaviour
     {
         bool empty = inv.heldItemSlot.IsEmpty;
 
-        // Icon
         if (s.iconImage != null)
         {
-            if (!empty && inv.heldItemSlot.item.icon != null)
-            {
-                s.iconImage.sprite = inv.heldItemSlot.item.icon;
-                s.iconImage.enabled = true;
-                s.iconImage.color = Color.white;
-            }
-            else
-            {
-                s.iconImage.enabled = false;
-            }
+            bool hasIcon = !empty && inv.heldItemSlot.item.icon != null;
+            s.iconImage.enabled = hasIcon;
+            if (hasIcon) s.iconImage.sprite = inv.heldItemSlot.item.icon;
         }
-
-        // Name
-        if (s.nameLabel != null)
-        {
-            s.nameLabel.text = empty ? "Item" : inv.heldItemSlot.item.itemName;
-            s.nameLabel.color = isActive && !empty ? colorQuestItem : colorEmpty;
-        }
-
-        // Ammo/qty
-        if (s.ammoLabel != null)
-            s.ammoLabel.text = (!empty && inv.heldItemSlot.quantity > 1)
-                               ? $"x{inv.heldItemSlot.quantity}" : "";
-    }
-
-    ItemDataSO FindFirstQuestItem(InventorySystem inv)
-    {
-        foreach (var slot in inv.GetItemSlots())
-        {
-            if (slot.IsEmpty) continue;
-            if (slot.item.category == ItemCategory.QuestItem)
-                return slot.item;
-        }
-        return null;
     }
 }

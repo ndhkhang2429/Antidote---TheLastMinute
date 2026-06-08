@@ -180,19 +180,34 @@ public class PlayerAttack : MonoBehaviour
             _animator.ResetTrigger(_hashWeaponAttack);
             _animator.ResetTrigger(_hashPunch);
 
-            if (item is WeaponDataSO weapon)
+            if (item != null)
             {
-                int poseID = 0;
-                switch (weapon.weaponSlotType)
+                if (item is WeaponDataSO weapon)
                 {
-                    case WeaponSlotType.Rifle: poseID = 1; break;
-                    case WeaponSlotType.PistolOrShotgun: poseID = 2; break;
-                    case WeaponSlotType.Melee: poseID = 3; break;
+                    int poseID = 0;
+                    switch (weapon.weaponSlotType)
+                    {
+                        case WeaponSlotType.Rifle: poseID = 1; break;
+                        case WeaponSlotType.PistolOrShotgun: poseID = 2; break;
+                        case WeaponSlotType.Melee: poseID = 3; break;
+                    }
+                    _animator.SetInteger(_paramWeaponType, poseID);
                 }
-                _animator.SetInteger(_paramWeaponType, poseID);
+                else if (item.category == ItemCategory.QuestItem)
+                {
+                    // [SỬA Ở ĐÂY]: Xử lý cho Đèn pin / Item Slot 5
+                    // Lưu ý: Bạn hãy mở Animator lên xem Dáng cầm đèn pin của bạn đang là số mấy (ví dụ: 4 hoặc 5), 
+                    // rồi thay số 4 ở dưới đây thành số chuẩn của bạn nhé!
+                    _animator.SetInteger(_paramWeaponType, 5);
+                }
+                else
+                {
+                    _animator.SetInteger(_paramWeaponType, 0);
+                }
             }
             else
             {
+                // Khi thực sự không cầm gì cả (item == null)
                 _animator.SetInteger(_paramWeaponType, 0);
             }
         }

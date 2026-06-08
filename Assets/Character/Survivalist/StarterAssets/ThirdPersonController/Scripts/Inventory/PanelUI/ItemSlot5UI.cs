@@ -8,15 +8,11 @@ public class ItemSlot5UI : MonoBehaviour, IDropHandler, IPointerEnterHandler, IP
     [Header("UI Refs")]
     public Image iconImage;
     public TextMeshProUGUI nameLabel;
-    public TextMeshProUGUI hintLabel;  // "Kéo QuestItem vào đây"
-    public Image borderImage;
+    public TextMeshProUGUI hintLabel;
 
     [Header("Colors")]
     public Color colorHasItem = new Color(0.4f, 0.75f, 1f, 1f);
     public Color colorEmpty = new Color(1f, 1f, 1f, 0.25f);
-    public Color borderNormal = new Color(1f, 1f, 1f, 0.1f);
-    public Color borderHover = new Color(0.4f, 0.75f, 1f, 0.6f);
-    public Color borderInvalid = new Color(1f, 0.3f, 0.3f, 0.6f);
 
     void Start()
     {
@@ -39,17 +35,25 @@ public class ItemSlot5UI : MonoBehaviour, IDropHandler, IPointerEnterHandler, IP
         bool empty = inv.heldItemSlot.IsEmpty;
 
         if (iconImage != null) iconImage.enabled = !empty;
-        if (hintLabel != null) hintLabel.gameObject.SetActive(empty);
 
         if (!empty)
         {
             var item = inv.heldItemSlot.item;
+
             if (iconImage != null && item.icon != null)
                 iconImage.sprite = item.icon;
+
             if (nameLabel != null)
             {
                 nameLabel.text = item.itemName;
                 nameLabel.color = colorHasItem;
+            }
+
+            // Hiển thị hướng dẫn khi đã lắp QuestItem
+            if (hintLabel != null)
+            {
+                hintLabel.gameObject.SetActive(true);
+                hintLabel.text = "Nhấn [5] để cầm";
             }
         }
         else
@@ -59,9 +63,14 @@ public class ItemSlot5UI : MonoBehaviour, IDropHandler, IPointerEnterHandler, IP
                 nameLabel.text = "Trống";
                 nameLabel.color = colorEmpty;
             }
-        }
 
-        if (borderImage != null) borderImage.color = borderNormal;
+            // Hiển thị hướng dẫn khi ô trống
+            if (hintLabel != null)
+            {
+                hintLabel.gameObject.SetActive(true);
+                hintLabel.text = "Kéo QuestItem vào đây";
+            }
+        }
     }
 
     // ── Drop ─────────────────────────────────────────────
@@ -76,7 +85,6 @@ public class ItemSlot5UI : MonoBehaviour, IDropHandler, IPointerEnterHandler, IP
         // Chỉ nhận QuestItem
         if (item.category != ItemCategory.QuestItem)
         {
-            if (borderImage != null) borderImage.color = borderInvalid;
             Debug.Log("[Slot5] Chỉ QuestItem mới kéo vào được!");
             return;
         }
@@ -88,27 +96,16 @@ public class ItemSlot5UI : MonoBehaviour, IDropHandler, IPointerEnterHandler, IP
     // ── Hover feedback ────────────────────────────────────
     public void OnPointerEnter(PointerEventData e)
     {
-        if (borderImage == null) return;
-
-        // Kiểm tra đang drag item gì
-        var dragging = e.pointerDrag?.GetComponent<ItemSlotUI>();
-        if (dragging != null && dragging.BoundSlot != null && !dragging.BoundSlot.IsEmpty)
+        var inv = InventorySystem.Instance;
+        // Chỉ hiện Tooltip nếu trong ô đang có item
+        if (inv != null && !inv.heldItemSlot.IsEmpty)
         {
-            bool valid = dragging.BoundSlot.item.category == ItemCategory.QuestItem;
-            borderImage.color = valid ? borderHover : borderInvalid;
+            TooltipUI.Show(inv.heldItemSlot.item);
         }
-        else
-        {
-            borderImage.color = borderHover;
-        }
-
-        TooltipUI.Show(InventorySystem.Instance?.heldItemSlot.item
-                       ?? ScriptableObject.CreateInstance<ItemDataSO>());
     }
 
     public void OnPointerExit(PointerEventData e)
     {
-        if (borderImage != null) borderImage.color = borderNormal;
         TooltipUI.Hide();
     }
 }

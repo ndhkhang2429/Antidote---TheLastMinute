@@ -467,6 +467,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7611864752389032781}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 9117289951623804198}
   m_SourcePrefab: {fileID: 100100000, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
 --- !u!4 &4293858817423138776 stripped
 Transform:
@@ -556,6 +559,7 @@ MonoBehaviour:
   jump: 0
   sprint: 0
   crouch: 0
+  shoot: 0
   analogMovement: 1
   cursorLocked: 1
   cursorInputForLook: 1
@@ -640,7 +644,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unarmedData: {fileID: 0}
-  _meleeData: {fileID: 0}
   _zombieLayer:
     serializedVersion: 2
     m_Bits: 0
@@ -658,9 +661,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _statsSO: {fileID: 0}
+  _mainCamera: {fileID: 0}
+  _interactLayer:
+    serializedVersion: 2
+    m_Bits: 0
   _weaponSlot: {fileID: 0}
+  _fusePanelManager: {fileID: 0}
   OnItemPickedUp: {fileID: 0}
   OnItemDropped: {fileID: 0}
+  hasElectricalKey: 0
 --- !u!114 &6075764518405645363
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -694,6 +703,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bloodOverlayImage: {fileID: 0}
   maxAlpha: 0.85
+--- !u!114 &9117289951623804198
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5653107524642111943}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 007f6db46e416354c9dadb54e0183abe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  handSocket: {fileID: 2882026059644119632}
 --- !u!1001 &8797944281287342451
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1074,5 +1096,10 @@ Transform:
 --- !u!4 &2882026059203710790 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6766536238432138805, guid: 29275473dc42c1a499187925872e54cb, type: 3}
+  m_PrefabInstance: {fileID: 8797944281287342451}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &2882026059644119632 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6766536238260163363, guid: 29275473dc42c1a499187925872e54cb, type: 3}
   m_PrefabInstance: {fileID: 8797944281287342451}
   m_PrefabAsset: {fileID: 0}

@@ -101,10 +101,11 @@ public class InventorySystem : MonoBehaviour
 
     int WeaponSlotIndex(WeaponSlotType type) => type switch
     {
-        WeaponSlotType.PistolOrShotgun => 0,
-        WeaponSlotType.Rifle => 1,
+        WeaponSlotType.PistolOrShotgun => 1,
+        WeaponSlotType.Rifle => 0,
         WeaponSlotType.Melee => 2,
         WeaponSlotType.Grenade => 3,
+        WeaponSlotType.QuestItem => 4,
         _ => -1
     };
 

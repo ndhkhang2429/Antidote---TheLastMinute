@@ -7,6 +7,9 @@ public class InventoryUI : MonoBehaviour
     public WeaponPanelUI weaponPanel;
     public ItemGridUI itemGridPanel;
 
+    [Header("SlotBar — tắt khi mở inventory")]
+    public GameObject slotBarUI;
+
     bool _isOpen;
     bool _tabWasPressed;
 
@@ -66,6 +69,10 @@ public class InventoryUI : MonoBehaviour
     {
         _isOpen = true;
         inventoryPanel.SetActive(true);
+
+        if (slotBarUI != null)
+            slotBarUI.SetActive(false);
+
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
@@ -79,6 +86,11 @@ public class InventoryUI : MonoBehaviour
     {
         _isOpen = false;
         inventoryPanel.SetActive(false);
+
+        // Bật lại SlotBarUI
+        if (slotBarUI != null)
+            slotBarUI.SetActive(true);
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
