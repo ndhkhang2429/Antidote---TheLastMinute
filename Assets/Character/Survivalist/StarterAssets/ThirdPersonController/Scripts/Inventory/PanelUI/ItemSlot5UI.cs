@@ -89,8 +89,10 @@ public class ItemSlot5UI : MonoBehaviour, IDropHandler, IPointerEnterHandler, IP
             return;
         }
 
-        InventorySystem.Instance.AssignItemSlot(item);
-        Refresh();
+        // Gọi hàm di chuyển trực tiếp từ ô lưới sang Slot 5
+        InventorySystem.Instance.MoveQuestItemToSlot5(source.BoundSlot);
+
+        // Không cần gọi Refresh() ở đây nữa vì OnInventoryChanged trong hàm Move đã tự động lo việc đó rồi.
     }
 
     // ── Hover feedback ────────────────────────────────────

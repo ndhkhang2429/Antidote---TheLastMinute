@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using TMPro;
+using UnityEngine;
 
 public class InventoryUI : MonoBehaviour
 {
@@ -9,6 +10,9 @@ public class InventoryUI : MonoBehaviour
 
     [Header("SlotBar — tắt khi mở inventory")]
     public GameObject slotBarUI;
+
+    [Header("Capacity UI")]
+    public TextMeshProUGUI capacityText;
 
     bool _isOpen;
     bool _tabWasPressed;
@@ -103,5 +107,30 @@ public class InventoryUI : MonoBehaviour
         if (!_isOpen) return;
         weaponPanel?.Refresh();
         itemGridPanel?.Refresh();
+
+        // --- CODE MỚI: Cập nhật số liệu sức chứa ---
+        var inv = InventorySystem.Instance;
+        if (inv != null && capacityText != null)
+        {
+            int current = inv.UsedCapacity;
+            int max = inv.MaxCapacity;
+
+            // Cập nhật text hiển thị
+            capacityText.text = $"{current} / {max}";
+
+            // Đổi màu để cảnh báo người chơi (Đậm chất sinh tồn)
+            if (current >= max)
+            {
+                capacityText.color = new Color(1f, 0.3f, 0.3f); // Đỏ (Balo đầy)
+            }
+            else if (current >= max * 0.8f)
+            {
+                capacityText.color = new Color(1f, 0.6f, 0f); // Cam (Sắp đầy, trên 80%)
+            }
+            else
+            {
+                capacityText.color = new Color(0.8f, 0.8f, 0.8f); // Xám sáng (Bình thường)
+            }
+        }
     }
 }

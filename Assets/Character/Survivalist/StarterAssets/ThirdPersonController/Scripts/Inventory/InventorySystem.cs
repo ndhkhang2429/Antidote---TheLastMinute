@@ -33,9 +33,7 @@ public class InventorySystem : MonoBehaviour
             foreach (var slot in itemSlots)
                 if (!slot.IsEmpty)
                     used += slot.item.weightPerUnit * slot.quantity;
-            var grenadeSlot = weaponSlots[3];
-            if (!grenadeSlot.IsEmpty)
-                used += grenadeSlot.item.weightPerUnit * grenadeSlot.quantity;
+
             return used;
         }
     }
@@ -199,22 +197,58 @@ public class InventorySystem : MonoBehaviour
     }
 
     // ── Grenade → Weapon Slot 4 ───────────────────────────
+    // ── Grenade → Weapon Slot 4 ───────────────────────────
+    // ── Grenade → Weapon Slot 4 ───────────────────────────
     public bool MoveGrenadeToWeaponSlot(InventorySlot fromGridSlot)
     {
         if (fromGridSlot.IsEmpty || fromGridSlot.item.category != ItemCategory.Grenade)
             return false;
 
         var grenadeSlot = weaponSlots[3];
-        if (!grenadeSlot.IsEmpty && grenadeSlot.item != fromGridSlot.item)
+
+        if (!grenadeSlot.IsEmpty)
         {
-            var swapSlot = new InventorySlot();
-            swapSlot.Set(grenadeSlot.item, grenadeSlot.quantity);
-            itemSlots.Add(swapSlot);
+            var oldItem = grenadeSlot.item;
+            var oldQty = grenadeSlot.quantity;
+
+            grenadeSlot.Set(fromGridSlot.item, fromGridSlot.quantity);
+            fromGridSlot.Set(oldItem, oldQty);
+        }
+        else
+        {
+            grenadeSlot.Set(fromGridSlot.item, fromGridSlot.quantity);
+            fromGridSlot.Clear();
         }
 
-        grenadeSlot.Set(fromGridSlot.item, fromGridSlot.quantity);
-        fromGridSlot.Clear();
         OnInventoryChanged?.Invoke();
+        return true;
+    }
+
+    // ── QuestItem → Slot 5 ────────────────────────────────
+    // ── QuestItem → Slot 5 ────────────────────────────────
+    public bool MoveQuestItemToSlot5(InventorySlot fromGridSlot)
+    {
+        if (fromGridSlot.IsEmpty || fromGridSlot.item.category != ItemCategory.QuestItem)
+            return false;
+
+        // BỎ điều kiện kiểm tra khác đồ. Cứ Slot 5 có đồ là Swap!
+        if (!heldItemSlot.IsEmpty)
+        {
+            var oldItem = heldItemSlot.item;
+            var oldQty = heldItemSlot.quantity;
+
+            heldItemSlot.Set(fromGridSlot.item, fromGridSlot.quantity);
+            fromGridSlot.Set(oldItem, oldQty); // Trả đồ cũ về lại chính cái ô vừa kéo
+        }
+        else
+        {
+            heldItemSlot.Set(fromGridSlot.item, fromGridSlot.quantity);
+            fromGridSlot.Clear(); // Làm trống ô trong balo
+        }
+
+        OnHeldItemChanged?.Invoke(heldItemSlot.item);
+        OnInventoryChanged?.Invoke();
+        Debug.Log($"[Inventory] Slot 5 đã cầm: {heldItemSlot.item.itemName}");
         return true;
     }
 
