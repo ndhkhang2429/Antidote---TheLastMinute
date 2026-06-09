@@ -15,12 +15,10 @@ public class FusePanelManager : MonoBehaviour
 
     public bool IsPanelReady { get; private set; } = false;
 
-    // Không còn _heldFuseID — dùng inventory
     public bool HasFuseInHand => HasAnyFuseInInventory();
 
     void Start() => UpdatePanelState();
 
-    // ── Kiểm tra inventory có fuse nào không ─────────────
     bool HasAnyFuseInInventory()
     {
         if (InventorySystem.Instance == null) return false;
@@ -29,29 +27,14 @@ public class FusePanelManager : MonoBehaviour
         return false;
     }
 
-    // ── Tìm fuse đúng ID trong inventory ─────────────────
-    FuseItemDataSO GetFuseFromInventory(string fuseID)
-    {
-        if (InventorySystem.Instance == null) return null;
-        foreach (var slot in InventorySystem.Instance.GetItemSlots())
-        {
-            if (slot.IsEmpty) continue;
-            if (slot.item is FuseItemDataSO fuse && fuse.fuseID == fuseID)
-                return fuse;
-        }
-        return null;
-    }
-
-    // ── Gắn fuse vào slot ────────────────────────────────
     public bool TryInsertHeldFuse(FuseSlot slot)
     {
         var inv = InventorySystem.Instance;
         if (inv == null) return false;
 
-        // ── Bắt buộc phải đang cầm đúng fuse ở slot 5 ───────
         if (!inv.IsHoldingFuse(slot.correctFuseID))
         {
-            Debug.Log($"[FusePanel] Chưa cầm {slot.correctFuseID}! Nhấn [5] trước.");
+            NotificationUI.Instance.ShowNotification($"Cần cầm cầu chì loại [{slot.correctFuseID}] trên tay!");
             return false;
         }
 
@@ -64,30 +47,24 @@ public class FusePanelManager : MonoBehaviour
         return success;
     }
 
-    // ── Giữ lại để không lỗi tham chiếu cũ ──────────────
-
-    public void PickUpFuse(string fuseID)
-    {
-        Debug.Log($"[FusePanel] PickUpFuse gọi nhưng giờ dùng inventory: {fuseID}");
-    }
-
     public void UpdatePanelState()
     {
         bool fusesOK = CheckAllFuses();
         bool switchesOK = CheckAllSwitches();
         IsPanelReady = fusesOK && switchesOK;
         UpdateIndicatorLights();
-        Debug.Log($"[FusePanel] Fuse:{fusesOK} | Switch:{switchesOK} | Ready:{IsPanelReady}");
     }
 
-    bool CheckAllFuses()
+    // Đổi thành public để script Cần gạt bên ngoài gọi được
+    public bool CheckAllFuses()
     {
         foreach (var slot in allSlots)
             if (slot.requiresFuse && !slot.IsCorrect) return false;
         return true;
     }
 
-    bool CheckAllSwitches()
+    // Đổi thành public để script Cần gạt bên ngoài gọi được
+    public bool CheckAllSwitches()
     {
         if (correctSwitchStates == null || correctSwitchStates.Length == 0) return true;
         for (int i = 0; i < allSwitches.Length; i++)

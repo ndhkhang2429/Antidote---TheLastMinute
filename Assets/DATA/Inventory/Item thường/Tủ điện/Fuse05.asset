@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Fuse05
   m_EditorClassIdentifier: 
   itemName: Fuse05
-  icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  icon: {fileID: 21300000, guid: 0ebb4a0a46df04d49a20f0b0e6a362d3, type: 3}
   worldPrefab: {fileID: 2351112037769843233, guid: c75d03ca741f3234eb6696cb9bcdbf24, type: 3}
   equipPrefab: {fileID: 2351112037769843233, guid: c75d03ca741f3234eb6696cb9bcdbf24, type: 3}
   description: 

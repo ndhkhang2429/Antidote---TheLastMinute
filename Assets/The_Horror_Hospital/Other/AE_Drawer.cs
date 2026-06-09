@@ -1,4 +1,4 @@
-using UnityEngine;
+п»їusing UnityEngine;
 
 namespace Art_Equilibrium
 {
@@ -8,15 +8,15 @@ namespace Art_Equilibrium
         private bool open = false;
         private bool isKeyPressed = false;
 
-        public float smooth = 2.0f; // скорость открытия
-        public Vector3 openOffset = new Vector3(0, 0, 0.3f); // локальное смещение открытия
+        public float smooth = 2.0f; // Г±ГЄГ®Г°Г®Г±ГІГј Г®ГІГЄГ°Г»ГІГЁГї
+        public Vector3 openOffset = new Vector3(0, 0, 0.3f); // Г«Г®ГЄГ Г«ГјГ­Г®ГҐ Г±Г¬ГҐГ№ГҐГ­ГЁГҐ Г®ГІГЄГ°Г»ГІГЁГї
 
         private Vector3 closedLocalPos;
         private Vector3 openedLocalPos;
 
         [Header("GUI Settings")]
-        public string openMessage = "Open E";
-        public string closeMessage = "Close E";
+        public string openMessage = "Open F";
+        public string closeMessage = "Close F";
         public Font messageFont;
         public int fontSize = 24;
         public Color fontColor = Color.white;
@@ -42,14 +42,14 @@ namespace Art_Equilibrium
             Vector3 targetLocalPos = open ? openedLocalPos : closedLocalPos;
             transform.localPosition = Vector3.Lerp(transform.localPosition, targetLocalPos, Time.deltaTime * smooth);
 
-            if (Input.GetKeyDown(KeyCode.E) && trig && !isKeyPressed)
+            if (Input.GetKeyDown(KeyCode.F) && trig && !isKeyPressed)
             {
                 open = !open;
                 isKeyPressed = true;
                 PlaySound();
             }
 
-            if (Input.GetKeyUp(KeyCode.E))
+            if (Input.GetKeyUp(KeyCode.F))
             {
                 isKeyPressed = false;
             }

@@ -17,12 +17,9 @@ public class PlayerInteraction : MonoBehaviour
     [SerializeField] private GameEventSO OnItemDropped;
 
     private Animator _animator;
-    private ThirdPersonController _tpc; // [THÊM MỚI] Biến lưu trữ ThirdPersonController
+    private ThirdPersonController _tpc;
     private GameObject _currentTarget = null;
     private PanelInteractZone _activePanelZone = null;
-
-    [Header("Quest Items")]
-    public bool hasElectricalKey = false;
 
     private int _paramPickUp;
     private int _paramWeaponType;
@@ -32,7 +29,7 @@ public class PlayerInteraction : MonoBehaviour
     void Start()
     {
         _animator = GetComponentInChildren<Animator>();
-        _tpc = GetComponent<ThirdPersonController>(); // [THÊM MỚI] Lấy component TPC
+        _tpc = GetComponent<ThirdPersonController>();
 
         if (_mainCamera == null) _mainCamera = Camera.main;
 
@@ -69,11 +66,8 @@ public class PlayerInteraction : MonoBehaviour
 
         if (_currentTarget != null && Input.GetKeyDown(KeyCode.F))
         {
-            // [THÊM MỚI] Ép thân người xoay mặt về hướng Camera ngay lập tức trước khi tương tác
             if (_tpc != null)
-            {
                 _tpc.SmoothFaceCameraDirection();
-            }
 
             InteractWithCurrentTarget();
         }
@@ -94,7 +88,6 @@ public class PlayerInteraction : MonoBehaviour
             {
                 ClearCurrentTarget();
 
-                // Kiểm tra xem vật thể trúng tia có tương tác được không
                 bool hasPrompt = ShowPromptForTarget(hitObject);
 
                 if (hasPrompt)
@@ -104,21 +97,28 @@ public class PlayerInteraction : MonoBehaviour
                 }
                 else
                 {
-                    // Trúng vật nhưng không có script tương tác (ví dụ: tường, đất)
                     ClearCurrentTarget();
                 }
             }
         }
         else
         {
-            // Bắn vào không khí -> Xóa sạch mọi thứ mà không cần kiểm tra null
             ClearCurrentTarget();
         }
     }
 
-    // Đổi sang kiểu bool để báo về cho HandleRaycast biết có chữ hay không
     bool ShowPromptForTarget(GameObject hitObject)
     {
+        // ── IQuestRequirement (cửa, máy móc cần item) ─────────
+        var questReq = hitObject.GetComponentInParent<IQuestRequirement>();
+        if (questReq != null)
+        {
+            string prompt = questReq.GetPrompt();
+            if (prompt != null) InteractionUIManager.Instance.ShowPrompt(prompt);
+            return prompt != null;
+        }
+
+        // ── IInteractable (quest items khác) ──────────────────
         var interactable = hitObject.GetComponentInParent<IInteractable>();
         if (interactable != null)
         {
@@ -158,20 +158,13 @@ public class PlayerInteraction : MonoBehaviour
             return true;
         }
 
-        var door = hitObject.GetComponentInParent<ElectricalDoor>();
-        if (door != null)
-        {
-            InteractionUIManager.Instance.ShowPrompt(door.isOpen ? "[F] Đóng cửa" : "[F] Mở tủ điện");
-            return true;
-        }
-
         if (hitObject.CompareTag("ElectricalKey"))
         {
             InteractionUIManager.Instance.ShowPrompt("[F] Lấy chìa khóa");
             return true;
         }
 
-        return false; // Không khớp với bất kỳ loại đồ vật nào
+        return false;
     }
 
     void ClearCurrentTarget()
@@ -181,8 +174,6 @@ public class PlayerInteraction : MonoBehaviour
             _currentTarget.GetComponent<ItemHighlight>()?.ToggleHighlight(false);
             _currentTarget = null;
         }
-
-        // Đưa lệnh ẩn chữ ra ngoài, LUÔN LUÔN được gọi để quét sạch UI kẹt
         InteractionUIManager.Instance?.HidePrompt();
     }
 
@@ -192,16 +183,25 @@ public class PlayerInteraction : MonoBehaviour
         if (_currentTarget == null) return;
         var inv = InventorySystem.Instance;
 
-        // ── IInteractable ─────────────────────────────────
-        var interactable = _currentTarget.GetComponentInParent<IInteractable>();
-        if (interactable != null)
+        // ── IQuestRequirement ─────────────────────────────────
+        var questReq = _currentTarget.GetComponentInParent<IQuestRequirement>();
+        if (questReq != null)
         {
-            interactable.TryInteract(inv);
+            if (inv != null) questReq.TryUseItem(inv);
             ClearCurrentTarget();
             return;
         }
 
-        // ── Examinable ────────────────────────────────────
+        // ── IInteractable ─────────────────────────────────────
+        var interactable = _currentTarget.GetComponentInParent<IInteractable>();
+        if (interactable != null)
+        {
+            if (inv != null) interactable.TryInteract(inv);
+            ClearCurrentTarget();
+            return;
+        }
+
+        // ── Examinable ────────────────────────────────────────
         var examinable = _currentTarget.GetComponent<ExaminableObject>();
         if (examinable != null)
         {
@@ -209,7 +209,7 @@ public class PlayerInteraction : MonoBehaviour
             return;
         }
 
-        // ── Panel zone ────────────────────────────────────
+        // ── Panel zone ────────────────────────────────────────
         var panelZone = _currentTarget.GetComponentInParent<PanelInteractZone>();
         if (panelZone != null)
         {
@@ -219,7 +219,7 @@ public class PlayerInteraction : MonoBehaviour
             return;
         }
 
-        // ── Main switch ───────────────────────────────────
+        // ── Main switch ───────────────────────────────────────
         var mainSwitch = _currentTarget.GetComponentInParent<MainSwitchInteractable>();
         if (mainSwitch != null)
         {
@@ -227,7 +227,7 @@ public class PlayerInteraction : MonoBehaviour
             return;
         }
 
-        // ── WorldItem ─────────────────────────────────────
+        // ── WorldItem ─────────────────────────────────────────
         var worldItem = _currentTarget.GetComponent<WorldItem>();
         if (worldItem != null)
         {
@@ -235,22 +235,11 @@ public class PlayerInteraction : MonoBehaviour
             return;
         }
 
-        // ── Electrical door ───────────────────────────────
-        var door = _currentTarget.GetComponentInParent<ElectricalDoor>();
-        if (door != null)
-        {
-            door.InteractWithDoor(hasElectricalKey);
-            ClearCurrentTarget();
-            return;
-        }
-
-        // ── Electrical key ────────────────────────────────
+        // ── Electrical key (pickup & store flag) ──────────────
         if (_currentTarget.CompareTag("ElectricalKey"))
         {
-            hasElectricalKey = true;
-            _currentTarget.GetComponent<Collider>().enabled = false;
-            Destroy(_currentTarget);
-            ClearCurrentTarget();
+            PickupElectricalKey();
+            return;
         }
     }
 
@@ -301,6 +290,17 @@ public class PlayerInteraction : MonoBehaviour
         }
 
         PlayerState.Instance?.SetPickingUp(false);
+    }
+
+    void PickupElectricalKey()
+    {
+        if (_currentTarget == null) return;
+
+        _currentTarget.GetComponent<Collider>().enabled = false;
+        Destroy(_currentTarget);
+        ClearCurrentTarget();
+
+        Debug.Log("[PlayerInteraction] Đã nhặt chìa khóa điện!");
     }
 
     void DropCurrentItem()

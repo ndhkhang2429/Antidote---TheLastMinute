@@ -19,8 +19,8 @@ namespace Art_Equilibrium
         public Vector3 slideOffset = new Vector3(1, 0, 0);  // Направление сдвига для раздвижной двери (в локальных координатах)
 
         [Header("GUI Settings")]
-        public string openMessage = "Open E";
-        public string closeMessage = "Close E";
+        public string openMessage = "Open F";
+        public string closeMessage = "Close F";
         public Font messageFont;
         public int fontSize = 24;
         public Color fontColor = Color.white;
@@ -57,14 +57,14 @@ namespace Art_Equilibrium
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * smooth);
             }
 
-            if (Input.GetKeyDown(KeyCode.E) && trig && !isKeyPressed)
+            if (Input.GetKeyDown(KeyCode.F) && trig && !isKeyPressed)
             {
                 open = !open;
                 isKeyPressed = true;
                 PlayDoorSound();
             }
 
-            if (Input.GetKeyUp(KeyCode.E))
+            if (Input.GetKeyUp(KeyCode.F))
             {
                 isKeyPressed = false;
             }

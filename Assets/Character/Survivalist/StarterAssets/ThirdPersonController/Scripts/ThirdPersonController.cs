@@ -92,6 +92,11 @@ namespace StarterAssets
 
         private void Start()
         {
+            // Ẩn con trỏ chuột không cho người dùng nhìn thấy
+            Cursor.visible = false;
+
+            // Khóa con trỏ chuột vào giữa màn hình để tránh việc chuột bay ra ngoài cửa sổ game khi quay camera
+            Cursor.lockState = CursorLockMode.Locked;
             _animator = GetComponentInChildren<Animator>();
             _hasAnimator = _animator != null;
 
