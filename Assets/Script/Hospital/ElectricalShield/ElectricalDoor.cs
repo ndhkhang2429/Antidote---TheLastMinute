@@ -5,7 +5,9 @@ public class ElectricalDoor : MonoBehaviour, IQuestRequirement
 {
     [Header("Cài đặt Cửa")]
     public Transform hingeTransform;
-    public float openAngle = -180f;
+    [Tooltip("Thường cửa xoay quanh trục Y. Nếu model bị lỗi trục, đổi thành X hoặc Z.")]
+    public Vector3 rotationAxis = Vector3.forward; // Mặc định là trục Y (0, 1, 0)
+    public float openAngle = -150f; // Cửa thường mở 90 độ thôi
     public float openSpeed = 2f;
 
     [Header("Yêu cầu Item")]
@@ -13,6 +15,7 @@ public class ElectricalDoor : MonoBehaviour, IQuestRequirement
 
     [Header("Trạng thái")]
     public bool _isOpen = false;
+    public bool _isUnlocked = false; // BIẾN MỚI: Ghi nhớ trạng thái ổ khóa
 
     [Header("Vật phẩm bên trong tủ")]
     [Tooltip("Kéo tất cả Collider của Cầu chì hoặc Cần gạt bên trong tủ vào đây")]
@@ -24,40 +27,42 @@ public class ElectricalDoor : MonoBehaviour, IQuestRequirement
     {
         if (hingeTransform == null) hingeTransform = transform;
 
-        // Cài đặt góc xoay ban đầu dựa theo trạng thái cửa lúc mới vào map
-        hingeTransform.localRotation = Quaternion.Euler(0, 0, _isOpen ? openAngle : 0f);
+        // Khởi tạo góc xoay ban đầu
+        float startAngle = _isOpen ? openAngle : 0f;
+        hingeTransform.localRotation = Quaternion.Euler(rotationAxis * startAngle);
 
-        // Khóa hoặc mở Collider bên trong ngay khi game bắt đầu
         ToggleInsideColliders(_isOpen);
     }
 
-    // ── IQuestRequirement ─────────────────────────────────
     public ItemDataSO GetRequiredItem() => _requiredKey;
 
     public bool IsCompleted() => _isOpen;
 
+    // Cập nhật chữ hiển thị thông minh hơn
     public string GetPrompt()
     {
-        return _isOpen ? "[F] Đóng tủ điện" : "[F] Mở tủ điện";
+        if (!_isUnlocked) return "[F] Mở khóa tủ điện"; // Nếu chưa mở khóa
+        return _isOpen ? "[F] Đóng tủ điện" : "[F] Mở tủ điện"; // Nếu đã mở khóa
     }
 
     public bool TryUseItem(InventorySystem inv)
     {
-        if (_isOpen)
+        // ── TRƯỜNG HỢP 1: Ổ KHÓA ĐÃ ĐƯỢC MỞ TỪ TRƯỚC ──
+        // Từ nay về sau chỉ cần bấm F là Mở/Đóng tự do, không check chìa nữa
+        if (_isUnlocked)
         {
-            _isOpen = false;
+            _isOpen = !_isOpen; // Đảo trạng thái (Mở thành Đóng, Đóng thành Mở)
 
-            // CỬA BẮT ĐẦU ĐÓNGG -> Khóa ngay lập tức các vật bên trong
-            ToggleInsideColliders(false);
+            ToggleInsideColliders(_isOpen);
 
             if (currentAnimation != null) StopCoroutine(currentAnimation);
-            currentAnimation = StartCoroutine(AnimateDoor(0f));
+            currentAnimation = StartCoroutine(AnimateDoor(_isOpen ? openAngle : 0f));
 
-            Debug.Log("Đóng tủ điện");
+            Debug.Log(_isOpen ? "Mở tủ điện" : "Đóng tủ điện");
             return true;
         }
 
-        // Kiểm tra điều kiện cầm chìa khóa trên tay (Slot 5 hoạt động)
+        // ── TRƯỜNG HỢP 2: CỬA ĐANG BỊ KHÓA, CẦN KIỂM TRA CHÌA CHÌA MỚI CHO MỞ ──
         bool hasKeyInHand = inv != null
                            && inv.activeSlot == 4
                            && !inv.heldItemSlot.IsEmpty
@@ -65,28 +70,28 @@ public class ElectricalDoor : MonoBehaviour, IQuestRequirement
 
         if (hasKeyInHand)
         {
-            _isOpen = true;
+            _isUnlocked = true; // PHÁ KHÓA THÀNH CÔNG! Ghi nhớ vĩnh viễn.
+            _isOpen = true;     // Và mở cửa ra luôn
 
-            // CỬA MỞ THÀNH CÔNG -> Giải phóng Collider bên trong để người chơi tương tác
             ToggleInsideColliders(true);
 
             if (currentAnimation != null) StopCoroutine(currentAnimation);
             currentAnimation = StartCoroutine(AnimateDoor(openAngle));
 
-            inv.ClearItemSlot(); // Mở xong thì tiêu hao chìa khóa trên tay
+            inv.ClearItemSlot(); // Tiêu hao chìa khóa
 
-            Debug.Log("Mở tủ điện thành công!");
+            NotificationUI.Instance.ShowNotification("Đã mở khóa tủ điện!");
             return true;
         }
         else
         {
             string keyName = _requiredKey != null ? _requiredKey.itemName : "Chìa khóa";
-            NotificationUI.Instance.ShowNotification($"Cần cầm {keyName} trên tay để mở tủ điện!");
+            NotificationUI.Instance.ShowNotification($"Cần cầm {keyName} trên tay để mở khóa tủ điện!");
             return false;
         }
     }
 
-    // Hàm phụ trợ bật/tắt nhanh toàn bộ Collider được chỉ định
+    // Hàm phụ trợ
     private void ToggleInsideColliders(bool state)
     {
         if (insideColliders == null) return;
@@ -100,7 +105,9 @@ public class ElectricalDoor : MonoBehaviour, IQuestRequirement
     IEnumerator AnimateDoor(float targetAngle)
     {
         Quaternion startRot = hingeTransform.localRotation;
-        Quaternion endRot = Quaternion.Euler(0, 0, targetAngle);
+
+        // Đã sửa lại để áp dụng trục xoay (rotationAxis) một cách linh hoạt
+        Quaternion endRot = Quaternion.Euler(rotationAxis * targetAngle);
         float time = 0;
 
         while (time < 1f)
@@ -110,12 +117,6 @@ public class ElectricalDoor : MonoBehaviour, IQuestRequirement
             yield return null;
         }
 
-        transform.localRotation = endRot;
-    }
-
-    public void InteractWithDoor(bool playerHasKey)
-    {
-        var inv = InventorySystem.Instance;
-        if (inv != null) TryUseItem(inv);
+        hingeTransform.localRotation = endRot;
     }
 }

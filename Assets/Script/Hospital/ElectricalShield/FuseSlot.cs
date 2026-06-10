@@ -26,7 +26,7 @@ public class FuseSlot : MonoBehaviour
         else { HasFuse = false; SetVisual(false); }
     }
 
-    void OnMouseDown()
+    public void InteractWithSlot()
     {
         if (panelZone == null || !panelZone.IsInPanelMode) return;
         if (!requiresFuse || HasFuse) return;
@@ -53,7 +53,7 @@ public class FuseSlot : MonoBehaviour
             if (success)
             {
                 InteractionUIManager.Instance?.ShowPrompt(
-                    $"✓ Gắn {correctFuseID} thành công!");
+                    $"Gắn {correctFuseID} thành công!");
                 inv.DeselectAll();
                 if (requiredFuseSO != null && !inv.HasItem(requiredFuseSO))
                     inv.ClearItemSlot();

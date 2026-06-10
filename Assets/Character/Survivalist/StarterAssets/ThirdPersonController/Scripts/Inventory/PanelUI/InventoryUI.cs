@@ -95,11 +95,21 @@ public class InventoryUI : MonoBehaviour
         if (slotBarUI != null)
             slotBarUI.SetActive(true);
 
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        var panelZone = FindObjectOfType<PanelInteractZone>();
 
-        var tpc = FindObjectOfType<StarterAssets.ThirdPersonController>();
-        if (tpc != null) tpc.enabled = true;
+        if (panelZone != null && panelZone.IsInPanelMode)
+        {
+            // Cứ để chuột hiện để người chơi còn click cắm cầu chì
+        }
+        else
+        {
+            // Trạng thái bình thường đi dạo -> Giấu chuột và bật lại nhân vật
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+
+            var tpc = FindObjectOfType<StarterAssets.ThirdPersonController>();
+            if (tpc != null) tpc.enabled = true;
+        }
     }
 
     void Refresh()
