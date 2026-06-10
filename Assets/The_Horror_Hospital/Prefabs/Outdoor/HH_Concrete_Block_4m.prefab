@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 4431463875515789767}
   - component: {fileID: 1237063400057102747}
   - component: {fileID: 7922434518975424072}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Concrete_Block_4m
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1744209962741685814}
   - component: {fileID: 8345404358758998379}
   - component: {fileID: 6572890839221303258}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Checkpoint_Stormwater
   m_TagString: Untagged
   m_Icon: {fileID: 0}

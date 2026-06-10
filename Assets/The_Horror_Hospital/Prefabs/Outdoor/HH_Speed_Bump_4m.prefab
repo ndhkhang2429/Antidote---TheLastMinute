@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8731414068483045190}
   - component: {fileID: 7612365732014999691}
   - component: {fileID: 368819506829370625}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Speed_Bump_4m
   m_TagString: Untagged
   m_Icon: {fileID: 0}

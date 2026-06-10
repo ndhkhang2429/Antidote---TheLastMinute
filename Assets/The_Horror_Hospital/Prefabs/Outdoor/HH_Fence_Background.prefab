@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5145770356512984852}
   - component: {fileID: 4122641158209358454}
   - component: {fileID: 7461281009237598657}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Fence_Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5731371640159047390}
   - component: {fileID: 3061062275185754288}
   - component: {fileID: 5450416710314863050}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Sign_Stop_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}

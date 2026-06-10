@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7268289328560021092}
   - component: {fileID: 689641823272160104}
   - component: {fileID: 1089032938474069001}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Concrete_Island_Ground_4x4m
   m_TagString: Untagged
   m_Icon: {fileID: 0}

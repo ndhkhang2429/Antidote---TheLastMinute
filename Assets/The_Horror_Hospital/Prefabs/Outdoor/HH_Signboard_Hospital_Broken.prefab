@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4630947360624325568}
   - component: {fileID: 2210485850806824348}
   - component: {fileID: 939504785356385613}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Signboard_Hospital_Broken_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -95,7 +95,7 @@ GameObject:
   - component: {fileID: 3849885369907897386}
   - component: {fileID: 8934249102522527698}
   - component: {fileID: 4887348522542109170}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Signboard_Hospital_Broken_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -178,7 +178,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3198226868008852076}
   - component: {fileID: 8835859188242630289}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Signboard_Hospital_Broken
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -241,7 +241,7 @@ GameObject:
   - component: {fileID: 3808300217255228214}
   - component: {fileID: 3156047130301238648}
   - component: {fileID: 4988468197842047287}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Signboard_Hospital_Broken_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}

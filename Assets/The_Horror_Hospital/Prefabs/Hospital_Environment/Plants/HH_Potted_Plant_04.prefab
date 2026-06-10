@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1520084686152589392}
   - component: {fileID: 8017345421944293763}
   - component: {fileID: 3076448048820545621}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Potted_Plant_04_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,7 +94,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4380344226387899513}
   - component: {fileID: 1211557191920792256}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Potted_Plant_04
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -157,7 +157,7 @@ GameObject:
   - component: {fileID: 3597271897537409811}
   - component: {fileID: 4242347603890711323}
   - component: {fileID: 7386492313072197303}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Potted_Plant_04_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -242,7 +242,7 @@ GameObject:
   - component: {fileID: 7353401598204542081}
   - component: {fileID: 5913590976110805984}
   - component: {fileID: 4952453490176158551}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Potted_Plant_04_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}

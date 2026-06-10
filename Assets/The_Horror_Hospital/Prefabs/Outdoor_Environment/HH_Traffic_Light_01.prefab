@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6639879042812613140}
   - component: {fileID: 6838546146034618961}
   - component: {fileID: 2801790511617915866}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Traffic_Light_01_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -95,7 +95,7 @@ GameObject:
   - component: {fileID: 4527851471725973785}
   - component: {fileID: 6709676607480588612}
   - component: {fileID: 3872593978316768259}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Traffic_Light_01_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -199,7 +199,7 @@ GameObject:
   - component: {fileID: 4185356873708992021}
   - component: {fileID: 1578528327443601242}
   - component: {fileID: 1283599518353659783}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Traffic_Light_01_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -281,7 +281,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1071012579541150216}
   - component: {fileID: 2073741654294805211}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Traffic_Light_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}

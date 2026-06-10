@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3583136601197307955}
   - component: {fileID: 899748739299280723}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Checkpoint_Gates
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -70,7 +70,7 @@ GameObject:
   - component: {fileID: 101862035641776805}
   - component: {fileID: 4105586618783750141}
   - component: {fileID: 5261211354986404813}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Gates_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -155,7 +155,7 @@ GameObject:
   - component: {fileID: 8859604609279872854}
   - component: {fileID: 2058676011948961188}
   - component: {fileID: 601832079353331124}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Checkpoint_Gates
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -281,7 +281,7 @@ GameObject:
   - component: {fileID: 6438300587582389481}
   - component: {fileID: 6805504529814783758}
   - component: {fileID: 154677159340301463}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Gates_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}

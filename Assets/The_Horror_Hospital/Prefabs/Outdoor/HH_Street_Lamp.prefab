@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2773667807308457301}
   - component: {fileID: 3317766482062889648}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Street_Lamp
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -73,7 +73,7 @@ GameObject:
   - component: {fileID: 6653467798297642250}
   - component: {fileID: 7197335842248637598}
   - component: {fileID: 5485523468957123155}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Street_Lamp_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -157,7 +157,7 @@ GameObject:
   - component: {fileID: 1217625826991584842}
   - component: {fileID: 5251656076941812628}
   - component: {fileID: 2015531487214231782}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Street_Lamp_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -261,7 +261,7 @@ GameObject:
   - component: {fileID: 6465991289441943855}
   - component: {fileID: 1570734982601512975}
   - component: {fileID: 361552139766986807}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Street_Lamp_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}

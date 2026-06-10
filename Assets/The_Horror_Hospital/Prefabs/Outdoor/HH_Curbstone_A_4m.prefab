@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5556331265541059749}
   - component: {fileID: 285966101872665836}
   - component: {fileID: 2500564339061366635}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Curbstone_A_4m
   m_TagString: Untagged
   m_Icon: {fileID: 0}

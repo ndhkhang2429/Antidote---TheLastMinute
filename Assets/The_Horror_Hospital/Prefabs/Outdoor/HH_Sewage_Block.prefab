@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1585248330329414493}
   - component: {fileID: 2840436414887580915}
   - component: {fileID: 6239611725902081650}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Sewage_Block
   m_TagString: Untagged
   m_Icon: {fileID: 0}

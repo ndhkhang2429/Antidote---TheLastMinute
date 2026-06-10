@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1678515202634985916}
   - component: {fileID: 6542899798647728696}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: MB_Container_02_Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -65,7 +65,7 @@ GameObject:
   - component: {fileID: 87933719577258810}
   - component: {fileID: 741829557012429792}
   - component: {fileID: 9213266926038407694}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Container_02_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -148,7 +148,7 @@ GameObject:
   - component: {fileID: 538435248452977831}
   - component: {fileID: 5262385169377575490}
   - component: {fileID: 7273346530193657319}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Container_Door_02_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -231,7 +231,7 @@ GameObject:
   - component: {fileID: 2767302920701838190}
   - component: {fileID: 7186905874259417227}
   - component: {fileID: 641262465404011601}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Container_02_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -313,7 +313,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3068577703777131457}
   - component: {fileID: 1633085667757480608}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Container_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -381,7 +381,7 @@ GameObject:
   - component: {fileID: 6239369110137090661}
   - component: {fileID: 7174999953101296964}
   - component: {fileID: 3418401965521916648}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Container_Door_02_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -464,7 +464,7 @@ GameObject:
   - component: {fileID: 2073897764629893435}
   - component: {fileID: 2879402100369848312}
   - component: {fileID: 9030364805002821225}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Container_02_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -548,7 +548,7 @@ GameObject:
   - component: {fileID: 9153363044213945007}
   - component: {fileID: 5167060095715285534}
   - component: {fileID: 2868643044427588602}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Container_Door_02_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}

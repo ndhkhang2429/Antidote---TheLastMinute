@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7448743257487008322}
   - component: {fileID: 3233197110971676753}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Curbstone_A_20m_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -68,7 +68,7 @@ GameObject:
   - component: {fileID: 272376517345054854}
   - component: {fileID: 6820545528630503170}
   - component: {fileID: 4537521371201352284}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Curbstone_A_20m_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -152,7 +152,7 @@ GameObject:
   - component: {fileID: 5126433486840513179}
   - component: {fileID: 4866402060714987011}
   - component: {fileID: 8277731013250167714}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Curbstone_A_20m_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}

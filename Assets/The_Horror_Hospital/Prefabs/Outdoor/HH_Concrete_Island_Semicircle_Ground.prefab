@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6642996428249610695}
   - component: {fileID: 1267665239956165129}
   - component: {fileID: 1768561067692617148}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Concrete_Island_Semicircle_Ground_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,7 +94,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8187546421195766856}
   - component: {fileID: 862418797051015952}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Concrete_Island_Semicircle_Ground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -153,7 +153,7 @@ GameObject:
   - component: {fileID: 4021733685198991412}
   - component: {fileID: 5528690021099828326}
   - component: {fileID: 1948487715936791428}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Concrete_Island_Semicircle_Ground_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -7,7 +7,7 @@ using UnityEngine.AI;
 ///
 /// Trách nhiệm của class này CHỈ là:
 ///   1. Chọn Mode lớn qua BT: Patrol → Chase → Combat
-///   2. Thực thi Patrol và Chase (hành vi chung, mọi zombie đều giống nhau)
+///   2. Thực thi Patrol (Wander) và Chase (hành vi chung, mọi zombie đều giống nhau)
 ///   3. Gọi UpdateCombatBehaviour() để subclass tự lo chi tiết combat
 ///   4. Quản lý Scream (first detection) và Death
 ///
@@ -34,8 +34,20 @@ public class ZombieBase : MonoBehaviour
     public float detectionRange = 10f;
     public float attackRange = 2f;
 
-    [Header("Patrol")]
-    public Transform[] waypoints;
+    [Header("Patrol / Wander")]
+    [Tooltip("Bán kính lang thang tính từ vị trí spawn")]
+    public float wanderRadius = 8f;
+    [Tooltip("Thời gian dừng nghỉ tối thiểu tại mỗi điểm")]
+    public float minIdleTime = 2f;
+    [Tooltip("Thời gian dừng nghỉ tối đa tại mỗi điểm")]
+    public float maxIdleTime = 5f;
+    [Tooltip("Khoảng cách tối thiểu để sample điểm đến mới (tránh đứng yên)")]
+    public float minMoveDistance = 2f;
+    [Tooltip("Các điểm đặc biệt trong phòng: giường, tủ, cửa... (tuỳ chọn)")]
+    public Transform[] interestPoints;
+    [Range(0f, 1f)]
+    [Tooltip("Xác suất zombie đi đến interest point thay vì điểm ngẫu nhiên")]
+    public float interestPointChance = 0.3f;
 
     [Header("Head IK")]
     public float headLookWeight = 0.7f;
@@ -47,14 +59,13 @@ public class ZombieBase : MonoBehaviour
     public float turnThreshold = 0.95f;
 
     // ── Mode (BT output) ─────────────────────────────────────────────────────
-    // BT chỉ set biến này, không làm gì khác.
     protected enum ZombieMode { Patrol, Chase, Combat }
     protected ZombieMode _mode = ZombieMode.Patrol;
 
     // ── Private state ────────────────────────────────────────────────────────
     private Node _btRoot;
     protected bool _isDead = false;
-    private bool _inCombat = false;   // đã vào combat lần đầu chưa
+    private bool _inCombat = false;
 
     // Scream
     private bool _hasDetectedPlayer = false;
@@ -63,10 +74,14 @@ public class ZombieBase : MonoBehaviour
     private enum ScreamPhase { None, Turning, Screaming }
     private ScreamPhase _screamPhase = ScreamPhase.None;
 
-    // Patrol
-    private int _waypointIndex = 0;
+    // Wander
+    private Vector3 _wanderOrigin;           // tâm vùng lang thang = vị trí spawn
+    private bool _isWanderIdle = false;      // đang trong phase dừng nghỉ
+    private float _idleTimer = 0f;
+    private float _idleDuration = 0f;
+    private bool _wanderDestinationSet = false;
 
-    // Public read-only để subclass hoặc editor đọc nếu cần
+    // Public read-only
     public bool IsDead => _isDead;
     public bool ScreamDone => _screamDone;
 
@@ -86,7 +101,10 @@ public class ZombieBase : MonoBehaviour
         if (playerObj != null) player = playerObj.transform;
 
         _btRoot = BuildBehaviourTree();
-        GoToNextWaypoint();
+
+        // Ghi nhớ vị trí spawn làm tâm vùng wander
+        _wanderOrigin = transform.position;
+        SetNewWanderDestination();
     }
 
     private void OnDestroy()
@@ -133,7 +151,6 @@ public class ZombieBase : MonoBehaviour
     }
 
     // ── Behaviour Tree ───────────────────────────────────────────────────────
-    // BT CỰC KỲ ĐƠN GIẢN: chỉ set _mode, không gọi gì khác.
     private Node BuildBehaviourTree()
     {
         return new Selector(new List<Node>
@@ -142,7 +159,7 @@ public class ZombieBase : MonoBehaviour
             new Sequence(new List<Node>
             {
                 new ConditionNode(CanDetectPlayer),
-                new ActionNode(SetCombatMode),       // chỉ set _mode = Combat
+                new ActionNode(SetCombatMode),
             }),
 
             // Nếu player trong tầm chase (đã từng thấy) → Chase
@@ -152,7 +169,7 @@ public class ZombieBase : MonoBehaviour
                 new ActionNode(SetChaseMode),
             }),
 
-            // Fallback → Patrol
+            // Fallback → Patrol (Wander)
             new ActionNode(SetPatrolMode),
         });
     }
@@ -166,15 +183,13 @@ public class ZombieBase : MonoBehaviour
 
     private bool ShouldChase()
     {
-        // Đã từng thấy player và còn trong tầm chase mở rộng (1.5x)
         if (!_hasDetectedPlayer || player == null) return false;
         return Vector3.Distance(transform.position, player.position) <= detectionRange * 1.5f;
     }
 
-    // ── BT Actions (chỉ set _mode, không làm gì khác) ────────────────────────
+    // ── BT Actions (chỉ set _mode) ────────────────────────────────────────────
     private NodeState SetCombatMode()
     {
-        // Lần đầu phát hiện → trigger scream
         if (!_hasDetectedPlayer)
         {
             _hasDetectedPlayer = true;
@@ -196,7 +211,6 @@ public class ZombieBase : MonoBehaviour
 
     private NodeState SetPatrolMode()
     {
-        // Mất player → reset để scream lại lần sau
         if (_hasDetectedPlayer)
         {
             _hasDetectedPlayer = false;
@@ -208,6 +222,10 @@ public class ZombieBase : MonoBehaviour
                 _inCombat = false;
                 OnExitCombat();
             }
+
+            // Reset wander để tiếp tục lang thang bình thường
+            _isWanderIdle = false;
+            SetNewWanderDestination();
         }
 
         _mode = ZombieMode.Patrol;
@@ -221,14 +239,38 @@ public class ZombieBase : MonoBehaviour
 
         agent.isStopped = false;
         agent.speed = walkSpeed;
-        agent.stoppingDistance = 0f;
+        agent.stoppingDistance = 0.5f;
         agent.updateRotation = true;
         agent.updatePosition = true;
 
+        // --- Phase IDLE: đứng dừng nghỉ ---
+        if (_isWanderIdle)
+        {
+            agent.isStopped = true;
+            anim.SetFloat("Speed", 0f, 0.2f, Time.deltaTime);
+
+            _idleTimer += Time.deltaTime;
+            if (_idleTimer >= _idleDuration)
+            {
+                _isWanderIdle = false;
+                SetNewWanderDestination();
+            }
+            return;
+        }
+
+        // --- Phase MOVE: di chuyển đến điểm wander ---
         anim.SetFloat("Speed", 1f, 0.1f, Time.deltaTime);
 
-        if (!agent.pathPending && agent.remainingDistance <= 0.3f)
-            GoToNextWaypoint();
+        bool arrived = !agent.pathPending
+                       && agent.remainingDistance <= agent.stoppingDistance;
+
+        if (arrived && _wanderDestinationSet)
+        {
+            _wanderDestinationSet = false;
+            _isWanderIdle = true;
+            _idleTimer = 0f;
+            _idleDuration = Random.Range(minIdleTime, maxIdleTime);
+        }
     }
 
     private void ExecuteChase()
@@ -247,17 +289,14 @@ public class ZombieBase : MonoBehaviour
 
     private void ExecuteCombat()
     {
-        // Chờ scream xong mới vào combat
         if (!_screamDone) return;
 
-        // Hook OnEnterCombat chỉ gọi 1 lần
         if (!_inCombat)
         {
             _inCombat = true;
             OnEnterCombat();
         }
 
-        // Subclass tự lo từ đây
         UpdateCombatBehaviour();
     }
 
@@ -299,6 +338,76 @@ public class ZombieBase : MonoBehaviour
         }
     }
 
+    // ── Wander Helpers ───────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Chọn điểm đến tiếp theo cho wander:
+    /// 30% → interest point (giường, bàn, cửa...)
+    /// 70% → điểm ngẫu nhiên trên NavMesh trong wanderRadius
+    /// </summary>
+    private void SetNewWanderDestination()
+    {
+        if (!agent.isActiveAndEnabled || !agent.isOnNavMesh) return;
+
+        Vector3 destination;
+
+        if (interestPoints != null && interestPoints.Length > 0
+            && Random.value < interestPointChance)
+        {
+            destination = interestPoints[Random.Range(0, interestPoints.Length)].position;
+        }
+        else
+        {
+            destination = GetRandomNavMeshPoint(_wanderOrigin, wanderRadius);
+        }
+
+        agent.SetDestination(destination);
+        _wanderDestinationSet = true;
+    }
+
+    /// <summary>
+    /// Sample điểm ngẫu nhiên trên NavMesh trong bán kính radius quanh center.
+    /// Thử tối đa 10 lần, fallback về vị trí hiện tại nếu không tìm được.
+    /// </summary>
+    private Vector3 GetRandomNavMeshPoint(Vector3 center, float radius)
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            Vector3 candidate = center + Random.insideUnitSphere * radius;
+            candidate.y = center.y;
+
+            if (NavMesh.SamplePosition(candidate, out NavMeshHit hit, 2f, NavMesh.AllAreas))
+            {
+                if (Vector3.Distance(hit.position, transform.position) > minMoveDistance)
+                {
+                    // THÊM: kiểm tra đường đi thực tế có đi được không
+                    // và path length không quá dài so với straight-line distance
+                    NavMeshPath path = new NavMeshPath();
+                    if (agent.CalculatePath(hit.position, path)
+                        && path.status == NavMeshPathStatus.PathComplete)
+                    {
+                        float pathLength = GetPathLength(path);
+                        float straightLine = Vector3.Distance(transform.position, hit.position);
+
+                        // Nếu path dài hơn 2.5x đường thẳng → điểm đó nằm qua phòng khác
+                        if (pathLength < straightLine * 2.5f)
+                            return hit.position;
+                    }
+                }
+            }
+        }
+        return transform.position;
+    }
+
+    private float GetPathLength(NavMeshPath path)
+    {
+        float length = 0f;
+        Vector3[] corners = path.corners;
+        for (int i = 1; i < corners.Length; i++)
+            length += Vector3.Distance(corners[i - 1], corners[i]);
+        return length;
+    }
+
     // ── Virtual hooks cho subclass ───────────────────────────────────────────
 
     /// <summary>
@@ -314,7 +423,6 @@ public class ZombieBase : MonoBehaviour
 
         if (dist <= attackRange)
         {
-            // Đứng yên, đánh
             agent.isStopped = true;
             agent.velocity = Vector3.zero;
             anim.SetFloat("Speed", 0f, 0.15f, Time.deltaTime);
@@ -328,7 +436,6 @@ public class ZombieBase : MonoBehaviour
         }
         else
         {
-            // Chase thêm trong combat (player vừa bước ra)
             agent.isStopped = false;
             agent.speed = runSpeed;
             agent.stoppingDistance = attackRange;
@@ -387,14 +494,6 @@ public class ZombieBase : MonoBehaviour
         return v.sqrMagnitude > 0.0001f ? v.normalized : Vector3.zero;
     }
 
-    protected void GoToNextWaypoint()
-    {
-        if (waypoints == null || waypoints.Length == 0) return;
-        if (!agent.isActiveAndEnabled || !agent.isOnNavMesh) return;
-        agent.destination = waypoints[_waypointIndex].position;
-        _waypointIndex = (_waypointIndex + 1) % waypoints.Length;
-    }
-
     // ── Public API ───────────────────────────────────────────────────────────
     public void ForceAlert()
     {
@@ -407,7 +506,6 @@ public class ZombieBase : MonoBehaviour
     {
         if (_isDead) return;
         healthSystem.TakeDamage(damage, attacker);
-        // Bị đánh → bỏ qua scream
         _hasDetectedPlayer = true;
         _screamDone = true;
         _screamPhase = ScreamPhase.None;
@@ -434,9 +532,15 @@ public class ZombieBase : MonoBehaviour
     // ── Gizmos ───────────────────────────────────────────────────────────────
     private void OnDrawGizmosSelected()
     {
+        // Detection & attack range
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, attackRange);
+
+        // Wander radius (tính từ wanderOrigin khi play, hoặc vị trí hiện tại khi edit)
+        Gizmos.color = new Color(0f, 1f, 0f, 0.3f);
+        Vector3 origin = Application.isPlaying ? _wanderOrigin : transform.position;
+        Gizmos.DrawWireSphere(origin, wanderRadius);
     }
 }

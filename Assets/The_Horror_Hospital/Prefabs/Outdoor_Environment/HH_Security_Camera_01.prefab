@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7803360089582116390}
   - component: {fileID: 6812322032347709322}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Security_Camera_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -68,7 +68,7 @@ GameObject:
   - component: {fileID: 8968992023910856723}
   - component: {fileID: 2163465353220742441}
   - component: {fileID: 596072504850565619}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Security_Camera_01_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -151,7 +151,7 @@ GameObject:
   - component: {fileID: 8739246902986990922}
   - component: {fileID: 955530703185197174}
   - component: {fileID: 2193869153618576494}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Security_Camera_01_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}

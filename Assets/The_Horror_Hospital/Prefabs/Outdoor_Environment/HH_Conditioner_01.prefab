@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 183543181200454743}
   - component: {fileID: 6022984934650976331}
   - component: {fileID: 8040317392887768312}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Conditioner_01_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -95,7 +95,7 @@ GameObject:
   - component: {fileID: 1848364822835563741}
   - component: {fileID: 9138577510575859799}
   - component: {fileID: 8216196558378640964}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Conditioner_01_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -198,7 +198,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7058363781717245360}
   - component: {fileID: 4490044276358815000}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Conditioner_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -261,7 +261,7 @@ GameObject:
   - component: {fileID: 66984294977781635}
   - component: {fileID: 6031509879242572443}
   - component: {fileID: 923084193820246035}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Conditioner_01_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}

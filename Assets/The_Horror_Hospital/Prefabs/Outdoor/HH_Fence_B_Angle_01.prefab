@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6294239957589622112}
   - component: {fileID: 1961563518566790378}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Fence_B_Angle_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -70,7 +70,7 @@ GameObject:
   - component: {fileID: 775646251474802545}
   - component: {fileID: 8206907374587040178}
   - component: {fileID: 8731970408800935897}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Fence_B_Angle_01_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -196,7 +196,7 @@ GameObject:
   - component: {fileID: 5691013717995960130}
   - component: {fileID: 3712908782378791693}
   - component: {fileID: 4299558785877775871}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Fence_B_Angle_01_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}

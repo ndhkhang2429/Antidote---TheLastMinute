@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3185074376768166498}
   - component: {fileID: 3139192818241659882}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Quarantine_Barrier_4m
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -73,7 +73,7 @@ GameObject:
   - component: {fileID: 5375101797160672190}
   - component: {fileID: 1740145564986448096}
   - component: {fileID: 8753556070914185956}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Quarantine_Barrier_4m_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -158,7 +158,7 @@ GameObject:
   - component: {fileID: 5167304837035875076}
   - component: {fileID: 6201402942912821527}
   - component: {fileID: 2998968990894879268}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Quarantine_Barrier_4m_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -264,7 +264,7 @@ GameObject:
   - component: {fileID: 6762636160090885732}
   - component: {fileID: 4697640111962902949}
   - component: {fileID: 8956259277803678047}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Quarantine_Barrier_4m_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}

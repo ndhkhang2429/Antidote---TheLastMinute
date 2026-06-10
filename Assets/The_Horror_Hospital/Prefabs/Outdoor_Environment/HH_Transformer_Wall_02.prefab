@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 153388195457026650}
   - component: {fileID: 5003024625204505564}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Transformer_Wall_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -74,7 +74,7 @@ GameObject:
   - component: {fileID: 4239313833060793138}
   - component: {fileID: 6347380398023349460}
   - component: {fileID: 340313913480267645}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Transformer_Wall_02_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -178,7 +178,7 @@ GameObject:
   - component: {fileID: 1790029404749888650}
   - component: {fileID: 3377543310751245688}
   - component: {fileID: 2383853385543574530}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Transformer_Wall_02_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -261,7 +261,7 @@ GameObject:
   - component: {fileID: 7468664628650123754}
   - component: {fileID: 878894302813474649}
   - component: {fileID: 7856845929808219012}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Transformer_Wall_02_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8824394269759085031}
   - component: {fileID: 6397702275173988142}
   - component: {fileID: 7823360127923433538}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Concrete_Barrier_3m
   m_TagString: Untagged
   m_Icon: {fileID: 0}

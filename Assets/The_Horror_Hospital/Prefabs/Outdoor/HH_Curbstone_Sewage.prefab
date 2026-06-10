@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8680986846559375847}
   - component: {fileID: 6591602491578272227}
   - component: {fileID: 7182961427445918055}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Curbstone_Sewage
   m_TagString: Untagged
   m_Icon: {fileID: 0}

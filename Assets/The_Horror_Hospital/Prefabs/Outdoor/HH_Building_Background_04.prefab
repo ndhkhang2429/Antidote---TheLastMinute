@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7878988640027902036}
   - component: {fileID: 9106931634548502450}
   - component: {fileID: 8993763858407180922}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Building_Background_04
   m_TagString: Untagged
   m_Icon: {fileID: 0}

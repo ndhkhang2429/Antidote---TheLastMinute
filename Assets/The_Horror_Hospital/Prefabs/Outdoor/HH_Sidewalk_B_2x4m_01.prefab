@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1399386530095377922}
   - component: {fileID: 1047141691342872609}
   - component: {fileID: 3652260636856871643}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Sidewalk_B_2x4m_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}

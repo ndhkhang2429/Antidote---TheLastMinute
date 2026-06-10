@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4960631171191754898}
   - component: {fileID: 1834799225659889346}
   - component: {fileID: 6246028030932261601}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Obstruction_Lights_White
   m_TagString: Untagged
   m_Icon: {fileID: 0}
