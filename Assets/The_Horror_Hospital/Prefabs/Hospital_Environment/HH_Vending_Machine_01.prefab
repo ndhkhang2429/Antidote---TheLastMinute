@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8877334242566563991}
   - component: {fileID: 3803650162256351126}
   - component: {fileID: 7924829629405374583}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Vending_Machine_01_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,7 +94,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1260464612144716729}
   - component: {fileID: 8389681590153353371}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Vending_Machine_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -158,7 +158,7 @@ GameObject:
   - component: {fileID: 8053042962793924364}
   - component: {fileID: 975917286435135456}
   - component: {fileID: 766346323327852372}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Vending_Machine_01_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -263,7 +263,7 @@ GameObject:
   - component: {fileID: 1026873962550826574}
   - component: {fileID: 4653944709739933529}
   - component: {fileID: 4870640692247351613}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Vending_Machine_01_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}

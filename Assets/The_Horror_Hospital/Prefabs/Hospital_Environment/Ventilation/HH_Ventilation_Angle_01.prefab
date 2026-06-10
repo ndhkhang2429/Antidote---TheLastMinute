@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2625460305347491239}
   - component: {fileID: 2335768699768682466}
   - component: {fileID: 1411371448782729218}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Ventilation_Angle_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7968679990423946367}
   - component: {fileID: 572529950705530076}
   - component: {fileID: 3664125445170803957}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Decal_Asphalt_05
   m_TagString: Untagged
   m_Icon: {fileID: 0}

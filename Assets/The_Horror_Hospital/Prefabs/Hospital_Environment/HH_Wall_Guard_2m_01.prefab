@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3208534721929569694}
   - component: {fileID: 8837147760157093993}
   - component: {fileID: 1969301627972876548}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Wall_Guard_2m_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}

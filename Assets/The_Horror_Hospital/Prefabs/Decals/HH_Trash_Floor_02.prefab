@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7328281163791268708}
   - component: {fileID: 4703588773882449118}
   - component: {fileID: 5425930223066229020}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Trash_Floor_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}

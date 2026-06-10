@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6497786611847743510}
   - component: {fileID: 2184254877643053147}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Medical_Tablet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -68,7 +68,7 @@ GameObject:
   - component: {fileID: 5882289665079561191}
   - component: {fileID: 8412376644643742820}
   - component: {fileID: 1554078194528521028}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Medical_Tablet_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -151,7 +151,7 @@ GameObject:
   - component: {fileID: 6579901813409543763}
   - component: {fileID: 5019712571983145721}
   - component: {fileID: 5196951579956755283}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Medical_Tablet_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}

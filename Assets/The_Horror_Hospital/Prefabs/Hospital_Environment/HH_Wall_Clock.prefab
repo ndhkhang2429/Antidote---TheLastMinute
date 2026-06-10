@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4208983570549327858}
   - component: {fileID: 3888279729099627091}
   - component: {fileID: 8668980958009201516}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Wall_Clock_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,7 +94,7 @@ GameObject:
   - component: {fileID: 5286315700324506088}
   - component: {fileID: 5649793016088871189}
   - component: {fileID: 6748238839390465021}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Minute_Hand
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -177,7 +177,7 @@ GameObject:
   - component: {fileID: 8143674605765558615}
   - component: {fileID: 7162015451860122424}
   - component: {fileID: 6019180524547556308}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Wall_Clock_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -260,7 +260,7 @@ GameObject:
   - component: {fileID: 4428078193017921545}
   - component: {fileID: 5110359054937030448}
   - component: {fileID: 3523655598470797540}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: 'HH_Hour_Hand '
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -342,7 +342,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5169125672409891654}
   - component: {fileID: 5397514109558546528}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Wall_Clock
   m_TagString: Untagged
   m_Icon: {fileID: 0}

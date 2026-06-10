@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8975497652992352699}
   - component: {fileID: 3442917003380495618}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Stretcher_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -73,7 +73,7 @@ GameObject:
   - component: {fileID: 2424091587513531597}
   - component: {fileID: 398552893940578992}
   - component: {fileID: 5980478005071053897}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Stretcher_01_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -156,7 +156,7 @@ GameObject:
   - component: {fileID: 5344448166967630782}
   - component: {fileID: 7288843505903791931}
   - component: {fileID: 7543417723455006451}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Stretcher_01_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -240,7 +240,7 @@ GameObject:
   - component: {fileID: 5799656877057853417}
   - component: {fileID: 6667548182582328874}
   - component: {fileID: 5043935062244831086}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Stretcher_01_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}

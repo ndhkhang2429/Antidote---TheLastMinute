@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3260661513452115323}
   - component: {fileID: 4022428270559665314}
   - component: {fileID: 7335384232301835991}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Sector_Big_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -98,7 +98,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4471323515855904916}
   - component: {fileID: 6431744727108769991}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Sector_Big_01_Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -152,7 +152,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4718276992910207908}
   - component: {fileID: 486140923101181169}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Sector_Big_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}

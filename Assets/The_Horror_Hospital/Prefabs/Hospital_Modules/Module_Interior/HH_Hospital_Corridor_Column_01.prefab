@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 3685213265864990032}
   - component: {fileID: 2771323061727746296}
   - component: {fileID: 3106768566921394083}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_Corridor_Column_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}

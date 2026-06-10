@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6900838491716026201}
   - component: {fileID: 2060596510741868175}
   - component: {fileID: 1347486054160426965}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_Showcase_4m_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}

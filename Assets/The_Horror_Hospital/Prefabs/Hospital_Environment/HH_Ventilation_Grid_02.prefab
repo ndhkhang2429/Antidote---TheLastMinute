@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1467808045196911301}
   - component: {fileID: 3153886384798280702}
   - component: {fileID: 1942701310667304733}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Ventilation_Grid_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2559611166219940990}
   - component: {fileID: 5624305941754056867}
   - component: {fileID: 707711014681969771}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Endoscopic_Complex_01_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -93,7 +93,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3406527866985340978}
   - component: {fileID: 2247023372530541167}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Endoscopic_Complex_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -157,7 +157,7 @@ GameObject:
   - component: {fileID: 4130858474568605806}
   - component: {fileID: 7500631072665570256}
   - component: {fileID: 5910605572158929869}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Endoscopic_Complex_01_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -261,7 +261,7 @@ GameObject:
   - component: {fileID: 1271339894759674191}
   - component: {fileID: 5884540956846446118}
   - component: {fileID: 2568841507625472559}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Endoscopic_Complex_01_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}

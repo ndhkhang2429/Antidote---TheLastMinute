@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3306000967958454129}
   - component: {fileID: 6127738537022109958}
   - component: {fileID: 1213950998297263677}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Keyboard
   m_TagString: Untagged
   m_Icon: {fileID: 0}

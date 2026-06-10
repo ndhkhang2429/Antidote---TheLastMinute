@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 786970917480478129}
   - component: {fileID: 4180117348053312818}
   - component: {fileID: 7465699892337249792}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Boxwood_Shrubs_2m_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,7 +94,7 @@ GameObject:
   - component: {fileID: 2089558599250652714}
   - component: {fileID: 7158794871839027187}
   - component: {fileID: 3140707289050980357}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Boxwood_Shrubs_2m_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -176,7 +176,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8792404930598740811}
   - component: {fileID: 8598705024938365863}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Boxwood_Shrubs_2m
   m_TagString: Untagged
   m_Icon: {fileID: 0}

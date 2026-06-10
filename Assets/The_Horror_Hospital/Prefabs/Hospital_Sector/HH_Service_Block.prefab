@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3363392302194480858}
   - component: {fileID: 6774943044110564864}
   - component: {fileID: 7640258051502415531}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Service_Block
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -95,7 +95,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7649120974195397334}
   - component: {fileID: 3177836549005452305}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Service_Block_Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -149,7 +149,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2121879830419424404}
   - component: {fileID: 1247971055726887439}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Service_Block
   m_TagString: Untagged
   m_Icon: {fileID: 0}

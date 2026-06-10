@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 1246490574594897796}
   - component: {fileID: 6131691221161233249}
   - component: {fileID: 5145514003044791047}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Sector_Canopy
   m_TagString: Untagged
   m_Icon: {fileID: 0}

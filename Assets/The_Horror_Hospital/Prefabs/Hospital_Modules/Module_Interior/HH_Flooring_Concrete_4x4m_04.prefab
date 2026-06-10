@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1892553274115014017}
   - component: {fileID: 8433828603287906636}
   - component: {fileID: 3232500153602754924}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Flooring_Concrete_4x4m_04
   m_TagString: Untagged
   m_Icon: {fileID: 0}

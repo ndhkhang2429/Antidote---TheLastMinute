@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1980216251659697425}
   - component: {fileID: 2625126061781925946}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Wet_Floor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -69,7 +69,7 @@ GameObject:
   - component: {fileID: 5578892036197672665}
   - component: {fileID: 5884891704658584625}
   - component: {fileID: 4698500125338709417}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Wet_Floor_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -173,7 +173,7 @@ GameObject:
   - component: {fileID: 7807014703899534021}
   - component: {fileID: 1227479838267304418}
   - component: {fileID: 8980346408614323425}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Wet_Floor_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}

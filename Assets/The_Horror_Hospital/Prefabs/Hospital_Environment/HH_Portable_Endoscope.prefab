@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6653160992980783622}
   - component: {fileID: 1499172553939607575}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Portable_Endoscope
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -73,7 +73,7 @@ GameObject:
   - component: {fileID: 396665150003563102}
   - component: {fileID: 3628549031330667919}
   - component: {fileID: 8243515209324663488}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Portable_Endoscope_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -156,7 +156,7 @@ GameObject:
   - component: {fileID: 1436627129081965036}
   - component: {fileID: 8665629540576611631}
   - component: {fileID: 8454984102437008817}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Portable_Endoscope_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -240,7 +240,7 @@ GameObject:
   - component: {fileID: 1697647316735414374}
   - component: {fileID: 8230883197991423588}
   - component: {fileID: 4137043822632187867}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Portable_Endoscope_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}

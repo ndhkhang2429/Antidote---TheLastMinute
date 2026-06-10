@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2929566610196105474}
   - component: {fileID: 3938471278404005864}
   - component: {fileID: 6062702019614360898}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_Windows_4m_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}

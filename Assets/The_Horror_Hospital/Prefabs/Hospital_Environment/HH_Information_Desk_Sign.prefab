@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7229072645530027076}
   - component: {fileID: 4845715659194419003}
   - component: {fileID: 1616484540382655282}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Information_Desk_Sign
   m_TagString: Untagged
   m_Icon: {fileID: 0}

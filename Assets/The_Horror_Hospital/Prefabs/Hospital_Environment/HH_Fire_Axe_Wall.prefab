@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5208300814643347035}
   - component: {fileID: 6580416585455747361}
   - component: {fileID: 7949183171757314829}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Fire_Axe_Wall_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,7 +94,7 @@ GameObject:
   - component: {fileID: 8840441173295780541}
   - component: {fileID: 1577154368561410386}
   - component: {fileID: 4671634918854083624}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Fire_Axe_Wall_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -176,7 +176,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6175900446887181357}
   - component: {fileID: 276241325918947495}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Fire_Axe_Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -240,7 +240,7 @@ GameObject:
   - component: {fileID: 6825564638221078592}
   - component: {fileID: 1730551014233670891}
   - component: {fileID: 1228881192418111006}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Fire_Axe_Wall_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}

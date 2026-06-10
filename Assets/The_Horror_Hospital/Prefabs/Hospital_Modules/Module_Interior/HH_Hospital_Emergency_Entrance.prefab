@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3561058387793173925}
   - component: {fileID: 2937305280198422395}
   - component: {fileID: 1569378778521190855}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_Emergency_Entrance_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -100,7 +100,7 @@ GameObject:
   - component: {fileID: 8687486720199843482}
   - component: {fileID: 4997761019202904788}
   - component: {fileID: 9086860049153083660}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Front_Door_01_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -251,7 +251,7 @@ GameObject:
   - component: {fileID: 6062188155799991540}
   - component: {fileID: 5679721836671496353}
   - component: {fileID: 6659057695377344668}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_Emergency_Entrance_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -337,7 +337,7 @@ GameObject:
   - component: {fileID: 3047494341706112936}
   - component: {fileID: 776081044167341223}
   - component: {fileID: 8560207602195360923}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Front_Door_01_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -420,7 +420,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5006948987729640083}
   - component: {fileID: 3690470974832811660}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_Emergency_Entrance_Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -474,7 +474,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3767643749262028736}
   - component: {fileID: 1866450276766145239}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_Emergency_Entrance
   m_TagString: Untagged
   m_Icon: {fileID: 0}

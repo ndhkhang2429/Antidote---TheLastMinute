@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 879620055850752218}
   - component: {fileID: 2753850382595904495}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Cup_Cardboard_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -68,7 +68,7 @@ GameObject:
   - component: {fileID: 4247411179344418284}
   - component: {fileID: 7222822770837053525}
   - component: {fileID: 1131050764328537858}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Cup_Cardboard_01_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -151,7 +151,7 @@ GameObject:
   - component: {fileID: 1409877374195383791}
   - component: {fileID: 3700850370925979490}
   - component: {fileID: 8777003558174444840}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Cup_Cardboard_01_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}

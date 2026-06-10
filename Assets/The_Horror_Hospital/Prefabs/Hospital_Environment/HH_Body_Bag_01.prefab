@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8615725516713109480}
   - component: {fileID: 8633760055947853694}
   - component: {fileID: 356004276042167313}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Body_Bag_01_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -93,7 +93,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7811709437336494186}
   - component: {fileID: 6478355785688909156}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Body_Bag_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -156,7 +156,7 @@ GameObject:
   - component: {fileID: 2922898149534726626}
   - component: {fileID: 2978856861984401372}
   - component: {fileID: 3326704816238775977}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Body_Bag_01_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -240,7 +240,7 @@ GameObject:
   - component: {fileID: 4944339343492505309}
   - component: {fileID: 3247816192797690563}
   - component: {fileID: 672015359161233577}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Body_Bag_01_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}

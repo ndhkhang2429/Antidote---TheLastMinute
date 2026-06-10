@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6815518275359151258}
   - component: {fileID: 454679916798108735}
   - component: {fileID: 6739865059868103551}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Lamp_02_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -115,7 +115,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2558758367560387516}
   - component: {fileID: 1579781655067725930}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Lamp_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -173,7 +173,7 @@ GameObject:
   - component: {fileID: 4926401442635952477}
   - component: {fileID: 1779759583138441780}
   - component: {fileID: 9095852245835931823}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Lamp_02_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6612353935093101478}
   - component: {fileID: 1107031759593000666}
   - component: {fileID: 7241035085431758945}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Information_Desk_Module_1m
   m_TagString: Untagged
   m_Icon: {fileID: 0}

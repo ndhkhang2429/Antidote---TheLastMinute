@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 7712678044747713456}
   - component: {fileID: 4718556455802790358}
   - component: {fileID: 1484612795532429200}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Office_Chair_Rolling_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,7 +94,7 @@ GameObject:
   - component: {fileID: 6563532260476997402}
   - component: {fileID: 5038771877508103472}
   - component: {fileID: 2173042732718049946}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Office_Chair_Rolling_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -179,7 +179,7 @@ GameObject:
   - component: {fileID: 3771081801663267902}
   - component: {fileID: 2757205336596150029}
   - component: {fileID: 3226259307510459821}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Office_Chair_Rolling_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -303,7 +303,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1604234198496155171}
   - component: {fileID: 7190444886654970753}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Office_Chair_Rolling
   m_TagString: Untagged
   m_Icon: {fileID: 0}

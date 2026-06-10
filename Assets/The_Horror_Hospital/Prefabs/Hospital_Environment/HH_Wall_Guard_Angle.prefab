@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4210042615877315446}
   - component: {fileID: 1202379626635299791}
   - component: {fileID: 3523998883867659041}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Wall_Guard_Angle
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 3277470362435446036}
   - component: {fileID: 5548917471281422721}
   - component: {fileID: 1834796285965511423}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Fire_Alarm_Lever
   m_TagString: Untagged
   m_Icon: {fileID: 0}

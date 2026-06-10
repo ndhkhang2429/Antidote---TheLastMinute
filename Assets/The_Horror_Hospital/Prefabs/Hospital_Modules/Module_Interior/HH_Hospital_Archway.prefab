@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 3213074756902682603}
   - component: {fileID: 4429957652308842543}
   - component: {fileID: 2230785665943304620}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_Archway
   m_TagString: Untagged
   m_Icon: {fileID: 0}

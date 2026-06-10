@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 2069380054063969829}
   - component: {fileID: 1689986559422496688}
   - component: {fileID: 5101020722598101616}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Medical_Box_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}

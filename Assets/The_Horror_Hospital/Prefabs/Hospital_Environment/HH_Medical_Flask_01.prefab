@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 263605198853378705}
   - component: {fileID: 399899392481055463}
   - component: {fileID: 3875694907763566921}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Medical_Flask_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}

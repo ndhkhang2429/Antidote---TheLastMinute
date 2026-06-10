@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6799444947050799739}
   - component: {fileID: 4334219431574483863}
   - component: {fileID: 4661060969168552533}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_Corridor_Beams_A_2m
   m_TagString: Untagged
   m_Icon: {fileID: 0}

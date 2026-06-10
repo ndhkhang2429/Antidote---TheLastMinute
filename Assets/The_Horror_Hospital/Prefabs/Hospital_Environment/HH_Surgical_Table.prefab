@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6596956756424465754}
   - component: {fileID: 843035158090862333}
   - component: {fileID: 5250110909529215362}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Surgical_Table
   m_TagString: Untagged
   m_Icon: {fileID: 0}

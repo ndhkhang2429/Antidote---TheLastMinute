@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1276326679059323001}
   - component: {fileID: 6833402637175105899}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Fire_Extinguisher_Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -74,7 +74,7 @@ GameObject:
   - component: {fileID: 3885076638140786164}
   - component: {fileID: 8691410240577811073}
   - component: {fileID: 8312006800221390591}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Fire_Extinguisher_Wall_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -178,7 +178,7 @@ GameObject:
   - component: {fileID: 84966958487291589}
   - component: {fileID: 2141641928071994822}
   - component: {fileID: 8788108127797522898}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Fire_Extinguisher_Wall_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -261,7 +261,7 @@ GameObject:
   - component: {fileID: 5227035627537169125}
   - component: {fileID: 1516653945810276068}
   - component: {fileID: 9145967203136545628}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Fire_Extinguisher_Wall_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}

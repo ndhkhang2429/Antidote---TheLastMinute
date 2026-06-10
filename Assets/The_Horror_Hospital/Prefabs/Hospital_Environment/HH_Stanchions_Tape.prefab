@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1554961681680734094}
   - component: {fileID: 6664726521046247677}
   - component: {fileID: 1954033423854713601}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Stanchions_Tape
   m_TagString: Untagged
   m_Icon: {fileID: 0}

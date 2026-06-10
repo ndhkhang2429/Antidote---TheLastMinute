@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 4122255484308203034}
   - component: {fileID: 7078994257119993926}
   - component: {fileID: 3689858750728538161}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_Corridor_Door_02_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -165,7 +165,7 @@ GameObject:
   - component: {fileID: 634306034581712842}
   - component: {fileID: 5450600757489602890}
   - component: {fileID: 5621081353368514240}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_DoubleDoor_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -249,7 +249,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5204237725294935071}
   - component: {fileID: 6459177218899660050}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_DoubleDoor_01_Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -304,7 +304,7 @@ GameObject:
   - component: {fileID: 2359635735450347575}
   - component: {fileID: 6275428761032145343}
   - component: {fileID: 8796083516492758143}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_Corridor_Door_Glass_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -386,7 +386,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4904722637957614817}
   - component: {fileID: 3037564170054191530}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_DoubleDoor_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -457,7 +457,7 @@ GameObject:
   - component: {fileID: 6033418677563545161}
   - component: {fileID: 3408110360909906527}
   - component: {fileID: 8250355598470898988}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_Corridor_Door_02_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -543,7 +543,7 @@ GameObject:
   - component: {fileID: 3946501291038408933}
   - component: {fileID: 4018733193192391600}
   - component: {fileID: 6533468991354384071}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_Corridor_Door_01_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -694,7 +694,7 @@ GameObject:
   - component: {fileID: 8283420206428121691}
   - component: {fileID: 1828407604334060962}
   - component: {fileID: 3900299488619963157}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_DoubleDoor_01_Glass
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -777,7 +777,7 @@ GameObject:
   - component: {fileID: 6588633967337830391}
   - component: {fileID: 1076256511911565117}
   - component: {fileID: 4667196631842386107}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_Corridor_Door_Glass_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -860,7 +860,7 @@ GameObject:
   - component: {fileID: 9023683547540969226}
   - component: {fileID: 3792144564087516170}
   - component: {fileID: 490135971568306373}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_Corridor_Door_01_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}

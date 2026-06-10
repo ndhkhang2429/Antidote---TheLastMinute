@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1222690660227282587}
   - component: {fileID: 241478621167365117}
   - component: {fileID: 7324126880518768790}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Registrar_Folder_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}

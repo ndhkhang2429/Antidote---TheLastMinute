@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2012797711883608384}
   - component: {fileID: 6826350443788540799}
   - component: {fileID: 5655522615807466484}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_InteriorShowcase_8m_02_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -96,7 +96,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5666057823341955454}
   - component: {fileID: 6732777443150304549}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_InteriorShowcase_8m_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -155,7 +155,7 @@ GameObject:
   - component: {fileID: 7461591484257453872}
   - component: {fileID: 7187927822276637350}
   - component: {fileID: 7336680791198825603}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_InteriorShowcase_8m_02_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}

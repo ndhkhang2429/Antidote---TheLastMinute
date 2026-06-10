@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1314863570592086309}
   - component: {fileID: 4158946481375806016}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Sector_Corridor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -69,7 +69,7 @@ GameObject:
   - component: {fileID: 5562623716529022119}
   - component: {fileID: 3019715315758103196}
   - component: {fileID: 4664345523991204902}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Sector_Corridor_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -176,7 +176,7 @@ GameObject:
   - component: {fileID: 8541735004621447336}
   - component: {fileID: 6824399390300133725}
   - component: {fileID: 4368768096711500339}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Sector_Corridor_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}

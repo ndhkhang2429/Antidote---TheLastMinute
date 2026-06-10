@@ -79280,6 +79280,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1004934228}
   - component: {fileID: 1004934227}
+  - component: {fileID: 1004934229}
   m_Layer: 0
   m_Name: PlayerCamera
   m_TagString: Untagged
@@ -79305,7 +79306,7 @@ MonoBehaviour:
   m_StreamingVersion: 20170927
   m_Priority: 10
   m_StandbyUpdate: 2
-  m_LookAt: {fileID: 0}
+  m_LookAt: {fileID: 1640502384}
   m_Follow: {fileID: 1640502384}
   m_Lens:
     FieldOfView: 40
@@ -79342,6 +79343,36 @@ Transform:
   - {fileID: 820816646}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1004934229
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1004934226}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e501d18bb52cf8c40b1853ca4904654f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_CollideAgainst:
+    serializedVersion: 2
+    m_Bits: 1025
+  m_IgnoreTag: 
+  m_TransparentLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_MinimumDistanceFromTarget: 0.1
+  m_AvoidObstacles: 1
+  m_DistanceLimit: 0
+  m_MinimumOcclusionTime: 0
+  m_CameraRadius: 0.1
+  m_Strategy: 0
+  m_MaximumEffort: 4
+  m_SmoothingTime: 0
+  m_Damping: 0.2
+  m_DampingWhenOccluded: 0
+  m_OptimalTargetDistance: 0
 --- !u!4 &1005976510 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1476457542707146775, guid: 9aaf9bd64ae3cac40a2d4b95d1f55fe3, type: 3}
@@ -175466,6 +175497,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1543337358}
     m_Modifications:
+    - target: {fileID: 79812583073003484, guid: 59d0fdcaf83d8554dbd86737a31494a6, type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 3111572927513532476, guid: 59d0fdcaf83d8554dbd86737a31494a6, type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
     - target: {fileID: 5370555246136942982, guid: 59d0fdcaf83d8554dbd86737a31494a6, type: 3}
       propertyPath: m_Name
       value: HH_Glass_Medical_Cabinet

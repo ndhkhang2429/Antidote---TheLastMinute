@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6151000062705762004}
   - component: {fileID: 1756504106182322414}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Surgical_Lamp
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -74,7 +74,7 @@ GameObject:
   - component: {fileID: 8486425655573846766}
   - component: {fileID: 8354877028323822318}
   - component: {fileID: 8968916047201890858}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Surgical_Lamp_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -179,7 +179,7 @@ GameObject:
   - component: {fileID: 5506547421660701920}
   - component: {fileID: 7955216579317524416}
   - component: {fileID: 326349119647666783}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Surgical_Lamp_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -262,7 +262,7 @@ GameObject:
   - component: {fileID: 2399492362215310902}
   - component: {fileID: 5448160468155119457}
   - component: {fileID: 4833147508291079855}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Surgical_Lamp_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}

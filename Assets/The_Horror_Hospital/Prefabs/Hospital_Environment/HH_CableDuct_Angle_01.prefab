@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 2978907093924372284}
   - component: {fileID: 3819404341216347106}
   - component: {fileID: 3724201290847261985}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_CableDuct_Angle_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}

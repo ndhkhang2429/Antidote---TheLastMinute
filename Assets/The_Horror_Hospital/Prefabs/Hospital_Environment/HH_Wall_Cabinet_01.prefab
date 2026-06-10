@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3810825868965961744}
   - component: {fileID: 3410381955898557720}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Wall_Cabinet_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -68,7 +68,7 @@ GameObject:
   - component: {fileID: 4680706182180153}
   - component: {fileID: 1773779409026077556}
   - component: {fileID: 431186962897270625}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Cabinet_Door_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -174,7 +174,7 @@ GameObject:
   - component: {fileID: 5975637208384764455}
   - component: {fileID: 1477354949958054801}
   - component: {fileID: 6371366072740235975}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Cabinet_Door_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -280,7 +280,7 @@ GameObject:
   - component: {fileID: 1039920525766778797}
   - component: {fileID: 5483703124557785231}
   - component: {fileID: 7111877081689900874}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Wall_Cabinet_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}

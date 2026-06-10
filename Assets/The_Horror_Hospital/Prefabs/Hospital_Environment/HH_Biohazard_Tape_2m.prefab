@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8575686402712625341}
   - component: {fileID: 7804744972247165245}
   - component: {fileID: 1262831406977327228}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Biohazard_Tape_2m
   m_TagString: Untagged
   m_Icon: {fileID: 0}

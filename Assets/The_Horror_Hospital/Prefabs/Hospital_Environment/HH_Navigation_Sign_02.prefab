@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7690182232993372987}
   - component: {fileID: 3166378005428960985}
   - component: {fileID: 3186193498434845285}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Navigation_Sign_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}

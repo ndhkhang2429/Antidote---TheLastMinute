@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3677157282842121921}
   - component: {fileID: 548042653914363873}
   - component: {fileID: 704276342091549523}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: "HH_Ceiling_Armstrong_Lamp_4\u04454m_02"
   m_TagString: Untagged
   m_Icon: {fileID: 0}

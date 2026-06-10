@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 279130123500079869}
   - component: {fileID: 4237122599613091016}
   - component: {fileID: 7335257388443086173}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Computer_Monitor_01_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -95,7 +95,7 @@ GameObject:
   - component: {fileID: 912330818129693196}
   - component: {fileID: 5791745396999971161}
   - component: {fileID: 8052512549449970145}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Computer_Monitor_01_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -199,7 +199,7 @@ GameObject:
   - component: {fileID: 7988504709582346614}
   - component: {fileID: 8289772909885886516}
   - component: {fileID: 5928642269222952172}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Computer_Monitor_01_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -281,7 +281,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4619227431392835243}
   - component: {fileID: 448427626088517591}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Computer_Monitor_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}

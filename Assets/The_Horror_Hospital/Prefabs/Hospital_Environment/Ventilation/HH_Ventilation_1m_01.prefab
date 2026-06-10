@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1016801878004185221}
   - component: {fileID: 3014168860809914352}
   - component: {fileID: 2040241783749955976}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Ventilation_1m_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}

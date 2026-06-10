@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 2804403882040142583}
   - component: {fileID: 2740312863626168974}
   - component: {fileID: 2754222970970508305}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_Foundation_A_1m
   m_TagString: Untagged
   m_Icon: {fileID: 0}

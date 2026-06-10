@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 112081618919961174}
   - component: {fileID: 7085107370673837363}
   - component: {fileID: 646038577852363363}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Medical_Trolley_Big_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -96,7 +96,7 @@ GameObject:
   - component: {fileID: 4060916378478864567}
   - component: {fileID: 163998435794914344}
   - component: {fileID: 4598393317531814086}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Medical_Trolley_Big_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -201,7 +201,7 @@ GameObject:
   - component: {fileID: 178699574637372257}
   - component: {fileID: 6279128137747614829}
   - component: {fileID: 3586983860359952034}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Medical_Trolley_Big_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -284,7 +284,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1383244556449550315}
   - component: {fileID: 4702150133948269692}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Medical_Trolley_Big
   m_TagString: Untagged
   m_Icon: {fileID: 0}

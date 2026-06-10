@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5004282622267183915}
   - component: {fileID: 4068530677192090383}
   - component: {fileID: 1744489556433225764}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Aspen_02_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -95,7 +95,7 @@ GameObject:
   - component: {fileID: 3643586610876294441}
   - component: {fileID: 2014501380751843603}
   - component: {fileID: 3020826169034888860}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Aspen_02_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -178,7 +178,7 @@ GameObject:
   m_Component:
   - component: {fileID: 741309102592407447}
   - component: {fileID: 8359760133652039721}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Aspen_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -242,7 +242,7 @@ GameObject:
   - component: {fileID: 4861178599760211652}
   - component: {fileID: 114760929414768464}
   - component: {fileID: 9176930406007576244}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Aspen_02_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 2205056980682732209}
   - component: {fileID: 3826839419951239728}
   - component: {fileID: 2239116464734669478}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Navigation_Sign_Cardiology
   m_TagString: Untagged
   m_Icon: {fileID: 0}

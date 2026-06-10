@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3894276827118289746}
   - component: {fileID: 310261985351900047}
   - component: {fileID: 3230041688215211606}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Elevator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,7 +94,7 @@ GameObject:
   m_Component:
   - component: {fileID: 217453015559197472}
   - component: {fileID: 6453849968791327437}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Elevator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -147,7 +147,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7096392023769163541}
   - component: {fileID: 4435430850924046010}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Elevator_Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3292686215325353253}
   - component: {fileID: 8809584521311691985}
   - component: {fileID: 5316206485420749713}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Dispenser_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,7 +94,7 @@ GameObject:
   - component: {fileID: 3291981190261892204}
   - component: {fileID: 7064759962805683939}
   - component: {fileID: 3507655063989310287}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Dispenser_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -176,7 +176,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2745557526240165357}
   - component: {fileID: 130947974019444601}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Dispenser
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -240,7 +240,7 @@ GameObject:
   - component: {fileID: 8817273115351280849}
   - component: {fileID: 2621676981091552377}
   - component: {fileID: 7381463151660284507}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Dispenser_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}

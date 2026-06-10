@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 271149271521875182}
   - component: {fileID: 6241774729783798736}
   - component: {fileID: 8726140800832396474}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Paper_Tablet
   m_TagString: Untagged
   m_Icon: {fileID: 0}

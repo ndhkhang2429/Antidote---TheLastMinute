@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1911464672223290199}
   - component: {fileID: 7141285155406693436}
   - component: {fileID: 1330206976257755248}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Stacked_Books_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}

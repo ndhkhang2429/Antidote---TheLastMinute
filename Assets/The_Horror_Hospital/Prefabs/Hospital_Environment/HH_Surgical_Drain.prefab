@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 2258972881322261226}
   - component: {fileID: 929285203327741999}
   - component: {fileID: 5995246087974532971}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Surgical_Drain
   m_TagString: Untagged
   m_Icon: {fileID: 0}

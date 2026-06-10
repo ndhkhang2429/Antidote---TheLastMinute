@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8337120961076333707}
   - component: {fileID: 4273246001960221314}
   - component: {fileID: 5247582091642825433}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Sign_Quarantine
   m_TagString: Untagged
   m_Icon: {fileID: 0}

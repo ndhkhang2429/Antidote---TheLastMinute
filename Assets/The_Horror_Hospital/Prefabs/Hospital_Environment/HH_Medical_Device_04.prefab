@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8458280532104451126}
   - component: {fileID: 3937807375318223442}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Medical_Device_04
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -68,7 +68,7 @@ GameObject:
   - component: {fileID: 6049583538173142461}
   - component: {fileID: 8975610111932003408}
   - component: {fileID: 8978217118634638149}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Medical_Device_04_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -152,7 +152,7 @@ GameObject:
   - component: {fileID: 2742388205672288135}
   - component: {fileID: 6945997669078116981}
   - component: {fileID: 5590173092780444557}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Medical_Device_04_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}

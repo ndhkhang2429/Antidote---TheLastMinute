@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8320299356356859152}
   - component: {fileID: 1567678328368409848}
   - component: {fileID: 8242336693323289988}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Medical_Posters_06
   m_TagString: Untagged
   m_Icon: {fileID: 0}

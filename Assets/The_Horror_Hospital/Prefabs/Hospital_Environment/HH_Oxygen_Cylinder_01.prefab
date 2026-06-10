@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8919944328232812982}
   - component: {fileID: 3802902409322078285}
   - component: {fileID: 2049056946792913445}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Oxygen_Cylinder_01_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -116,7 +116,7 @@ GameObject:
   - component: {fileID: 6946115759326946853}
   - component: {fileID: 2566862962746858618}
   - component: {fileID: 391897152469196583}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Oxygen_Cylinder_01_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -199,7 +199,7 @@ GameObject:
   - component: {fileID: 7924805091244903894}
   - component: {fileID: 4409929390903575792}
   - component: {fileID: 3755665661980170221}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Oxygen_Cylinder_01_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -281,7 +281,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5937393259701028124}
   - component: {fileID: 7441982276258239514}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Oxygen_Cylinder_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2731554812212873871}
   - component: {fileID: 7997176134580747961}
   - component: {fileID: 3859970824387824204}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Mouse_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,7 +94,7 @@ GameObject:
   - component: {fileID: 112560387613804487}
   - component: {fileID: 6128193397265944268}
   - component: {fileID: 6933176723579361985}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Mouse_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -176,7 +176,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8745074721952101686}
   - component: {fileID: 571114064511001398}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Mouse
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6115970086685658946}
   - component: {fileID: 6219024220331475305}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_Helipad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -68,7 +68,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3916819595186600640}
   - component: {fileID: 5751287020071121702}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_Helipad_Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -123,7 +123,7 @@ GameObject:
   - component: {fileID: 7284643845774844221}
   - component: {fileID: 2187782133870686392}
   - component: {fileID: 4645035520619255496}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_Helipad_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -208,7 +208,7 @@ GameObject:
   - component: {fileID: 1600735765899412458}
   - component: {fileID: 5635096793551170353}
   - component: {fileID: 6898832068536825592}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_Helipad_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}

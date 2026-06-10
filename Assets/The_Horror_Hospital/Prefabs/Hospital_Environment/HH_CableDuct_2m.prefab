@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3188098168135055563}
   - component: {fileID: 9146998028779608050}
   - component: {fileID: 6145458026218463937}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_CableDuct_2m
   m_TagString: Untagged
   m_Icon: {fileID: 0}

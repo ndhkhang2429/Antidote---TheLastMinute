@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7943393260042459432}
   - component: {fileID: 6627220629244382397}
   - component: {fileID: 3793795957757825975}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Cooler_01_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -116,7 +116,7 @@ GameObject:
   - component: {fileID: 2266785908560609268}
   - component: {fileID: 4596381805978805366}
   - component: {fileID: 7729013758102641043}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Cooler_01_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -198,7 +198,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3151282006735334835}
   - component: {fileID: 4972630628638212944}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Cooler_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -261,7 +261,7 @@ GameObject:
   - component: {fileID: 3706651167698428005}
   - component: {fileID: 2572911464604469999}
   - component: {fileID: 7520394405004229435}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Cooler_01_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}

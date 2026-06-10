@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1763570511406067475}
   - component: {fileID: 736783155163031058}
   - component: {fileID: 7845577151747207842}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_Floor_Plan
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6641077126198392539}
   - component: {fileID: 8570274357157661006}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Softwall_Isolation_Barrier
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -69,7 +69,7 @@ GameObject:
   - component: {fileID: 8596230347231812713}
   - component: {fileID: 332256662295408716}
   - component: {fileID: 2500470458977859721}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Softwall_Isolation_Door_Glass
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -152,7 +152,7 @@ GameObject:
   - component: {fileID: 4713960225325764420}
   - component: {fileID: 6556962849498570990}
   - component: {fileID: 3635954795134508666}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Softwall_Isolation_Barrier_Glass
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -235,7 +235,7 @@ GameObject:
   - component: {fileID: 2963359622815175796}
   - component: {fileID: 9169248419168772698}
   - component: {fileID: 1669636402958256659}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Softwall_Isolation_Barrier
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -319,7 +319,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4072243303581771108}
   - component: {fileID: 7293235891181710967}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Softwall_Isolation_Barrier_Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -377,7 +377,7 @@ GameObject:
   - component: {fileID: 6198802483179602090}
   - component: {fileID: 7612295480257388144}
   - component: {fileID: 2185553647474219117}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Softwall_Isolation_Door
   m_TagString: Untagged
   m_Icon: {fileID: 0}

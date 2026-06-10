@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5636856756153499324}
   - component: {fileID: 1719146421293950846}
   - component: {fileID: 5882806211534227010}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Stack_Boxes_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}

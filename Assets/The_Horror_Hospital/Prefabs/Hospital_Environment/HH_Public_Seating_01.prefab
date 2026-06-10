@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3007890600271687112}
   - component: {fileID: 3448532527362409248}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Public_Seating_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -73,7 +73,7 @@ GameObject:
   - component: {fileID: 1280435140032478089}
   - component: {fileID: 1749334733208774642}
   - component: {fileID: 6877653048319041814}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Public_Seating_01_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -156,7 +156,7 @@ GameObject:
   - component: {fileID: 6782669375117349855}
   - component: {fileID: 1643046049443812125}
   - component: {fileID: 7440574504222906506}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Public_Seating_01_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -241,7 +241,7 @@ GameObject:
   - component: {fileID: 3253473706441243313}
   - component: {fileID: 3040488526634450395}
   - component: {fileID: 3874334921966769774}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Public_Seating_01_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}

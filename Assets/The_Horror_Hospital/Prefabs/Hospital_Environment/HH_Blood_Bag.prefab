@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6716630254864091826}
   - component: {fileID: 8198524092727348867}
   - component: {fileID: 7654640274287983721}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Blood_Bag_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,7 +94,7 @@ GameObject:
   - component: {fileID: 6719295495634515496}
   - component: {fileID: 7170717387360563124}
   - component: {fileID: 7103749853234339990}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Blood_Bag_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -176,7 +176,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7639369881320278633}
   - component: {fileID: 1298586507871880983}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Blood_Bag
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -239,7 +239,7 @@ GameObject:
   - component: {fileID: 7172531657428647933}
   - component: {fileID: 2475194010653264356}
   - component: {fileID: 544982457355355504}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Blood_Bag_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}

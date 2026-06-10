@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8525248741970008857}
   - component: {fileID: 2698327911176536329}
   - component: {fileID: 5895455026866289452}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_InteriorWall_1x4m
   m_TagString: Untagged
   m_Icon: {fileID: 0}

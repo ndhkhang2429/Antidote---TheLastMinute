@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3693420483388301897}
   - component: {fileID: 5709591184716101401}
   - component: {fileID: 4006302861031904041}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Navigation_Intensive_Care
   m_TagString: Untagged
   m_Icon: {fileID: 0}

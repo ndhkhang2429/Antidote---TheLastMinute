@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7324791868787650171}
   - component: {fileID: 8827369264706539882}
   - component: {fileID: 9144473579988593108}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Overhead_Air_Conditioner
   m_TagString: Untagged
   m_Icon: {fileID: 0}

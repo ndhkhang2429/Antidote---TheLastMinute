@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 862425893261094354}
   - component: {fileID: 99093878989646477}
   - component: {fileID: 1498111613187944549}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Laparoscopic_Complex_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,7 +94,7 @@ GameObject:
   - component: {fileID: 5108414035722419358}
   - component: {fileID: 1664916159328784500}
   - component: {fileID: 7081326005546287841}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Laparoscopic_Complex_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -178,7 +178,7 @@ GameObject:
   - component: {fileID: 2695685396092903220}
   - component: {fileID: 5035176562535149937}
   - component: {fileID: 1563149687318194982}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Laparoscopic_Complex_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -281,7 +281,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5462472499732837613}
   - component: {fileID: 4383462342212290905}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Laparoscopic_Complex
   m_TagString: Untagged
   m_Icon: {fileID: 0}

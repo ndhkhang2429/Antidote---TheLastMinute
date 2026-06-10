@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6004541242009963400}
   - component: {fileID: 7536556210119899953}
   - component: {fileID: 2666707157356306596}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Handrail
   m_TagString: Untagged
   m_Icon: {fileID: 0}

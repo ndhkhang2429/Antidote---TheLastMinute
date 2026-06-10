@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6506638579418408869}
   - component: {fileID: 2940625185339928003}
   - component: {fileID: 2233159324222349799}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Navigation_Sign_Surgery
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 79986894118067161}
   - component: {fileID: 485753989542104887}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_PatientRoom_Wall_Glass_Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -65,7 +65,7 @@ GameObject:
   - component: {fileID: 388674903727481596}
   - component: {fileID: 6309759714059946934}
   - component: {fileID: 2671840025716605124}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_PatientRoom_Door_Glass
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -148,7 +148,7 @@ GameObject:
   - component: {fileID: 6130719085189619328}
   - component: {fileID: 5630638816017048677}
   - component: {fileID: 5141108033741598641}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_PatientRoom_Wall_Glass1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -231,7 +231,7 @@ GameObject:
   - component: {fileID: 9036119540679976665}
   - component: {fileID: 510173819385928423}
   - component: {fileID: 8532952982469527421}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_PatientRoom_Wall_Glass
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -320,7 +320,7 @@ GameObject:
   - component: {fileID: 8830434606722427977}
   - component: {fileID: 4291930367189125866}
   - component: {fileID: 7738120271354098080}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_PatientRoom_Door
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -469,7 +469,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5360774824684982859}
   - component: {fileID: 6497042534624928308}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_PatientRoom_Wall_Glass_4m
   m_TagString: Untagged
   m_Icon: {fileID: 0}

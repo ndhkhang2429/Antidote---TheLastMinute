@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5783794276699191490}
   - component: {fileID: 4489304735601359649}
   - component: {fileID: 6095696814609051661}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Decal_Level_B2
   m_TagString: Untagged
   m_Icon: {fileID: 0}

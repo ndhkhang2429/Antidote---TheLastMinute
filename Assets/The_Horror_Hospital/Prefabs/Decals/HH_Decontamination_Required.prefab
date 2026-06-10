@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 2624907927804771690}
   - component: {fileID: 5465107666036249770}
   - component: {fileID: 5593941879381625843}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Decontamination_Required
   m_TagString: Untagged
   m_Icon: {fileID: 0}

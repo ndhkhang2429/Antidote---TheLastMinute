@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8117927680139497590}
   - component: {fileID: 4199962389129552319}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Desk_Doctor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -70,7 +70,7 @@ GameObject:
   - component: {fileID: 2312231025135964289}
   - component: {fileID: 3810732472192323518}
   - component: {fileID: 4063274542256686944}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Desk_Doctor_Box_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -218,7 +218,7 @@ GameObject:
   - component: {fileID: 2844853010266718681}
   - component: {fileID: 9058227719280204429}
   - component: {fileID: 5644392296892272697}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Desk_Doctor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -325,7 +325,7 @@ GameObject:
   - component: {fileID: 7903679013241229290}
   - component: {fileID: 7771735901598088457}
   - component: {fileID: 1144631348050433029}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Desk_Doctor_Box_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}

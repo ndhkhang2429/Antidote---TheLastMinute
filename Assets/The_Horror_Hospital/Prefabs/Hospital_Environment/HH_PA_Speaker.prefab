@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 2639642672524772307}
   - component: {fileID: 7467983075076565235}
   - component: {fileID: 122495983224301900}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_PA_Speaker
   m_TagString: Untagged
   m_Icon: {fileID: 0}

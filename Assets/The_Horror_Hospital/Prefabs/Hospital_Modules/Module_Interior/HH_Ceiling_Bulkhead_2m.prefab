@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7189100469583183025}
   - component: {fileID: 9169480653039152004}
   - component: {fileID: 3328437971524776240}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Ceiling_Bulkhead_2m
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3732784973223728625}
   - component: {fileID: 437040897392045529}
   - component: {fileID: 9081302130938164030}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Interior_Doors_01_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -165,7 +165,7 @@ GameObject:
   - component: {fileID: 2549655644550245597}
   - component: {fileID: 8094972262508922813}
   - component: {fileID: 1134522329541475682}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_PartitionWall_Door_01_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -250,7 +250,7 @@ GameObject:
   - component: {fileID: 8544037185499480755}
   - component: {fileID: 4346041172790067970}
   - component: {fileID: 8758245670853916368}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Interior_Doors_01_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -333,7 +333,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9097393284567883190}
   - component: {fileID: 3374149762659938692}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_PartitionWall_Door_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -395,7 +395,7 @@ GameObject:
   - component: {fileID: 6175852786509317338}
   - component: {fileID: 8655293657816679171}
   - component: {fileID: 2402995765125427023}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_PartitionWall_Door_01_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -479,7 +479,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4626457069253160930}
   - component: {fileID: 7501753196907702026}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_PartitionWall_Door_01_Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 6359997424378633578}
   - component: {fileID: 5477472417722323987}
   - component: {fileID: 7402976069223960261}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Front_Door
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -163,7 +163,7 @@ GameObject:
   m_Component:
   - component: {fileID: 580900045414529867}
   - component: {fileID: 3110731942058448454}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Main_Entrance_Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -218,7 +218,7 @@ GameObject:
   - component: {fileID: 8424087670464881347}
   - component: {fileID: 5813231323815707035}
   - component: {fileID: 7139054954252892851}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Main_Entrance_Glass
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -301,7 +301,7 @@ GameObject:
   - component: {fileID: 1139425681521742728}
   - component: {fileID: 6868899182209198997}
   - component: {fileID: 5061962175229455195}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Main_Entrance_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -386,7 +386,7 @@ GameObject:
   - component: {fileID: 3699574891178368777}
   - component: {fileID: 7666289331473412110}
   - component: {fileID: 8408230573799378144}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Main_Entrance_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -471,7 +471,7 @@ GameObject:
   - component: {fileID: 6583567982001686974}
   - component: {fileID: 830848210291979631}
   - component: {fileID: 2563643106906544999}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Front_Door_Glass
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -553,7 +553,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6731004877510904438}
   - component: {fileID: 7003285583148267286}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Main_Entrance
   m_TagString: Untagged
   m_Icon: {fileID: 0}

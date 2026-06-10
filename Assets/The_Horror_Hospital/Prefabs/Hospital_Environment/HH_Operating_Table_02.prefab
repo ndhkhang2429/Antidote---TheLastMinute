@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4885098146366194611}
   - component: {fileID: 13983812129741392}
   - component: {fileID: 7177624759964074603}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Operating_Table_02_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -95,7 +95,7 @@ GameObject:
   - component: {fileID: 4389728812370060832}
   - component: {fileID: 7920918906626389957}
   - component: {fileID: 4301215728392872410}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Operating_Table_02_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -198,7 +198,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3268830030815494596}
   - component: {fileID: 6851083522906485690}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Operating_Table_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3263574270708417003}
   - component: {fileID: 7464225537018231357}
   - component: {fileID: 5814554005605421227}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Medical_Screen_02_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -115,7 +115,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6442856435153017638}
   - component: {fileID: 2453147569537616689}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Medical_Screens_Clustered_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -178,7 +178,7 @@ GameObject:
   - component: {fileID: 7217508589305762686}
   - component: {fileID: 742132598337733756}
   - component: {fileID: 2685973893623276979}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Medical_Screen_02_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -261,7 +261,7 @@ GameObject:
   - component: {fileID: 9190531633180212801}
   - component: {fileID: 5845211084061047253}
   - component: {fileID: 6598538825405666652}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Medical_Screen_02_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 330519015705975459}
   - component: {fileID: 1273552042175218533}
   - component: {fileID: 79601143585124819}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_Journal_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}

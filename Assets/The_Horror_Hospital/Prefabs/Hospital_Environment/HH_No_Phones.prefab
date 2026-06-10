@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5383695296514285148}
   - component: {fileID: 7567777538264246633}
   - component: {fileID: 4391211052496830675}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_No_Phones
   m_TagString: Untagged
   m_Icon: {fileID: 0}

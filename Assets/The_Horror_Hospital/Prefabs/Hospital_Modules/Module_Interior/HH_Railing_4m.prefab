@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6917404736571738832}
   - component: {fileID: 1416393487759039884}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Railing_4m
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -68,7 +68,7 @@ GameObject:
   - component: {fileID: 3326253777973629791}
   - component: {fileID: 8358234329078563580}
   - component: {fileID: 4731968950782695025}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Railing_4m_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -153,7 +153,7 @@ GameObject:
   - component: {fileID: 7813410354277284081}
   - component: {fileID: 8635654836475796856}
   - component: {fileID: 7604415995932402750}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Railing_4m_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}

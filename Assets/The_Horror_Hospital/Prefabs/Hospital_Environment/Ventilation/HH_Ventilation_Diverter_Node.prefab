@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 226457867401291142}
   - component: {fileID: 5106962330894166843}
   - component: {fileID: 4174097524834085627}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Ventilation_Diverter_Node
   m_TagString: Untagged
   m_Icon: {fileID: 0}

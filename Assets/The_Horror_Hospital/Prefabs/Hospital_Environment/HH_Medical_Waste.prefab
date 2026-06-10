@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5230381582208522985}
   - component: {fileID: 4516424720351872704}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Medical_Waste
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -73,7 +73,7 @@ GameObject:
   - component: {fileID: 8497154174196446996}
   - component: {fileID: 3065146975063943313}
   - component: {fileID: 3740390602762208337}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Medical_Waste_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -157,7 +157,7 @@ GameObject:
   - component: {fileID: 492101685613394550}
   - component: {fileID: 4550456545498960821}
   - component: {fileID: 5548115971192493367}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Medical_Waste_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -261,7 +261,7 @@ GameObject:
   - component: {fileID: 7161057807831833427}
   - component: {fileID: 4870642990493491974}
   - component: {fileID: 1591649217923890453}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Medical_Waste_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}

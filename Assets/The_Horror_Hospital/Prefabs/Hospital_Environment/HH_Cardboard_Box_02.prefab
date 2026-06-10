@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2745406169739145705}
   - component: {fileID: 307278610399209694}
   - component: {fileID: 5241006560538907573}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Cardboard_Box_02_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -95,7 +95,7 @@ GameObject:
   - component: {fileID: 292404252609368902}
   - component: {fileID: 6994658852002460525}
   - component: {fileID: 6087016781882201641}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Cardboard_Box_02_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -198,7 +198,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5482012205745065935}
   - component: {fileID: 9180947105823739266}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Cardboard_Box_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}

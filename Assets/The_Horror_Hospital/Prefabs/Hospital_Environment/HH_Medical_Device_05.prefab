@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 3492404054119835222}
   - component: {fileID: 8814452514951496009}
   - component: {fileID: 1141569662527847669}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Medical_Device_05
   m_TagString: Untagged
   m_Icon: {fileID: 0}

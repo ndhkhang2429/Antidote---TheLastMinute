@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 9094091119209824101}
   - component: {fileID: 8994103941017619037}
   - component: {fileID: 8554945344641253074}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Spruce_03_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -118,7 +118,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3022275971435626559}
   - component: {fileID: 6415039583148251430}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Spruce_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -181,7 +181,7 @@ GameObject:
   - component: {fileID: 5380230248098031026}
   - component: {fileID: 1552102310278082000}
   - component: {fileID: 8238384455059536014}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Spruce_03_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -265,7 +265,7 @@ GameObject:
   - component: {fileID: 4365143960408456611}
   - component: {fileID: 52147832164367502}
   - component: {fileID: 5702836747404938476}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Spruce_03_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}

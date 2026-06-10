@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 2806244756730049247}
   - component: {fileID: 2964590342334185898}
   - component: {fileID: 4287021479217604200}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Radiator_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -115,7 +115,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1634253672296883057}
   - component: {fileID: 880405754168125438}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Radiator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -173,7 +173,7 @@ GameObject:
   - component: {fileID: 1913320444673265809}
   - component: {fileID: 2515455229933197665}
   - component: {fileID: 3871758911289123977}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Radiator_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}

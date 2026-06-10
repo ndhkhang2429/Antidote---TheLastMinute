@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5134202353105465850}
   - component: {fileID: 310322612902893392}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_Ladder_Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -65,7 +65,7 @@ GameObject:
   - component: {fileID: 600694803415719080}
   - component: {fileID: 8263618052299182153}
   - component: {fileID: 4532648574866741685}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_Ladder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -147,7 +147,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5112537291551631288}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_Ladder
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 7558953984292750822}
   - component: {fileID: 5165159814590014671}
   - component: {fileID: 7646589670303823962}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Telephone_01_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,7 +94,7 @@ GameObject:
   - component: {fileID: 5807440581176770107}
   - component: {fileID: 3011984107222229581}
   - component: {fileID: 5580028187071580897}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Telephone_01_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -176,7 +176,7 @@ GameObject:
   m_Component:
   - component: {fileID: 588333757562201411}
   - component: {fileID: 8003308904680707028}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Telephone_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -240,7 +240,7 @@ GameObject:
   - component: {fileID: 6815824715202986771}
   - component: {fileID: 6233498347691082309}
   - component: {fileID: 7566737201907072333}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Telephone_01_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}

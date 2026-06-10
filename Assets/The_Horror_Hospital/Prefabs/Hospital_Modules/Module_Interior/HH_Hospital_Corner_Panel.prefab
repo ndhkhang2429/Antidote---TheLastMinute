@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4584247737449221629}
   - component: {fileID: 4234725362215913547}
   - component: {fileID: 273201115316390934}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_Corner_Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}

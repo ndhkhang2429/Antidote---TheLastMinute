@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6180325130831028107}
   - component: {fileID: 9184159230979512574}
   - component: {fileID: 5477776165793740849}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_ Base_Cabinet_Door_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -116,7 +116,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4647516040319371909}
   - component: {fileID: 8688652365820719470}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_ Base_Cabinet_2m_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -174,7 +174,7 @@ GameObject:
   - component: {fileID: 2282087930972973966}
   - component: {fileID: 4463208911971550076}
   - component: {fileID: 18393383914127981}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_ Base_Cabinet_Door_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -280,7 +280,7 @@ GameObject:
   - component: {fileID: 3930283248565025882}
   - component: {fileID: 5402446646378318406}
   - component: {fileID: 1503071543843702134}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_ Base_Cabinet_2m_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}

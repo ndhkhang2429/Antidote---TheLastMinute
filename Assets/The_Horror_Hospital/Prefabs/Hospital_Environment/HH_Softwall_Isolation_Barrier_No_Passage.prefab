@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2136849114069646908}
   - component: {fileID: 1988242974690722264}
   - component: {fileID: 2916674586864651384}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Softwall_Isolation_Barrier_No_Passage
   m_TagString: Untagged
   m_Icon: {fileID: 0}

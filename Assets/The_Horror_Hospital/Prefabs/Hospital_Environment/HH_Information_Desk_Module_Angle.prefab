@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2141127070325393609}
   - component: {fileID: 4462166524245748283}
   - component: {fileID: 123952400307082713}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Information_Desk_Module_Angle
   m_TagString: Untagged
   m_Icon: {fileID: 0}

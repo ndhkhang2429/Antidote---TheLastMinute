@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8925273701731076164}
   - component: {fileID: 9069855378239055110}
   - component: {fileID: 924209824345540870}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Desk_Big
   m_TagString: Untagged
   m_Icon: {fileID: 0}

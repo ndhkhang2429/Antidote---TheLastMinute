@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4651520272839763481}
   - component: {fileID: 2427079055588517785}
   - component: {fileID: 1922343848760189033}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Medical_Bed_Head_Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}

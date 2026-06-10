@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3490030440713944241}
   - component: {fileID: 3736338228977877091}
   - component: {fileID: 753801601341425435}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Socket_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}

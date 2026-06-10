@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8466548114003971211}
   - component: {fileID: 719573058338763974}
   - component: {fileID: 6381474155641471713}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Information_Desk
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -93,7 +93,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3479104905758726171}
   - component: {fileID: 3791360840640792063}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Information_Desk
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -146,7 +146,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5620467933494519066}
   - component: {fileID: 7550617399545538319}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Information_Desk_Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}

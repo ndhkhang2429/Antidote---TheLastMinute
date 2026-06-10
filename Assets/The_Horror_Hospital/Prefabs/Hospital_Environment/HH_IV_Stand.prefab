@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8178762713263393613}
   - component: {fileID: 2784249250514954994}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_IV_Stand
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -74,7 +74,7 @@ GameObject:
   - component: {fileID: 2583327968134380710}
   - component: {fileID: 2623288845431840798}
   - component: {fileID: 3610182634460210451}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_IV_Stand_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -178,7 +178,7 @@ GameObject:
   - component: {fileID: 7549053881995079924}
   - component: {fileID: 5658953237132888228}
   - component: {fileID: 7955658140079964100}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_IV_Stand_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -261,7 +261,7 @@ GameObject:
   - component: {fileID: 2018545129050884930}
   - component: {fileID: 8189467530696371097}
   - component: {fileID: 6684955105897582017}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_IV_Stand_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}

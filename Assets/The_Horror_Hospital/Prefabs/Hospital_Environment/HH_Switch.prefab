@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1136302707298531735}
   - component: {fileID: 872344206164321457}
   - component: {fileID: 3066299437523460240}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Switch
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -93,7 +93,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4651992117083493439}
   - component: {fileID: 8168042922749841437}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Switch
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -148,7 +148,7 @@ GameObject:
   - component: {fileID: 7482816949939316309}
   - component: {fileID: 6630221078023001474}
   - component: {fileID: 887565754872176264}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Switch_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}

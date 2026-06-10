@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8036604752455031021}
   - component: {fileID: 4449979181402364949}
   - component: {fileID: 6666128470380472523}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Navigation_Coldstone
   m_TagString: Untagged
   m_Icon: {fileID: 0}

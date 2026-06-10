@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5875421104065370853}
   - component: {fileID: 1878831431998456858}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Fire_Hose
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -73,7 +73,7 @@ GameObject:
   - component: {fileID: 5673337552524662210}
   - component: {fileID: 4952154153863157652}
   - component: {fileID: 1055657021950264740}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Fire_Hose_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -157,7 +157,7 @@ GameObject:
   - component: {fileID: 4730042288238768543}
   - component: {fileID: 8750514910953836864}
   - component: {fileID: 7425480101583052664}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Fire_Hose_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -261,7 +261,7 @@ GameObject:
   - component: {fileID: 2692085952919816131}
   - component: {fileID: 6665359589394883020}
   - component: {fileID: 2744841839639383234}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Fire_Hose_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}

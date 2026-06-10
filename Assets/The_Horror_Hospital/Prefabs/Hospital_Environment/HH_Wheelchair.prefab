@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3892492492107349700}
   - component: {fileID: 3804435059263406958}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Wheelchair
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -75,7 +75,7 @@ GameObject:
   - component: {fileID: 7391089283090574673}
   - component: {fileID: 3772094688666120711}
   - component: {fileID: 4366021698728525500}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Wheelchair_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -200,7 +200,7 @@ GameObject:
   - component: {fileID: 4912742861108526653}
   - component: {fileID: 1247380869752728103}
   - component: {fileID: 7004034048661114262}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Wheelchair_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -283,7 +283,7 @@ GameObject:
   - component: {fileID: 3719477777336501708}
   - component: {fileID: 6883668919997406574}
   - component: {fileID: 1540651488411467096}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Wheelchair_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}

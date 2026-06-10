@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8900879077966462495}
   - component: {fileID: 4938038951317167981}
   - component: {fileID: 2679712277066024929}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_ Base_Cabinet_2m_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4128223686725690512}
   - component: {fileID: 7826419212523861306}
   - component: {fileID: 3155473463606904936}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_No_Smoking
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4000324814517365407}
   - component: {fileID: 6099725092925314982}
   - component: {fileID: 7519823623511072824}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Quarantine_Tape_2m
   m_TagString: Untagged
   m_Icon: {fileID: 0}

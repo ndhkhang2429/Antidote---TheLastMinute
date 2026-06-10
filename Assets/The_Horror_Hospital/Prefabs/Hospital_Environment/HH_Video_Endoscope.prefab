@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 7891551324880526294}
   - component: {fileID: 4897637185285986087}
   - component: {fileID: 8475045332202489693}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Video_Endoscope_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -93,7 +93,7 @@ GameObject:
   m_Component:
   - component: {fileID: 564015049317948780}
   - component: {fileID: 1459916220232154367}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Video_Endoscope
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -157,7 +157,7 @@ GameObject:
   - component: {fileID: 2694510887510337316}
   - component: {fileID: 4408301426534931114}
   - component: {fileID: 867620191037612437}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Video_Endoscope_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -261,7 +261,7 @@ GameObject:
   - component: {fileID: 3655181832371327753}
   - component: {fileID: 1090136721267309777}
   - component: {fileID: 540096486495725849}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Video_Endoscope_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 68700560600679038}
   - component: {fileID: 4730709098400560222}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_Bed_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -73,7 +73,7 @@ GameObject:
   - component: {fileID: 3558536886095047129}
   - component: {fileID: 8474456057167670700}
   - component: {fileID: 5355289202137655445}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_Bed_01_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -156,7 +156,7 @@ GameObject:
   - component: {fileID: 4035593884965596289}
   - component: {fileID: 6183811393638484610}
   - component: {fileID: 3575003775372389544}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_Bed_01_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -242,7 +242,7 @@ GameObject:
   - component: {fileID: 3409317783808007637}
   - component: {fileID: 6654639416501995419}
   - component: {fileID: 987418704015938178}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_Bed_01_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}

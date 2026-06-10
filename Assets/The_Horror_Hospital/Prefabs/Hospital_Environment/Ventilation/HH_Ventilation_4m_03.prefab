@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 828497181147937707}
   - component: {fileID: 3715460282499229701}
   - component: {fileID: 8913021212955931695}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Ventilation_4m_03_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -116,7 +116,7 @@ GameObject:
   - component: {fileID: 6705683077849820089}
   - component: {fileID: 6001310078848880292}
   - component: {fileID: 5445751901332046760}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Ventilation_4m_03_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -198,7 +198,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1343229745774353778}
   - component: {fileID: 7541728159742493804}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Ventilation_4m_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}

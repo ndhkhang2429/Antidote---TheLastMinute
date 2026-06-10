@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3343593855454506482}
   - component: {fileID: 6761197272171594642}
   - component: {fileID: 6411409050558129311}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Window_Blind_4m_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}

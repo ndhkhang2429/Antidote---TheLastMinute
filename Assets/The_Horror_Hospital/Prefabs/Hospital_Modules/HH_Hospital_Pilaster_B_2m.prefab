@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 2116620333227893975}
   - component: {fileID: 3791552489033958763}
   - component: {fileID: 1789843287872626541}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HH_Hospital_Pilaster_B_2m
   m_TagString: Untagged
   m_Icon: {fileID: 0}
