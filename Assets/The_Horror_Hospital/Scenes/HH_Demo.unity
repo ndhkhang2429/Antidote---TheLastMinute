@@ -12476,7 +12476,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &158460127
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -109859,7 +109859,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1395250581}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fff0960ef4ea6e04eac66b4a7fd2189d, type: 3}
   m_Name: 
@@ -132022,6 +132022,10 @@ PrefabInstance:
       propertyPath: bloodOverlayImage
       value: 
       objectReference: {fileID: 814685830}
+    - target: {fileID: 7649409274300217940, guid: 0c35c567edf471e468153ecc8d798e64, type: 3}
+      propertyPath: EnableHeadLookIK
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -156066,7 +156070,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1940766494
 Transform:
   m_ObjectHideFlags: 0
@@ -156075,8 +156079,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1940766493}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0.102639906, y: 0.8001665, z: 0.17189446, w: 0.56537694}
+  m_LocalPosition: {x: 0.3115201, y: 1.5884948, z: 0.121925354}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -163891,7 +163895,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &2038910578
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -167942,7 +167946,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &2095373297
 MonoBehaviour:
   m_ObjectHideFlags: 0
