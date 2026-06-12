@@ -14,6 +14,8 @@ namespace StarterAssets
 		public bool sprint;
 		public bool crouch;
         public bool shoot;
+        public bool aim;
+        public bool reload;
 
         [Header("Movement Settings")]
 		public bool analogMovement;
@@ -81,8 +83,28 @@ namespace StarterAssets
 			sprint = newSprintState;
 		}
 
-        public void OnShoot(InputValue value) => ShootInput(value.isPressed);
+        public void OnShoot(InputValue value) => ShootInput(value.Get<float>() > 0.5f);
         public void ShootInput(bool v) => shoot = v;
+
+        public void OnAim(InputValue value)
+        {
+            AimInput(value.Get<float>() > 0.5f);
+        }
+
+        public void AimInput(bool v)
+        {
+            aim = v;
+        }
+
+        public void OnReload(InputValue value)
+        {
+            ReloadInput(value.isPressed);
+        }
+
+        public void ReloadInput(bool v)
+        {
+            reload = v;
+        }
 
 #if !UNITY_IOS || !UNITY_ANDROID
 

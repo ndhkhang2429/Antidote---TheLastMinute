@@ -1,0 +1,163 @@
+Can be used for any game creation.
+
+FPS TPS RTS
+
+
+---=== Rifle 1 ===---
+
+Tris - 36383
+Faces -19948
+PBR - Yes (included specular)
+Maps - Base color, Metallic, Roughness, Normal,Ambient Occlusion,Specular,Opacity (For Scope Glass)
+Shaders used - 4
+HDRP - Yes
+
+---=== Rifle 2 ===---
+
+Tris - 56168
+Faces -29070
+PBR - Yes (included specular)
+Maps - Base color, Metallic, Roughness, Normal,Ambient Occlusion,Specular
+Shaders used - 3
+HDRP - Yes
+
+---=== Rifle 3 ===---
+
+Tris - 50016
+Faces -26270
+PBR - Yes (included specular)
+Maps - Base color, Metallic, Roughness, Normal,Ambient Occlusion,Specular,Opacity (For Scope Glass)
+Shaders used - 4
+HDRP - Yes
+
+---=== Smg 1 ===---
+
+Tris - 56168
+Faces -29070
+PBR - Yes (included specular)
+Maps - Base color, Metallic, Roughness, Normal,Ambient Occlusion,Specular
+Shaders used - 3
+
+---=== Smg 2 ===---
+
+Tris - 56168
+Faces -29070
+PBR - Yes (included specular)
+Maps - Base color, Metallic, Roughness, Normal,Ambient Occlusion,Specular
+Shaders used - 3
+HDRP - Yes
+
+---=== Smg 3 ===---
+
+Tris - 26957
+Faces -14249
+PBR - Yes (included specular)
+Maps - Base color, Metallic, Roughness, Normal,Ambient Occlusion,Specular
+Shaders used - 3
+HDRP - Yes
+
+---=== Shotgun 1 ===---
+
+Tris - 14432
+Faces - 7548
+PBR - Yes (included specular)
+Maps - Base color, Metallic, Roughness, Normal,Ambient Occlusion,Specular
+Shaders used - 2
+HDRP - Yes
+
+---=== Shotgun 2 ===---
+
+Tris - 14432
+Faces - 7548
+PBR - Yes (included specular)
+Maps - Base color, Metallic, Roughness, Normal,Ambient Occlusion,Specular
+Shaders used - 2
+HDRP - Yes
+
+---=== Pistol 1 ===---
+
+Tris - 18186
+Faces - 10834
+PBR - Yes (included specular)
+Maps - Base color, Metallic, Roughness, Normal,Ambient Occlusion,Specular
+Shaders used - 2
+HDRP - Yes
+
+---=== Pistol 2 ===---
+
+Tris - 23653
+Faces - 12605
+PBR - Yes (included specular)
+Maps - Base color, Metallic, Roughness, Normal,Ambient Occlusion,Specular,Opactiy,Emessive
+Shaders used - 2
+HDRP - Yes
+
+---=== Pistol 3 ===---
+
+Tris - 14432
+Faces - 7548
+PBR - Yes (included specular)
+Maps - Base color, Metallic, Roughness, Normal,Ambient Occlusion,Specular
+Shaders used - 2
+HDRP - Yes
+
+---=== Pistol 4 ===---
+
+Tris - 23653
+Faces - 12605
+PBR - Yes (included specular)
+Maps - Base color, Metallic, Roughness, Normal,Ambient Occlusion,Specular,Opactiy,Emessive
+Shaders used - 2
+HDRP - Yes
+
+---=== Grenade 1 ===---
+
+Tris - 8290
+Faces - 4127
+PBR - Yes (included specular)
+Maps - Base color, Metallic, Roughness, Normal,Ambient Occlusion,Specular Shaders used - 1
+Shaders used - 2
+HDRP - Yes
+
+---=== Grenade 2 ===---
+
+
+Tris - 14432
+Faces - 7548
+PBR - Yes (included specular)
+Maps - Base color, Metallic, Roughness, Normal,Ambient Occlusion,Specular
+Shaders used - 2
+HDRP - Yes
+
+---=== Grenade 3 ===---
+
+Tris - 1882 Faces - 995
+PBR - Yes (included specular)
+Maps - Base color, Metallic, Roughness, Normal,Ambient Occlusion,Specular Shaders used - 1
+Shaders used - 2
+HDRP - Yes
+
+---=== Dmr 1 ===---
+
+Tris - 36383
+Faces -19948
+PBR - Yes (included specular)
+Maps - Base color, Metallic, Roughness, Normal,Ambient Occlusion,Specular,Opacity (For Scope Glass)
+Shaders used - 4
+HDRP - Yes
+
+---=== Sniper 1 ===---
+
+Tris - 50016
+Faces -26270
+PBR - Yes (included specular)
+Maps - Base color, Metallic, Roughness, Normal,Ambient Occlusion,Specular,Opacity (For Scope Glass)
+Shaders used - 4
+HDRP - Yes
+
+
+Animations not included. Will be another package.
+
+In the Pack: Models (Gun Magazine and Bullets) , Textures and Images
+
+Sharing or distribution not allowed. These Models are under contract from both Designer and Publisher!

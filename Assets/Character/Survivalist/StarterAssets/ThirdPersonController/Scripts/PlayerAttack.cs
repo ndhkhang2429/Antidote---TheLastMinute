@@ -82,7 +82,10 @@ public class PlayerAttack : MonoBehaviour
 
         if (_input != null && _input.shoot)
         {
-            _input.shoot = false;
+            if (_input.shoot && Time.time >= _nextAttackTime)
+            {
+                TryAttack();
+            }
 
             if (PlayerState.Instance != null && !PlayerState.Instance.CanAttack())
             {
