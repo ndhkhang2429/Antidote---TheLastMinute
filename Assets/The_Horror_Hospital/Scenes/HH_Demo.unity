@@ -17080,7 +17080,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 215047883}
-  - component: {fileID: 215047885}
   - component: {fileID: 215047884}
   m_Layer: 6
   m_Name: WeaponPose
@@ -17155,53 +17154,6 @@ MonoBehaviour:
       z: 1
     m_MaintainPositionOffset: 0
     m_MaintainRotationOffset: 0
---- !u!114 &215047885
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 215047882}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c10bdb03db33fb148b858a4a3b646cea, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Weight: 1
-  m_Data:
-    m_ConstrainedObject: {fileID: 215047883}
-    m_SourceObjects:
-      m_Length: 1
-      m_Item0:
-        transform: {fileID: 942090942}
-        weight: 1
-      m_Item1:
-        transform: {fileID: 0}
-        weight: 0
-      m_Item2:
-        transform: {fileID: 0}
-        weight: 0
-      m_Item3:
-        transform: {fileID: 0}
-        weight: 0
-      m_Item4:
-        transform: {fileID: 0}
-        weight: 0
-      m_Item5:
-        transform: {fileID: 0}
-        weight: 0
-      m_Item6:
-        transform: {fileID: 0}
-        weight: 0
-      m_Item7:
-        transform: {fileID: 0}
-        weight: 0
-    m_Offset: {x: 0, y: 0, z: 0}
-    m_ConstrainedAxes:
-      x: 1
-      y: 1
-      z: 1
-    m_MaintainOffset: 0
 --- !u!1001 &216162881
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -74865,11 +74817,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6442161216775309021, guid: 9d134b98c4308e8439e80c9ca9301d8b, type: 3}
   m_PrefabInstance: {fileID: 941944594}
   m_PrefabAsset: {fileID: 0}
---- !u!4 &942090942 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 2882026059506418873, guid: 0c35c567edf471e468153ecc8d798e64, type: 3}
-  m_PrefabInstance: {fileID: 1640502383}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &942154721
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -131895,6 +131842,10 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: 035023331dbb59f40832fd4d54e4957e, type: 2}
+    - target: {fileID: 1429931568686432519, guid: 0c35c567edf471e468153ecc8d798e64, type: 3}
+      propertyPath: m_WarningMessage
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 1663327187368889152, guid: 0c35c567edf471e468153ecc8d798e64, type: 3}
       propertyPath: _meleeData
       value: 
@@ -156124,8 +156075,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1940766493}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.102639906, y: 0.8001665, z: 0.17189446, w: 0.56537694}
-  m_LocalPosition: {x: 0.3115201, y: 1.5884948, z: 0.121925354}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -167991,7 +167942,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &2095373297
 MonoBehaviour:
   m_ObjectHideFlags: 0

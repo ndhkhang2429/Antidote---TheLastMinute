@@ -1,4 +1,4 @@
-using StarterAssets;
+﻿using StarterAssets;
 using UnityEngine;
 
 public class PlayerGunAnimator : MonoBehaviour

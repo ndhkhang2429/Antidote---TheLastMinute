@@ -18,10 +18,9 @@ namespace StarterAssets
         public float RotationSmoothTime = 0.08f;
         public float SpeedChangeRate = 12.0f;
 
-        [Header("PUBG Head Look Logic")]
-        [Tooltip("Góc lệch tối đa giữa Camera và Cơ thể trước khi cơ thể bắt đầu xoay theo")]
-        public float MaxHeadTurnAngle = 90f;
-        public bool EnableHeadLookIK = true;
+        [Header("RE-Style Body Rotation")]
+        [Tooltip("Tốc độ cơ thể xoay để luôn face theo camera (RE style)")]
+        public float BodyTurnSpeed = 10f;
 
         [Header("Jump & Gravity")]
         public float JumpHeight = 1.2f;
@@ -50,18 +49,20 @@ namespace StarterAssets
         public float BottomClamp = -30.0f;
         [Range(0.1f, 5f)]
         public float CameraSensitivity = 1f;
-        public bool InvertY = false; // Đảo ngược trục Y nếu muốn
+        public bool InvertY = false;
 
-        [Header("Weight Settings")]
-        public float CameraSmoothTime = 0.05f; // Thời gian làm mượt (càng cao càng nặng)
+        [Header("Camera Smoothing")]
+        public float CameraSmoothTime = 0.05f;
         private float _yawVelocity;
         private float _pitchVelocity;
+
+        [Header("Head Look IK")]
+        public bool EnableHeadLookIK = true;
 
         private float _cameraTargetYaw;
         private float _cameraTargetPitch;
         private const float _threshold = 0.01f;
 
-        // player vars
         private float _speed;
         private float _animationBlend;
         private float _rotationVelocity;
@@ -81,7 +82,6 @@ namespace StarterAssets
         private CharacterController _controller;
         private StarterAssetsInputs _input;
         private GameObject _mainCamera;
-
         private bool _hasAnimator;
 
         private void Awake()
@@ -92,23 +92,25 @@ namespace StarterAssets
 
         private void Start()
         {
-            // Ẩn con trỏ chuột không cho người dùng nhìn thấy
             Cursor.visible = false;
-
-            // Khóa con trỏ chuột vào giữa màn hình để tránh việc chuột bay ra ngoài cửa sổ game khi quay camera
             Cursor.lockState = CursorLockMode.Locked;
+
             _animator = GetComponentInChildren<Animator>();
             _hasAnimator = _animator != null;
-
             _controller = GetComponent<CharacterController>();
             _input = GetComponent<StarterAssetsInputs>();
+
             AssignAnimationIDs();
 
             _jumpTimeoutDelta = JumpTimeout;
             _fallTimeoutDelta = FallTimeout;
 
-            _cameraTargetYaw = CameraTarget.transform.rotation.eulerAngles.y;
-            _cameraTargetPitch = CameraTarget.transform.rotation.eulerAngles.x;
+            _cameraTargetYaw = CameraTarget.rotation.eulerAngles.y;
+            _cameraTargetPitch = CameraTarget.rotation.eulerAngles.x;
+
+            // Khởi tạo cơ thể face theo camera ngay từ đầu
+            transform.rotation = Quaternion.Euler(0f, _cameraTargetYaw, 0f);
+
             if (_hasAnimator)
             {
                 _animator.SetFloat("Horizontal", 0f);
@@ -120,14 +122,14 @@ namespace StarterAssets
         {
             JumpAndGravity();
             GroundedCheck();
-            HandleRotation();
+            HandleRotation();  // RE: cơ thể luôn xoay theo camera
             HandleCrouch();
             Move();
         }
 
         private void LateUpdate()
         {
-            CameraRotation(); // Chuyển CameraRotation xuống LateUpdate
+            CameraRotation();
         }
 
         private void AssignAnimationIDs()
@@ -139,59 +141,44 @@ namespace StarterAssets
             _animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
             _animIDCrouch = Animator.StringToHash("isCrouch");
         }
+
         private void CameraRotation()
         {
-            // Nếu có input chuột đủ lớn
             if (_input.look.sqrMagnitude >= _threshold)
             {
                 float targetYaw = _cameraTargetYaw + _input.look.x * CameraSensitivity * 0.01f;
                 float targetPitch = _cameraTargetPitch - _input.look.y * CameraSensitivity * 0.01f * (InvertY ? -1f : 1f);
 
-                // 0.01f là hệ số "vàng" để cân bằng lại Delta của Input System
                 _cameraTargetYaw = Mathf.SmoothDampAngle(_cameraTargetYaw, targetYaw, ref _yawVelocity, CameraSmoothTime);
                 _cameraTargetPitch = Mathf.SmoothDampAngle(_cameraTargetPitch, targetPitch, ref _pitchVelocity, CameraSmoothTime);
             }
 
-            // Giới hạn góc nhìn dọc (Pitch)
             _cameraTargetPitch = ClampAngle(_cameraTargetPitch, BottomClamp, TopClamp);
-            
-            // Áp dụng xoay cho CameraTarget (Xoay tuyệt đối trong không gian)
-            CameraTarget.transform.rotation = Quaternion.Euler(_cameraTargetPitch, _cameraTargetYaw, 0.0f);
+            CameraTarget.rotation = Quaternion.Euler(_cameraTargetPitch, _cameraTargetYaw, 0f);
         }
 
         private void GroundedCheck()
         {
-            Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - GroundedOffset, transform.position.z);
-            Grounded = Physics.CheckSphere(spherePosition, GroundedRadius, GroundLayers, QueryTriggerInteraction.Ignore);
+            Vector3 spherePosition = new Vector3(transform.position.x,
+                transform.position.y - GroundedOffset, transform.position.z);
+            Grounded = Physics.CheckSphere(spherePosition, GroundedRadius, GroundLayers,
+                QueryTriggerInteraction.Ignore);
+
             if (_hasAnimator) _animator.SetBool(_animIDGrounded, Grounded);
         }
 
+        // ── RE Style: cơ thể LUÔN face theo camera yaw ──────────────────────────
         private void HandleRotation()
         {
-            float currentBodyYaw = transform.eulerAngles.y;
+            float currentYaw = transform.eulerAngles.y;
 
-            // DÙNG BIẾN _cameraTargetYaw THAY VÌ _mainCamera.transform...
-            // Điều này giúp ngắt vòng lặp phản hồi gây xoay tít
-            float deltaYaw = Mathf.DeltaAngle(currentBodyYaw, _cameraTargetYaw);
+            // Smooth xoay cơ thể về đúng hướng camera mọi lúc
+            // BodyTurnSpeed cao = phản hồi nhanh (như RE4 remake)
+            // BodyTurnSpeed thấp = lag nhẹ (như RE3)
+            float smoothYaw = Mathf.LerpAngle(currentYaw, _cameraTargetYaw,
+                BodyTurnSpeed * Time.deltaTime);
 
-            // Trường hợp 1: Đang di chuyển (WASD) -> Người xoay theo hướng nhìn camera
-            if (_input.move != Vector2.zero)
-            {
-                float smoothYaw = Mathf.SmoothDampAngle(currentBodyYaw, _cameraTargetYaw, ref _rotationVelocity, RotationSmoothTime);
-                transform.rotation = Quaternion.Euler(0f, smoothYaw, 0f);
-            }
-            // Trường hợp 2: Đứng yên (Idle) -> Xử lý lệch góc 90 độ kiểu PUBG
-            else
-            {
-                if (Mathf.Abs(deltaYaw) > MaxHeadTurnAngle)
-                {
-                    float angleToCatchUp = deltaYaw > 0 ? deltaYaw - MaxHeadTurnAngle : deltaYaw + MaxHeadTurnAngle;
-                    float targetYaw = currentBodyYaw + angleToCatchUp;
-
-                    float smoothYaw = Mathf.SmoothDampAngle(currentBodyYaw, targetYaw, ref _rotationVelocity, RotationSmoothTime);
-                    transform.rotation = Quaternion.Euler(0f, smoothYaw, 0f);
-                }
-            }
+            transform.rotation = Quaternion.Euler(0f, smoothYaw, 0f);
         }
 
         private void Move()
@@ -205,13 +192,13 @@ namespace StarterAssets
                 targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
 
             _speed = Mathf.MoveTowards(_speed, targetSpeed, SpeedChangeRate * Time.deltaTime);
-
             _animationBlend = Mathf.MoveTowards(_animationBlend, targetSpeed, SpeedChangeRate * Time.deltaTime);
             if (_animationBlend < 0.01f) _animationBlend = 0f;
 
+            // RE style: di chuyển theo hướng camera, cơ thể không xoay thêm
+            // → tạo ra strafe (đi ngang) tự nhiên
             Vector3 camForward = Vector3.ProjectOnPlane(_mainCamera.transform.forward, Vector3.up).normalized;
             Vector3 camRight = Vector3.ProjectOnPlane(_mainCamera.transform.right, Vector3.up).normalized;
-
             Vector3 moveDirection = camRight * _input.move.x + camForward * _input.move.y;
 
             if (_controller != null && _controller.enabled && _controller.gameObject.activeInHierarchy)
@@ -229,64 +216,54 @@ namespace StarterAssets
                 float inputMagnitude = _input.move == Vector2.zero ? 0f : 1f;
                 _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
 
+                // RE style: Horizontal/Vertical là tọa độ LOCAL
+                // → animator blend tree nhận đúng strafe left/right, forward/back
                 float speedRatio = _input.move == Vector2.zero ? 0f : (_input.sprint ? 1f : 0.5f);
                 float lerpSpeed = Time.deltaTime * SpeedChangeRate * 2f;
 
-                float currentH = _animator.GetFloat("Horizontal");
-                float currentV = _animator.GetFloat("Vertical");
-                if (float.IsNaN(currentH)) currentH = 0f;
-                if (float.IsNaN(currentV)) currentV = 0f;
-
                 float newH = Mathf.Lerp(_animator.GetFloat("Horizontal"), _input.move.x * speedRatio, lerpSpeed);
-                if (Mathf.Abs(newH) < 0.01f) newH = 0f;
-                _animator.SetFloat("Horizontal", newH);
-
                 float newV = Mathf.Lerp(_animator.GetFloat("Vertical"), _input.move.y * speedRatio, lerpSpeed);
+                if (Mathf.Abs(newH) < 0.01f) newH = 0f;
                 if (Mathf.Abs(newV) < 0.01f) newV = 0f;
+
+                _animator.SetFloat("Horizontal", newH);
                 _animator.SetFloat("Vertical", newV);
             }
         }
 
         private void HandleCrouch()
         {
-            // Kiểm tra nút bấm (Giả sử bạn đã thêm biến 'crouch' vào StarterAssetsInputs)
             if (_input.crouch)
             {
                 _isCrouching = !_isCrouching;
-                _input.crouch = false; // Reset input để tránh lặp liên tục
+                _input.crouch = false;
 
-                if (_isCrouching)
-                {
-                    _controller.height = CrouchHeight;
-                    _controller.center = new Vector3(0, CrouchCenter, 0);
-                }
-                else
-                {
-                    _controller.height = StandHeight;
-                    _controller.center = new Vector3(0, StandCenter, 0);
-                }
+                _controller.height = _isCrouching ? CrouchHeight : StandHeight;
+                _controller.center = new Vector3(0, _isCrouching ? CrouchCenter : StandCenter, 0);
 
                 if (_hasAnimator)
-                {
                     _animator.SetBool(_animIDCrouch, _isCrouching);
-                }
             }
         }
 
-        // Hàm xử lý IK để đầu nhân vật luôn nhìn theo hướng Camera
+        // ── Head IK: pitch camera → đầu nhìn lên/xuống ─────────────────────────
         private void OnAnimatorIK(int layerIndex)
         {
-            if (_animator && EnableHeadLookIK)
-            {
-                // Lấy một điểm rất xa theo hướng nhìn của Camera làm mục tiêu
-                Vector3 lookAtPosition = _mainCamera.transform.position + _mainCamera.transform.forward * 100f;
+            if (!_animator || !EnableHeadLookIK) return;
 
-                // Thiết lập trọng số IK. 
-                // Tham số: globalWeight, bodyWeight, headWeight, eyesWeight, clampWeight
-                // clampWeight = 0.5f giúp đầu quay tự nhiên, không bị gãy cổ nếu góc quá gắt
-                _animator.SetLookAtWeight(1f, 0.2f, 1f, 1f, 0.5f);
-                _animator.SetLookAtPosition(lookAtPosition);
-            }
+            Vector3 lookAtPosition = _mainCamera.transform.position
+                                   + _mainCamera.transform.forward * 100f;
+
+            // RE style: body weight thấp vì cơ thể đã xoay theo HandleRotation
+            // head weight cao để pitch (nhìn lên/xuống) vẫn hoạt động
+            _animator.SetLookAtWeight(
+                1f,     // globalWeight
+                0.05f,  // bodyWeight  — gần 0 vì HandleRotation đã lo phần yaw
+                1f,     // headWeight  — đầu xử lý pitch (nhìn lên/xuống)
+                0.5f,   // eyesWeight
+                0.5f    // clampWeight
+            );
+            _animator.SetLookAtPosition(lookAtPosition);
         }
 
         private void JumpAndGravity()
@@ -300,20 +277,20 @@ namespace StarterAssets
                     _animator.SetBool(_animIDFreeFall, false);
                 }
 
-                if (_verticalVelocity < 0.0f) _verticalVelocity = -2f;
+                if (_verticalVelocity < 0f) _verticalVelocity = -2f;
 
-                if (_input.jump && _jumpTimeoutDelta <= 0.0f)
+                if (_input.jump && _jumpTimeoutDelta <= 0f)
                 {
                     _verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);
                     if (_hasAnimator) _animator.SetBool(_animIDJump, true);
                 }
 
-                if (_jumpTimeoutDelta >= 0.0f) _jumpTimeoutDelta -= Time.deltaTime;
+                if (_jumpTimeoutDelta >= 0f) _jumpTimeoutDelta -= Time.deltaTime;
             }
             else
             {
                 _jumpTimeoutDelta = JumpTimeout;
-                if (_fallTimeoutDelta >= 0.0f) _fallTimeoutDelta -= Time.deltaTime;
+                if (_fallTimeoutDelta >= 0f) _fallTimeoutDelta -= Time.deltaTime;
                 else if (_hasAnimator) _animator.SetBool(_animIDFreeFall, true);
                 _input.jump = false;
             }
@@ -322,45 +299,40 @@ namespace StarterAssets
                 _verticalVelocity += Gravity * Time.deltaTime;
         }
 
-        private static float ClampAngle(float lfAngle, float lfMin, float lfMax)
+        private static float ClampAngle(float angle, float min, float max)
         {
-            if (lfAngle < -360f) lfAngle += 360f;
-            if (lfAngle > 360f) lfAngle -= 360f;
-            return Mathf.Clamp(lfAngle, lfMin, lfMax);
+            if (angle < -360f) angle += 360f;
+            if (angle > 360f) angle -= 360f;
+            return Mathf.Clamp(angle, min, max);
         }
 
-        // Gọi hàm này để bắt đầu tiến trình xoay mượt
+        // Giữ lại để dùng khi interact / nhặt đồ
         public void SmoothFaceCameraDirection()
         {
             StartCoroutine(SmoothTurnRoutine());
         }
 
-        // Tiến trình chạy ngầm giúp nhân vật xoay từ từ
         private System.Collections.IEnumerator SmoothTurnRoutine()
         {
             float time = 0f;
-            float duration = 0.15f; // Thời gian xoay (0.15 giây là vừa đủ nhanh để nhặt đồ)
-
+            float duration = 0.15f;
             Quaternion startRot = transform.rotation;
             Quaternion targetRot = Quaternion.Euler(0f, _cameraTargetYaw, 0f);
 
-            // Bắt đầu nội suy góc xoay
             while (time < duration)
             {
                 transform.rotation = Quaternion.Slerp(startRot, targetRot, time / duration);
                 time += Time.deltaTime;
-                yield return null; // Đợi khung hình tiếp theo
+                yield return null;
             }
-
-            // Ép chuẩn góc cuối cùng để không bị sai số
             transform.rotation = targetRot;
         }
 
         private void OnDrawGizmosSelected()
         {
-            Color transparentGreen = new Color(0.0f, 1.0f, 0.0f, 0.35f);
-            Color transparentRed = new Color(1.0f, 0.0f, 0.0f, 0.35f);
-            Gizmos.color = Grounded ? transparentGreen : transparentRed;
+            Gizmos.color = Grounded
+                ? new Color(0f, 1f, 0f, 0.35f)
+                : new Color(1f, 0f, 0f, 0.35f);
             Gizmos.DrawSphere(
                 new Vector3(transform.position.x, transform.position.y - GroundedOffset, transform.position.z),
                 GroundedRadius
