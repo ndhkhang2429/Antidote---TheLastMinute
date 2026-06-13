@@ -66,7 +66,9 @@ public class ButtonHoverText : MonoBehaviour, IPointerEnterHandler, IPointerExit
 
         while (elapsed < fadeDuration)
         {
-            elapsed += Time.deltaTime;
+            // SỬA TẠI ĐÂY: Đổi deltaTime thành unscaledDeltaTime
+            elapsed += Time.unscaledDeltaTime;
+
             float t = Mathf.Clamp01(elapsed / fadeDuration);
             t = 1f - (1f - t) * (1f - t); // ease out
             SetBarAlpha(Mathf.Lerp(startA, targetA, t));
