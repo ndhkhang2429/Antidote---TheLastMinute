@@ -56,7 +56,12 @@ public class PlayerGunAnimator : MonoBehaviour
 
     private void HandleShooting()
     {
-        if (!_input.shoot) return;
+        // Xóa animation thừa khi buông chuột
+        if (!_input.shoot)
+        {
+            if (_animator != null) _animator.ResetTrigger(_hashShoot);
+            return;
+        }
 
         var currentWeapon = GetCurrentWeapon();
 
@@ -72,6 +77,14 @@ public class PlayerGunAnimator : MonoBehaviour
             if (_animator != null) _animator.SetTrigger(_hashShoot);
 
             ExecuteShoot(currentWeapon);
+
+            // --- CƠ CHẾ ĐỔI KIỂU BẮN THÔNG MINH ---
+            // Nếu khẩu súng hiện tại là súng lục/shotgun (isAutomatic = false)
+            // Ép hệ thống tự nhả cò súng. Người chơi phải click chuột lần nữa mới bắn được viên tiếp theo.
+            if (!currentWeapon.isAutomatic)
+            {
+                _input.shoot = false;
+            }
         }
     }
 

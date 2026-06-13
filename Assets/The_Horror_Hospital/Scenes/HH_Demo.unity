@@ -109857,6 +109857,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   testWeaponData: {fileID: 11400000, guid: 7a56f7ed7c9d3224b86588ae8f970a60, type: 2}
+  bulletSpread: 0.02
 --- !u!114 &1395250604
 MonoBehaviour:
   m_ObjectHideFlags: 0

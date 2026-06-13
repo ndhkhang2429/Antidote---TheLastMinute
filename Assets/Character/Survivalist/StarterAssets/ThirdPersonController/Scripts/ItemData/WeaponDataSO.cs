@@ -22,6 +22,9 @@ public class WeaponDataSO : ItemDataSO // Kế thừa từ ItemDataSO gốc củ
     public float bulletSpeed = 50f;    // Tốc độ bay của đạn
     public GameObject muzzleFlashPrefab; // Hiệu ứng tia lửa đầu nòng
 
+    [Tooltip("Tick chọn nếu là súng Liên thanh (AKM). Bỏ tick nếu là súng bắn Phát một (Pistol, Shotgun).")]
+    public bool isAutomatic = true;
+
     [Header("Melee Combat (Dành cho Cận chiến)")]
     public float cooldown = 0.5f;      // Thời gian chờ giữa các đòn đánh
     public int comboSteps = 3;

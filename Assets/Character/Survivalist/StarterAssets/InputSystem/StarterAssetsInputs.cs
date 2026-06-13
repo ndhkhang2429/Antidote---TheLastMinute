@@ -83,8 +83,15 @@ namespace StarterAssets
 			sprint = newSprintState;
 		}
 
-        public void OnShoot(InputValue value) => ShootInput(value.Get<float>() > 0.5f);
-        public void ShootInput(bool v) => shoot = v;
+        public void OnShoot(InputValue value)
+        {
+            ShootInput(value.isPressed);
+        }
+
+        public void ShootInput(bool v)
+        {
+            shoot = v;
+        }
 
         public void OnAim(InputValue value)
         {
