@@ -29,19 +29,19 @@ public class ItemDataSO : ScriptableObject
     public GameObject worldPrefab;   // prefab rơi ra ngoài world
 
     [Header("Equip Models")]
-    // Prefab này là model đã căn chỉnh góc xoay/vị trí chuẩn để cầm trên tay
     public GameObject equipPrefab;
 
     [TextArea] public string description;
 
     [Header("Category")]
     public ItemCategory category;
-    public WeaponSlotType weaponSlotType; // chỉ dùng nếu category == Weapon/Grenade
+    public WeaponSlotType weaponSlotType;
 
     [Header("Stack & Weight")]
     public int maxStack = 1;
-    public int weightPerUnit = 0; // chỉ Grenade/Consumable/Ammo/QuestItem mới > 0
+    // --- ĐÃ CHUYỂN SANG FLOAT ĐỂ NHẬN SỐ THẬP PHÂN ---
+    public float weightPerUnit = 0f;
 
     [Header("Pickup")]
-    public bool autoEquip = false; // tự trang bị khi nhặt (balo, giáp...)
+    public bool autoEquip = false;
 }

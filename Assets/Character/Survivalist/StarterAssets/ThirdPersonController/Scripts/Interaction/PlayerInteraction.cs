@@ -154,7 +154,11 @@ public class PlayerInteraction : MonoBehaviour
             string name = worldItem.itemData is FuseItemDataSO f
                 ? $"Cầu chì [{f.fuseID}]"
                 : worldItem.itemData.itemName;
-            InteractionUIManager.Instance.ShowPrompt($"[F] Nhặt {name}");
+
+            // THÊM DÒNG NÀY: Nếu số lượng > 1 thì hiện thêm chữ (x30)
+            string qtyText = worldItem.quantity > 1 ? $" (x{worldItem.quantity})" : "";
+
+            InteractionUIManager.Instance.ShowPrompt($"[F] Nhặt {name}{qtyText}");
             return true;
         }
 
@@ -286,6 +290,10 @@ public class PlayerInteraction : MonoBehaviour
         }
         else
         {
+            if (NotificationUI.Instance != null)
+            {
+                NotificationUI.Instance.ShowNotification("Balo đã đầy!");
+            }
             Debug.Log("[PlayerInteraction] Balo đầy hoặc không nhặt được!");
         }
 

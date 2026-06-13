@@ -17,6 +17,7 @@ public class WeaponDataSO : ItemDataSO // Kế thừa từ ItemDataSO gốc củ
     [Header("Ranged Combat (Dành cho Súng)")]
     public float fireRate = 0.2f;      // Thời gian trễ giữa 2 phát bắn
     public int magazineSize = 30;      // Sức chứa của 1 băng đạn
+    public float reloadTime = 2.0f;
     public ItemDataSO compatibleAmmo;  // SO của loại đạn dùng để nạp (vd: đạn 5.56mm)
     public GameObject bulletPrefab;    // Viên đạn vật lý sẽ bay ra
     public float bulletSpeed = 50f;    // Tốc độ bay của đạn

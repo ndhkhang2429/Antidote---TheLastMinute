@@ -1,4 +1,5 @@
-﻿using StarterAssets;
+﻿using System.Collections;
+using StarterAssets;
 using UnityEngine;
 
 public class PlayerGunAnimator : MonoBehaviour
@@ -9,16 +10,12 @@ public class PlayerGunAnimator : MonoBehaviour
     private Camera _mainCamera;
 
     [Header("Shooting Setup")]
-    public Transform gunBarrel; // VỊ TRÍ NÒNG SÚNG (FirePoint)
     public LayerMask aimColliderLayerMask;
 
-    [Header("Test Vũ Khí Trực Tiếp")]
-    public WeaponDataSO testWeaponData;
+    // BIẾN NÀY SẼ TỰ ĐỘNG TÌM CÂY SÚNG ĐANG ĐƯỢC BẬT TRÊN TAY
+    private WeaponInstance _activeWeapon;
 
-    [Header("Recoil / Spread")]
-    [Tooltip("Độ tản mát của đạn. Ví dụ: 0.02 là giật nhẹ, 0.1 là giật mạnh bóp cò bay lung tung.")]
-    public float bulletSpread = 0.02f;
-
+    private bool _isReloading = false;
     private float _nextFireTime = 0f;
     private int _hashShoot;
     private int _hashReload;
@@ -33,104 +30,132 @@ public class PlayerGunAnimator : MonoBehaviour
         _hashReload = Animator.StringToHash("Reload");
     }
 
-    private WeaponDataSO GetCurrentWeapon()
-    {
-        // Vẫn đang dùng vũ khí test trực tiếp để thử nghiệm
-        return testWeaponData;
-    }
-
     void Update()
     {
-        HandleAnimations();
+        // Tự động tìm xem nhân vật đang cầm khẩu súng nào (mô hình 3D nào đang Active)
+        _activeWeapon = GetComponentInChildren<WeaponInstance>();
+
+        if (_isReloading || _activeWeapon == null) return;
+
+        HandleReload();
         HandleShooting();
     }
 
-    private void HandleAnimations()
+    private void HandleReload()
     {
-        if (_input.reload)
+        var data = _activeWeapon.weaponData;
+
+        // Bấm R và súng chưa đầy đạn
+        if (_input.reload && _activeWeapon.currentAmmo < data.magazineSize)
         {
-            if (_animator != null) _animator.SetTrigger(_hashReload);
-            _input.reload = false;
+            StartCoroutine(ReloadRoutine());
         }
+    }
+
+    private IEnumerator ReloadRoutine()
+    {
+        var data = _activeWeapon.weaponData;
+        var inv = InventorySystem.Instance;
+
+        if (inv == null || data.compatibleAmmo == null) yield break;
+
+        int totalAmmoInBackpack = inv.CountItem(data.compatibleAmmo);
+        if (totalAmmoInBackpack <= 0)
+        {
+            Debug.Log("❌ Balo rỗng! Không có đạn để nạp.");
+            _input.reload = false;
+            yield break;
+        }
+
+        _isReloading = true;
+        _input.reload = false;
+
+        if (_animator != null) _animator.SetTrigger(_hashReload);
+        Debug.Log($"🔄 Đang thay đạn cho {data.itemName}...");
+
+        yield return new WaitForSeconds(data.reloadTime);
+
+        // TÍNH TOÁN ĐẠN CHO CÂY SÚNG HIỆN TẠI
+        int bulletsNeeded = data.magazineSize - _activeWeapon.currentAmmo;
+        int bulletsToReload = Mathf.Min(bulletsNeeded, totalAmmoInBackpack);
+
+        _activeWeapon.currentAmmo += bulletsToReload;
+        inv.RemoveItem(data.compatibleAmmo, bulletsToReload);
+
+        Debug.Log($"✅ Nạp xong! Đạn trong súng: {_activeWeapon.currentAmmo}");
+        _isReloading = false;
     }
 
     private void HandleShooting()
     {
-        // Xóa animation thừa khi buông chuột
         if (!_input.shoot)
         {
             if (_animator != null) _animator.ResetTrigger(_hashShoot);
             return;
         }
 
-        var currentWeapon = GetCurrentWeapon();
-
-        if (currentWeapon == null || currentWeapon.combatType != CombatType.Firearm)
+        var data = _activeWeapon.weaponData;
+        if (data.combatType != CombatType.Firearm)
         {
+            _input.shoot = false;
+            return;
+        }
+
+        if (_activeWeapon.currentAmmo <= 0)
+        {
+            Debug.Log("❌ Tạch tạch! Hết đạn rồi!");
             _input.shoot = false;
             return;
         }
 
         if (Time.time >= _nextFireTime)
         {
-            _nextFireTime = Time.time + currentWeapon.fireRate;
+            _nextFireTime = Time.time + data.fireRate;
             if (_animator != null) _animator.SetTrigger(_hashShoot);
 
-            ExecuteShoot(currentWeapon);
+            ExecuteShoot();
 
-            // --- CƠ CHẾ ĐỔI KIỂU BẮN THÔNG MINH ---
-            // Nếu khẩu súng hiện tại là súng lục/shotgun (isAutomatic = false)
-            // Ép hệ thống tự nhả cò súng. Người chơi phải click chuột lần nữa mới bắn được viên tiếp theo.
-            if (!currentWeapon.isAutomatic)
-            {
-                _input.shoot = false;
-            }
+            if (!data.isAutomatic) _input.shoot = false;
         }
     }
 
-    private void ExecuteShoot(WeaponDataSO weaponData)
+    private void ExecuteShoot()
     {
-        if (weaponData.bulletPrefab == null || gunBarrel == null) return;
+        var data = _activeWeapon.weaponData;
 
-        // 1. TÌM ĐIỂM NGẮM TỪ CAMERA
+        if (data.bulletPrefab == null || _activeWeapon.gunBarrel == null) return;
+
+        // TRỪ ĐẠN TRỰC TIẾP TRÊN CÂY SÚNG ĐÓ
+        _activeWeapon.currentAmmo--;
+        Debug.Log($"💥 Đùng! Súng còn: {_activeWeapon.currentAmmo} viên");
+
         Vector2 screenCenterPoint = new Vector2(Screen.width / 2f, Screen.height / 2f);
         Ray ray = _mainCamera.ScreenPointToRay(screenCenterPoint);
         Vector3 targetPoint = Physics.Raycast(ray, out RaycastHit hit, 999f, aimColliderLayerMask)
                               ? hit.point : ray.GetPoint(100f);
 
-        // 2. SINH RA VIÊN ĐẠN
-        GameObject bulletObj = Instantiate(weaponData.bulletPrefab, gunBarrel.position, Quaternion.identity);
+        GameObject bulletObj = Instantiate(data.bulletPrefab, _activeWeapon.gunBarrel.position, Quaternion.identity);
 
-        // --- TÍNH TOÁN HƯỚNG BẮN CÓ ĐỘ LỆCH (SPREAD) ---
-        Vector3 originalDirection = (targetPoint - gunBarrel.position).normalized;
+        Vector3 originalDirection = (targetPoint - _activeWeapon.gunBarrel.position).normalized;
 
-        // Tạo ra một vector nhiễu ngẫu nhiên
+        // Lấy độ giật từ cây súng hiện tại
+        float spread = _activeWeapon.bulletSpread;
         Vector3 randomSpread = new Vector3(
-            Random.Range(-bulletSpread, bulletSpread),
-            Random.Range(-bulletSpread, bulletSpread),
-            Random.Range(-bulletSpread, bulletSpread)
+            Random.Range(-spread, spread),
+            Random.Range(-spread, spread),
+            Random.Range(-spread, spread)
         );
 
-        // Cộng độ nhiễu vào hướng bắn gốc
         Vector3 shootDirection = (originalDirection + randomSpread).normalized;
-
         bulletObj.transform.forward = shootDirection;
 
-        // 3. XỬ LÝ VẬT LÝ VÀ SÁT THƯƠNG
         if (bulletObj.TryGetComponent<BulletProjectile>(out BulletProjectile bulletScript))
-        {
-            bulletScript.SetupBullet(weaponData.damage);
-        }
+            bulletScript.SetupBullet(data.damage);
 
         if (bulletObj.TryGetComponent<Rigidbody>(out Rigidbody bulletRb))
-        {
-            bulletRb.AddForce(shootDirection * weaponData.bulletSpeed, ForceMode.Impulse);
-        }
+            bulletRb.AddForce(shootDirection * data.bulletSpeed, ForceMode.Impulse);
 
-        // 4. TẠO TIA LỬA ĐẦU NÒNG
-        if (weaponData.muzzleFlashPrefab != null)
-        {
-            Instantiate(weaponData.muzzleFlashPrefab, gunBarrel.position, gunBarrel.rotation);
-        }
+        if (data.muzzleFlashPrefab != null)
+            Instantiate(data.muzzleFlashPrefab, _activeWeapon.gunBarrel.position, _activeWeapon.gunBarrel.rotation);
     }
 }

@@ -7,7 +7,8 @@ public class InventorySystem : MonoBehaviour
     public static InventorySystem Instance { get; private set; }
 
     [Header("Backpack — mặc định có sẵn, không cần loot")]
-    [SerializeField] private int _defaultCapacity = 150;
+    // --- ĐỔI SANG FLOAT ---
+    [SerializeField] private float _defaultCapacity = 150f;
 
     [Header("Weapon Slots (0=Rifle, 1=Pistol, 2=Melee, 3=Grenade)")]
     public InventorySlot[] weaponSlots = new InventorySlot[4];
@@ -23,12 +24,13 @@ public class InventorySystem : MonoBehaviour
     public int activeSlot = -1;
     public int activeWeaponSlot = -1;
 
-    public int MaxCapacity => _defaultCapacity;
-    public int UsedCapacity
+    // --- CÁC BIẾN SỨC CHỨA CHUYỂN SANG FLOAT ---
+    public float MaxCapacity => _defaultCapacity;
+    public float UsedCapacity
     {
         get
         {
-            int used = 0;
+            float used = 0f;
             foreach (var slot in itemSlots)
                 if (!slot.IsEmpty)
                     used += slot.item.weightPerUnit * slot.quantity;
@@ -57,7 +59,6 @@ public class InventorySystem : MonoBehaviour
     {
         Debug.Log($"[Inventory] Sẵn sàng | Sức chứa: {MaxCapacity}");
 
-        // TỰ ĐỘNG CHỌN SÚNG NẾU ĐÃ GẮN SẴN TRONG INSPECTOR (HỖ TRỢ TEST)
         for (int i = 0; i < weaponSlots.Length; i++)
         {
             if (weaponSlots[i] != null && !weaponSlots[i].IsEmpty)
@@ -103,13 +104,18 @@ public class InventorySystem : MonoBehaviour
         _ => -1
     };
 
+    // --- CẬP NHẬT TÍNH TOÁN FLOAT TẠI ĐÂY ---
     public bool TryAddToGrid(ItemDataSO item, int amount)
     {
-        if (item.weightPerUnit <= 0) return AddToSlots(item, amount);
-        int freeCapacity = MaxCapacity - UsedCapacity;
-        if (freeCapacity <= 0) return false;
-        int canFit = freeCapacity / item.weightPerUnit;
+        if (item.weightPerUnit <= 0f) return AddToSlots(item, amount);
+
+        float freeCapacity = MaxCapacity - UsedCapacity;
+        if (freeCapacity <= 0f) return false;
+
+        // Tính toán số lượng tối đa có thể nhét vừa khoảng trống (Làm tròn xuống)
+        int canFit = Mathf.FloorToInt(freeCapacity / item.weightPerUnit);
         if (canFit <= 0) return false;
+
         return AddToSlots(item, Mathf.Min(amount, canFit));
     }
 

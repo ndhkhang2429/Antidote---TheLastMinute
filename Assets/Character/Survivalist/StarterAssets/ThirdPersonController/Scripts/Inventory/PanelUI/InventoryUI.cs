@@ -122,8 +122,8 @@ public class InventoryUI : MonoBehaviour
         var inv = InventorySystem.Instance;
         if (inv != null && capacityText != null)
         {
-            int current = inv.UsedCapacity;
-            int max = inv.MaxCapacity;
+            float current = inv.UsedCapacity;
+            float max = inv.MaxCapacity;
 
             // Cập nhật text hiển thị
             capacityText.text = $"{current} / {max}";

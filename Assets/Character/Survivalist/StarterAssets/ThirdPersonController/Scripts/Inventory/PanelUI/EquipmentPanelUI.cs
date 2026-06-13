@@ -13,8 +13,8 @@ public class EquipmentPanelUI : MonoBehaviour
         var inv = InventorySystem.Instance;
         if (inv == null) return;
 
-        int max = inv.MaxCapacity;
-        int used = inv.UsedCapacity;
+        float max = inv.MaxCapacity;
+        float used = inv.UsedCapacity;
 
         if (capacityBar != null)
         {
