@@ -9,11 +9,15 @@ public class PlayerGunAnimator : MonoBehaviour
     private Camera _mainCamera;
 
     [Header("Shooting Setup")]
-    public Transform gunBarrel; // VỊ TRÍ NÒNG SÚNG (Kéo FirePoint vào đây)
+    public Transform gunBarrel; // VỊ TRÍ NÒNG SÚNG (FirePoint)
     public LayerMask aimColliderLayerMask;
 
     [Header("Test Vũ Khí Trực Tiếp")]
     public WeaponDataSO testWeaponData;
+
+    [Header("Recoil / Spread")]
+    [Tooltip("Độ tản mát của đạn. Ví dụ: 0.02 là giật nhẹ, 0.1 là giật mạnh bóp cò bay lung tung.")]
+    public float bulletSpread = 0.02f;
 
     private float _nextFireTime = 0f;
     private int _hashShoot;
@@ -29,11 +33,9 @@ public class PlayerGunAnimator : MonoBehaviour
         _hashReload = Animator.StringToHash("Reload");
     }
 
-    // Tự động lấy vũ khí đang cầm từ Inventory
     private WeaponDataSO GetCurrentWeapon()
     {
-        //if (InventorySystem.Instance == null) return null;
-        //var heldItem = InventorySystem.Instance.GetHeldItem();
+        // Vẫn đang dùng vũ khí test trực tiếp để thử nghiệm
         return testWeaponData;
     }
 
@@ -54,41 +56,28 @@ public class PlayerGunAnimator : MonoBehaviour
 
     private void HandleShooting()
     {
+        if (!_input.shoot) return;
+
         var currentWeapon = GetCurrentWeapon();
 
-        // Kiểm tra: Có đang cầm súng không?
-        if (currentWeapon != null && currentWeapon.combatType == CombatType.Firearm)
+        if (currentWeapon == null || currentWeapon.combatType != CombatType.Firearm)
         {
-            if (_input.shoot && Time.time >= _nextFireTime)
-            {
-                _nextFireTime = Time.time + currentWeapon.fireRate;
-                if (_animator != null) _animator.SetTrigger(_hashShoot);
-
-                ExecuteShoot(currentWeapon);
-            }
-        }
-        else if (_input.shoot)
-        {
-            // Trả lại input.shoot = false nếu không cầm súng để PlayerAttack xử lý đấm
             _input.shoot = false;
+            return;
+        }
+
+        if (Time.time >= _nextFireTime)
+        {
+            _nextFireTime = Time.time + currentWeapon.fireRate;
+            if (_animator != null) _animator.SetTrigger(_hashShoot);
+
+            ExecuteShoot(currentWeapon);
         }
     }
 
     private void ExecuteShoot(WeaponDataSO weaponData)
     {
-        // === KIỂM TRA LỖI TẬN GỐC ===
-        if (weaponData.bulletPrefab == null)
-        {
-            Debug.LogError("❌ LỖI: Chưa kéo Prefab Viên Đạn vào file Vũ Khí SO (" + weaponData.itemName + ")!");
-            return; // Dừng lại ngay lập tức
-        }
-        if (gunBarrel == null)
-        {
-            Debug.LogError("❌ LỖI: Chưa kéo FirePoint vào ô Gun Barrel trên script Player Gun Animator!");
-            return; // Dừng lại ngay lập tức
-        }
-
-        Debug.Log("✅ Đang sinh ra viên đạn...");
+        if (weaponData.bulletPrefab == null || gunBarrel == null) return;
 
         // 1. TÌM ĐIỂM NGẮM TỪ CAMERA
         Vector2 screenCenterPoint = new Vector2(Screen.width / 2f, Screen.height / 2f);
@@ -99,9 +88,22 @@ public class PlayerGunAnimator : MonoBehaviour
         // 2. SINH RA VIÊN ĐẠN
         GameObject bulletObj = Instantiate(weaponData.bulletPrefab, gunBarrel.position, Quaternion.identity);
 
-        Vector3 shootDirection = (targetPoint - gunBarrel.position).normalized;
+        // --- TÍNH TOÁN HƯỚNG BẮN CÓ ĐỘ LỆCH (SPREAD) ---
+        Vector3 originalDirection = (targetPoint - gunBarrel.position).normalized;
+
+        // Tạo ra một vector nhiễu ngẫu nhiên
+        Vector3 randomSpread = new Vector3(
+            Random.Range(-bulletSpread, bulletSpread),
+            Random.Range(-bulletSpread, bulletSpread),
+            Random.Range(-bulletSpread, bulletSpread)
+        );
+
+        // Cộng độ nhiễu vào hướng bắn gốc
+        Vector3 shootDirection = (originalDirection + randomSpread).normalized;
+
         bulletObj.transform.forward = shootDirection;
 
+        // 3. XỬ LÝ VẬT LÝ VÀ SÁT THƯƠNG
         if (bulletObj.TryGetComponent<BulletProjectile>(out BulletProjectile bulletScript))
         {
             bulletScript.SetupBullet(weaponData.damage);
@@ -112,7 +114,7 @@ public class PlayerGunAnimator : MonoBehaviour
             bulletRb.AddForce(shootDirection * weaponData.bulletSpeed, ForceMode.Impulse);
         }
 
-        // 3. TẠO TIA LỬA (Muzzle Flash)
+        // 4. TẠO TIA LỬA ĐẦU NÒNG
         if (weaponData.muzzleFlashPrefab != null)
         {
             Instantiate(weaponData.muzzleFlashPrefab, gunBarrel.position, gunBarrel.rotation);
