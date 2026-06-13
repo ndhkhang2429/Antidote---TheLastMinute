@@ -152,10 +152,18 @@ public class ItemSlotUI : MonoBehaviour,
                     }
                     else
                     {
-                        // Nếu đang cố tráo Đèn pin với Súng AK, hệ thống sẽ đẩy đèn pin 
-                        // vào 1 ô trống tự động thay vì cố swap, chống lỗi mất đồ.
-                        bool canAdd = inv.TryAddToGrid(itemFromSlot5, qtyFromSlot5);
-                        if (canAdd) inv.ClearItemSlot();
+                        // --- ĐÃ FIX: Chuyển sang dùng int leftover ---
+                        int leftover = inv.TryAddToGrid(itemFromSlot5, qtyFromSlot5);
+
+                        if (leftover == 0)
+                        {
+                            inv.ClearItemSlot(); // Đã cất hết vào balo
+                        }
+                        else
+                        {
+                            // Cập nhật lại số lượng còn dư trên tay (Slot 5)
+                            inv.heldItemSlot.quantity = leftover;
+                        }
                     }
                 }
                 inv.NotifyInventoryChanged();

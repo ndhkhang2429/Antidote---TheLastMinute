@@ -7,7 +7,6 @@ public class InventorySystem : MonoBehaviour
     public static InventorySystem Instance { get; private set; }
 
     [Header("Backpack — mặc định có sẵn, không cần loot")]
-    // --- ĐỔI SANG FLOAT ---
     [SerializeField] private float _defaultCapacity = 150f;
 
     [Header("Weapon Slots (0=Rifle, 1=Pistol, 2=Melee, 3=Grenade)")]
@@ -24,7 +23,6 @@ public class InventorySystem : MonoBehaviour
     public int activeSlot = -1;
     public int activeWeaponSlot = -1;
 
-    // --- CÁC BIẾN SỨC CHỨA CHUYỂN SANG FLOAT ---
     public float MaxCapacity => _defaultCapacity;
     public float UsedCapacity
     {
@@ -71,13 +69,16 @@ public class InventorySystem : MonoBehaviour
         OnInventoryChanged?.Invoke();
     }
 
-    public bool PickupItem(ItemDataSO item, int amount = 1)
+    // Trả về số lượng còn dư (nếu nhặt xong dư 0 là nhặt sạch)
+    public int PickupItem(ItemDataSO item, int amount = 1)
     {
-        if (item == null) return false;
+        if (item == null) return amount;
         switch (item.category)
         {
-            case ItemCategory.Equipment: return false;
-            case ItemCategory.Weapon: return TryEquipWeapon(item as WeaponDataSO);
+            case ItemCategory.Equipment: return amount;
+            case ItemCategory.Weapon:
+                bool equipped = TryEquipWeapon(item as WeaponDataSO);
+                return equipped ? (amount - 1) : amount;
             default: return TryAddToGrid(item, amount);
         }
     }
@@ -104,24 +105,29 @@ public class InventorySystem : MonoBehaviour
         _ => -1
     };
 
-    // --- CẬP NHẬT TÍNH TOÁN FLOAT TẠI ĐÂY ---
-    public bool TryAddToGrid(ItemDataSO item, int amount)
+    public int TryAddToGrid(ItemDataSO item, int amount)
     {
         if (item.weightPerUnit <= 0f) return AddToSlots(item, amount);
 
         float freeCapacity = MaxCapacity - UsedCapacity;
-        if (freeCapacity <= 0f) return false;
 
-        // Tính toán số lượng tối đa có thể nhét vừa khoảng trống (Làm tròn xuống)
+        if (freeCapacity <= 0f) return amount;
+
         int canFit = Mathf.FloorToInt(freeCapacity / item.weightPerUnit);
-        if (canFit <= 0) return false;
+        if (canFit <= 0) return amount;
 
-        return AddToSlots(item, Mathf.Min(amount, canFit));
+        int amountToTry = Mathf.Min(amount, canFit);
+        int leftoverFromWeight = amount - amountToTry;
+
+        int leftoverFromSlots = AddToSlots(item, amountToTry);
+
+        return leftoverFromWeight + leftoverFromSlots;
     }
 
-    bool AddToSlots(ItemDataSO item, int amount)
+    int AddToSlots(ItemDataSO item, int amount)
     {
         int remaining = amount;
+
         foreach (var slot in itemSlots)
         {
             if (!slot.IsEmpty && slot.item == item && !slot.IsFull)
@@ -130,6 +136,7 @@ public class InventorySystem : MonoBehaviour
                 if (remaining == 0) break;
             }
         }
+
         while (remaining > 0 && itemSlots.Count < maxItemSlots)
         {
             var newSlot = new InventorySlot();
@@ -137,14 +144,15 @@ public class InventorySystem : MonoBehaviour
             remaining = newSlot.Add(remaining);
             itemSlots.Add(newSlot);
         }
+
         if (remaining < amount)
         {
             if (!heldItemSlot.IsEmpty && heldItemSlot.item == item)
                 heldItemSlot.quantity = CountItem(item);
             OnInventoryChanged?.Invoke();
-            return true;
         }
-        return false;
+
+        return remaining;
     }
 
     public bool RemoveItem(ItemDataSO item, int amount = 1)
@@ -205,7 +213,9 @@ public class InventorySystem : MonoBehaviour
         bool wasCleared = false;
         if (fromGridSlot.quantity <= 0) { fromGridSlot.Clear(); wasCleared = true; }
 
-        if (TryAddToGrid(oldItem, oldQty))
+        // --- ĐÃ FIX: Chuyển int sang điều kiện so sánh ---
+        int leftover = TryAddToGrid(oldItem, oldQty);
+        if (leftover == 0)
         {
             grenadeSlot.Set(draggedItem, 1);
             OnInventoryChanged?.Invoke();
@@ -213,8 +223,16 @@ public class InventorySystem : MonoBehaviour
         }
         else
         {
+            // Trả lại phần dư nếu không thể hoán đổi
             if (wasCleared) fromGridSlot.Set(draggedItem, 1);
             else fromGridSlot.quantity += 1;
+
+            // Xóa bớt phần đã lỡ thêm vào Grid (Rollback) để tránh nhân bản item
+            if (leftover < oldQty)
+            {
+                int addedAccidentally = oldQty - leftover;
+                RemoveItem(oldItem, addedAccidentally);
+            }
             return false;
         }
     }
@@ -241,7 +259,9 @@ public class InventorySystem : MonoBehaviour
         bool wasCleared = false;
         if (fromGridSlot.quantity <= 0) { fromGridSlot.Clear(); wasCleared = true; }
 
-        if (TryAddToGrid(oldItem, oldQty))
+        // --- ĐÃ FIX: Chuyển int sang điều kiện so sánh ---
+        int leftover = TryAddToGrid(oldItem, oldQty);
+        if (leftover == 0)
         {
             heldItemSlot.Set(draggedItem, 1);
             OnHeldItemChanged?.Invoke(heldItemSlot.item);
@@ -252,6 +272,12 @@ public class InventorySystem : MonoBehaviour
         {
             if (wasCleared) fromGridSlot.Set(draggedItem, 1);
             else fromGridSlot.quantity += 1;
+
+            if (leftover < oldQty)
+            {
+                int addedAccidentally = oldQty - leftover;
+                RemoveItem(oldItem, addedAccidentally);
+            }
             return false;
         }
     }

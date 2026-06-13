@@ -274,27 +274,54 @@ public class PlayerInteraction : MonoBehaviour
         }
 
         ItemDataSO data = worldItem.itemData;
-        int qty = worldItem.quantity;
+        int initialQty = worldItem.quantity;
 
         ClearCurrentTarget();
 
-        bool picked = InventorySystem.Instance != null
-                   && InventorySystem.Instance.PickupItem(data, qty);
-
-        if (picked)
+        // 1. NHẶT VÀ LẤY SỐ LƯỢNG DƯ
+        int leftover = initialQty;
+        if (InventorySystem.Instance != null)
         {
-            itemToPickUp.GetComponent<Collider>().enabled = false;
-            Destroy(itemToPickUp);
+            leftover = InventorySystem.Instance.PickupItem(data, initialQty);
+        }
+
+        // Tính số lượng thực tế đã nhét vào Balo
+        int pickedAmount = initialQty - leftover;
+
+        // 2. XỬ LÝ LOGIC HIỂN THỊ VÀ HỘP ĐẠN
+        if (pickedAmount > 0)
+        {
             OnItemPickedUp?.Raise();
-            Debug.Log($"[PlayerInteraction] Đã nhặt: {data.itemName} x{qty}");
+
+            if (leftover <= 0)
+            {
+                // Trường hợp 1: Nhặt sạch sẽ -> Xóa hộp đạn
+                itemToPickUp.GetComponent<Collider>().enabled = false;
+                Destroy(itemToPickUp);
+
+                if (NotificationUI.Instance != null)
+                    NotificationUI.Instance.ShowNotification($"Đã nhặt {data.itemName} x{pickedAmount}");
+
+                Debug.Log($"[PlayerInteraction] Nhặt sạch: {data.itemName} x{pickedAmount}");
+            }
+            else
+            {
+                // Trường hợp 2: Balo đầy giữa chừng -> Chỉ nhặt 1 phần, cập nhật số dư cho hộp đạn
+                worldItem.quantity = leftover;
+
+                if (NotificationUI.Instance != null)
+                    NotificationUI.Instance.ShowNotification($"Nhặt {pickedAmount}. Balo đầy, bỏ lại {leftover}!");
+
+                Debug.Log($"[PlayerInteraction] Nhặt {pickedAmount}, dư lại {leftover} viên trên mặt đất.");
+            }
         }
         else
         {
+            // Trường hợp 3: Balo đầy cứng không nhét nổi viên nào
             if (NotificationUI.Instance != null)
-            {
-                NotificationUI.Instance.ShowNotification("Balo đã đầy!");
-            }
-            Debug.Log("[PlayerInteraction] Balo đầy hoặc không nhặt được!");
+                NotificationUI.Instance.ShowNotification("Balo đã đầy cứng!");
+
+            Debug.Log("[PlayerInteraction] Balo đầy, không nhặt được viên nào!");
         }
 
         PlayerState.Instance?.SetPickingUp(false);
