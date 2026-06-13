@@ -22,14 +22,18 @@ MonoBehaviour:
   maxStack: 1
   weightPerUnit: 0
   autoEquip: 0
-  damage: 30
+  combatType: 1
+  damage: 13
+  attachPointName: 
   fireRate: 0
   magazineSize: 0
   compatibleAmmo: {fileID: 0}
-  attachPointName: 
-  comboResetTime: 1.5
-  comboSteps: 3
+  bulletPrefab: {fileID: 0}
+  bulletSpeed: 50
+  muzzleFlashPrefab: {fileID: 0}
   cooldown: 0.8
+  comboSteps: 3
+  comboResetTime: 1.5
   hitDistance: 1.2
   hitHeight: 0.8
   hitRadius: 0.6

@@ -34,29 +34,35 @@ public class FuseSlot : MonoBehaviour
         var inv = InventorySystem.Instance;
         if (inv == null) return;
 
-        // BẮT BUỘC phải đang cầm đúng fuse ở slot 5
-        if (!inv.IsHoldingFuse(correctFuseID))
+        // --- CẬP NHẬT LOGIC KIỂM TRA MỚI CHO ĐỒNG BỘ ---
+        var heldItem = inv.GetHeldItem();
+        bool isHoldingCorrectFuse = heldItem != null
+                                 && heldItem is FuseItemDataSO fuse
+                                 && fuse.fuseID == correctFuseID;
+
+        // BẮT BUỘC phải đang cầm đúng fuse trên tay
+        if (!isHoldingCorrectFuse)
         {
             if (HasFuseInInventory(correctFuseID))
                 InteractionUIManager.Instance?.ShowPrompt(
-                    $"Nhấn [5] để cầm {correctFuseID} trước!");
+                    $"Nhấn phím [5] để cầm {correctFuseID} lên tay trước!");
             else
                 InteractionUIManager.Instance?.ShowPrompt(
-                    $"Cần {correctFuseID} trong inventory!");
+                    $"Cần tìm {correctFuseID} bỏ vào balo!");
             return;
         }
 
-        // Đang cầm đúng → gắn vào
+        // Đang cầm đúng → báo cho Manager xử lý việc gắn và trừ đồ
         if (fusePanelManager != null)
         {
+            // Trả về true nếu gắn thành công (Manager đã tự lo việc trừ item)
             bool success = fusePanelManager.TryInsertHeldFuse(this);
             if (success)
             {
                 InteractionUIManager.Instance?.ShowPrompt(
                     $"Gắn {correctFuseID} thành công!");
-                inv.DeselectAll();
-                if (requiredFuseSO != null && !inv.HasItem(requiredFuseSO))
-                    inv.ClearItemSlot();
+
+                inv.DeselectAll(); // Hạ tay xuống / cất tay không sau khi gắn đồ xong
             }
             else
             {
@@ -93,7 +99,6 @@ public class FuseSlot : MonoBehaviour
         return false;
     }
 
-    // Bọc trong #if để tránh lỗi khi build
 #if UNITY_EDITOR
     void OnDrawGizmosSelected()
     {

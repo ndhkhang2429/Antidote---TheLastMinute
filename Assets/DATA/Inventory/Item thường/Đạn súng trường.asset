@@ -12,12 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e1cce4b68029a74dbfe8a0d8443f1e3, type: 3}
   m_Name: "\u0110\u1EA1n s\xFAng tr\u01B0\u1EDDng"
   m_EditorClassIdentifier: 
-  itemName: 
+  itemName: Ammo_Rifle_556mm
   icon: {fileID: 0}
   worldPrefab: {fileID: 0}
+  equipPrefab: {fileID: 0}
   description: 
-  category: 0
+  category: 4
   weaponSlotType: 0
-  maxStack: 1
-  weightPerUnit: 0
+  maxStack: 60
+  weightPerUnit: 1
   autoEquip: 0

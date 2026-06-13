@@ -32,16 +32,28 @@ public class FusePanelManager : MonoBehaviour
         var inv = InventorySystem.Instance;
         if (inv == null) return false;
 
-        if (!inv.IsHoldingFuse(slot.correctFuseID))
+        // 1. Lấy vật phẩm nhân vật ĐANG CẦM TRÊN TAY
+        var heldItem = inv.GetHeldItem();
+
+        // 2. Kiểm tra xem nó có phải Cầu chì (FuseItemDataSO) không VÀ có đúng ID không
+        bool isHoldingCorrectFuse = heldItem != null
+                                 && heldItem is FuseItemDataSO fuse
+                                 && fuse.fuseID == slot.correctFuseID;
+
+        if (!isHoldingCorrectFuse)
         {
-            NotificationUI.Instance.ShowNotification($"Cần cầm cầu chì loại [{slot.correctFuseID}] trên tay!");
+            if (NotificationUI.Instance != null)
+            {
+                NotificationUI.Instance.ShowNotification($"Cần cầm cầu chì loại [{slot.correctFuseID}] trên tay!");
+            }
             return false;
         }
 
+        // 3. Nếu đúng đồ, tiến hành gắn vào bảng
         bool success = slot.TryInsertFuse(slot.correctFuseID);
         if (success)
         {
-            inv.RemoveItem(inv.heldItemSlot.item, 1);
+            inv.RemoveItem(heldItem, 1); // Trừ vật phẩm khỏi balo/tay
             UpdatePanelState();
         }
         return success;
@@ -55,7 +67,6 @@ public class FusePanelManager : MonoBehaviour
         UpdateIndicatorLights();
     }
 
-    // Đổi thành public để script Cần gạt bên ngoài gọi được
     public bool CheckAllFuses()
     {
         foreach (var slot in allSlots)
@@ -63,7 +74,6 @@ public class FusePanelManager : MonoBehaviour
         return true;
     }
 
-    // Đổi thành public để script Cần gạt bên ngoài gọi được
     public bool CheckAllSwitches()
     {
         if (correctSwitchStates == null || correctSwitchStates.Length == 0) return true;
