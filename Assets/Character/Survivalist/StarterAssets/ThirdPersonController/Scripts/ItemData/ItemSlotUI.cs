@@ -4,7 +4,8 @@ using UnityEngine.UI;
 using TMPro;
 
 public class ItemSlotUI : MonoBehaviour,
-    IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler, IPointerEnterHandler, IPointerExitHandler
+    IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler,
+    IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler
 {
     [Header("Refs")]
     public Image iconImage;
@@ -152,7 +153,6 @@ public class ItemSlotUI : MonoBehaviour,
                     }
                     else
                     {
-                        // --- ĐÃ FIX: Chuyển sang dùng int leftover ---
                         int leftover = inv.TryAddToGrid(itemFromSlot5, qtyFromSlot5);
 
                         if (leftover == 0)
@@ -209,5 +209,28 @@ public class ItemSlotUI : MonoBehaviour,
     {
         if (BoundSlot != null) BoundSlot.Clear();
         Refresh();
+    }
+
+    // ── ĐÃ FIX: Đổi tên hàm thành OnPointerDown ──────────────────────────────
+    public void OnPointerDown(PointerEventData e)
+    {
+        // Kiểm tra cả chuột trái và phải để test
+        if (e.button == PointerEventData.InputButton.Right)
+        {
+            if (BoundSlot != null && !BoundSlot.IsEmpty)
+            {
+                Debug.Log($"[ItemSlotUI] Đã click vào: {BoundSlot.item.itemName} | Loại đồ (Category): {BoundSlot.item.category}");
+
+                // Nếu là đồ hồi máu thì gọi hàm UseItem
+                if (BoundSlot.item.category == ItemCategory.Consumable)
+                {
+                    InventorySystem.Instance.UseItem(BoundSlot);
+                }
+                else
+                {
+                    Debug.Log($"❌ [ItemSlotUI] Không thể sử dụng! Món đồ này là {BoundSlot.item.category}, hệ thống chỉ cho phép dùng Consumable.");
+                }
+            }
+        }
     }
 }

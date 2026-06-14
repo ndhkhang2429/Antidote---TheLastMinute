@@ -354,4 +354,47 @@ public class InventorySystem : MonoBehaviour
             if (!slot.IsEmpty && slot.item == item) count += slot.quantity;
         return count;
     }
+    // --- CƠ CHẾ SỬ DỤNG VẬT PHẨM (MÁU, NƯỚC) ---
+    public void UseItem(InventorySlot slot)
+    {
+        if (slot == null || slot.IsEmpty) return;
+
+        // Chỉ cho phép dùng nếu nó thuộc Category Consumable
+        if (slot.item.category != ItemCategory.Consumable) return;
+
+        ConsumableDataSO consumable = slot.item as ConsumableDataSO;
+        if (consumable != null)
+        {
+            // 1. Tìm HealthSystem của Player thông qua Singleton PlayerState
+            if (PlayerState.Instance != null)
+            {
+                HealthSystem playerHealth = PlayerState.Instance.GetComponent<HealthSystem>();
+                if (playerHealth != null)
+                {
+                    // KIỂM TRA MÁU ĐẦY: Không cho dùng đồ để đỡ phí
+                    if (playerHealth.CurrentHP >= playerHealth.MaxHP)
+                    {
+                        InventoryUI.Instance.CloseInventory();
+                        if (NotificationUI.Instance != null)
+                            NotificationUI.Instance.ShowNotification("Máu đang đầy, không cần dùng!");
+                        return; // Ngắt hàm, không trừ item
+                    }
+                    InventoryUI.Instance.CloseInventory();
+                    float useTime = consumable.useTime;
+                    ActionTimerManager.Instance.StartAction($"Đang dùng {consumable.itemName}...", useTime, () =>
+                    {
+                        // NHỮNG DÒNG CODE NÀY CHỈ CHẠY KHI VÒNG TRÒN ĐÃ QUAY XONG 100%
+                        playerHealth.Heal(consumable.healthRestore);
+
+                        if (NotificationUI.Instance != null)
+                            NotificationUI.Instance.ShowNotification($"Đã hồi {consumable.healthRestore} HP");
+
+                        slot.quantity--;
+                        if (slot.quantity <= 0) slot.Clear();
+                        NotifyInventoryChanged();
+                    });
+                }
+            }
+        }
+    }
 }

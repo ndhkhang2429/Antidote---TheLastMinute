@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using StarterAssets;
 using UnityEngine;
 
@@ -48,42 +49,70 @@ public class PlayerGunAnimator : MonoBehaviour
         // Bấm R và súng chưa đầy đạn
         if (_input.reload && _activeWeapon.currentAmmo < data.magazineSize)
         {
-            StartCoroutine(ReloadRoutine());
+            StartReloadSequence(data);
+        }
+        else if (_input.reload)
+        {
+            // Bấm R nhưng súng đã đầy -> Hủy lệnh
+            _input.reload = false;
         }
     }
 
-    private IEnumerator ReloadRoutine()
+    // ĐÃ FIX: Đổi từ IEnumerator sang hàm void để dùng ActionTimerManager
+    private void StartReloadSequence(WeaponDataSO data)
     {
-        var data = _activeWeapon.weaponData;
         var inv = InventorySystem.Instance;
 
-        if (inv == null || data.compatibleAmmo == null) yield break;
+        if (inv == null || data.compatibleAmmo == null)
+        {
+            _input.reload = false;
+            return;
+        }
 
         int totalAmmoInBackpack = inv.CountItem(data.compatibleAmmo);
         if (totalAmmoInBackpack <= 0)
         {
             Debug.Log("❌ Balo rỗng! Không có đạn để nạp.");
+            if (NotificationUI.Instance != null)
+                NotificationUI.Instance.ShowNotification("Không có đạn dự trữ!");
+
             _input.reload = false;
-            yield break;
+            return;
         }
 
         _isReloading = true;
         _input.reload = false;
 
+        // Kích hoạt animation rút băng đạn
         if (_animator != null) _animator.SetTrigger(_hashReload);
         Debug.Log($"🔄 Đang thay đạn cho {data.itemName}...");
 
-        yield return new WaitForSeconds(data.reloadTime);
+        // GỌI VÒNG TRÒN ĐẾM NGƯỢC
+        if (ActionTimerManager.Instance != null)
+        {
+            ActionTimerManager.Instance.StartAction($"Đang nạp {data.itemName}...", data.reloadTime, () =>
+            {
+                // LƯU Ý BẢO MẬT: Kiểm tra xem súng hiện tại có bị tráo trong lúc nạp không
+                if (_activeWeapon != null && _activeWeapon.weaponData == data)
+                {
+                    int bulletsNeeded = data.magazineSize - _activeWeapon.currentAmmo;
+                    int bulletsToReload = Mathf.Min(bulletsNeeded, totalAmmoInBackpack);
 
-        // TÍNH TOÁN ĐẠN CHO CÂY SÚNG HIỆN TẠI
-        int bulletsNeeded = data.magazineSize - _activeWeapon.currentAmmo;
-        int bulletsToReload = Mathf.Min(bulletsNeeded, totalAmmoInBackpack);
+                    _activeWeapon.currentAmmo += bulletsToReload;
+                    inv.RemoveItem(data.compatibleAmmo, bulletsToReload);
 
-        _activeWeapon.currentAmmo += bulletsToReload;
-        inv.RemoveItem(data.compatibleAmmo, bulletsToReload);
+                    Debug.Log($"✅ Nạp xong! Đạn trong súng: {_activeWeapon.currentAmmo}");
+                }
 
-        Debug.Log($"✅ Nạp xong! Đạn trong súng: {_activeWeapon.currentAmmo}");
-        _isReloading = false;
+                // Trả lại quyền bắn
+                _isReloading = false;
+            });
+        }
+        else
+        {
+            Debug.LogWarning("[PlayerGunAnimator] Không tìm thấy ActionTimerManager trong Scene!");
+            _isReloading = false;
+        }
     }
 
     private void HandleShooting()
@@ -104,6 +133,8 @@ public class PlayerGunAnimator : MonoBehaviour
         if (_activeWeapon.currentAmmo <= 0)
         {
             Debug.Log("❌ Tạch tạch! Hết đạn rồi!");
+            if (NotificationUI.Instance != null)
+                NotificationUI.Instance.ShowNotification("Súng hết đạn!");
             _input.shoot = false;
             return;
         }
@@ -141,9 +172,9 @@ public class PlayerGunAnimator : MonoBehaviour
         // Lấy độ giật từ cây súng hiện tại
         float spread = _activeWeapon.bulletSpread;
         Vector3 randomSpread = new Vector3(
-            Random.Range(-spread, spread),
-            Random.Range(-spread, spread),
-            Random.Range(-spread, spread)
+            UnityEngine.Random.Range(-spread, spread),
+            UnityEngine.Random.Range(-spread, spread),
+            UnityEngine.Random.Range(-spread, spread)
         );
 
         Vector3 shootDirection = (originalDirection + randomSpread).normalized;

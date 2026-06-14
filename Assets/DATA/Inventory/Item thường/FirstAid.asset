@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2da73ab3835012479055f4641df03eb, type: 3}
+  m_Name: FirstAid
+  m_EditorClassIdentifier: 
+  itemName: FirstAid
+  icon: {fileID: 21300000, guid: fb4564916c6c17c41b0c165d04261e6a, type: 3}
+  worldPrefab: {fileID: 1987713744733760, guid: b55df95fa6211964e8ad561501250fac, type: 3}
+  equipPrefab: {fileID: 0}
+  description: 
+  category: 3
+  weaponSlotType: 0
+  maxStack: 1
+  weightPerUnit: 10
+  autoEquip: 0
+  healthRestore: 50
+  thirstRestore: 0
+  useTime: 3
+  consumeSound: {fileID: 0}

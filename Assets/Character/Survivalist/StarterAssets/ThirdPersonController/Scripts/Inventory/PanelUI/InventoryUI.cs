@@ -17,6 +17,14 @@ public class InventoryUI : MonoBehaviour
     bool _isOpen;
     bool _tabWasPressed;
 
+    public static InventoryUI Instance { get; private set; }
+
+    void Awake()
+    {
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        Instance = this;
+    }
+
     void Start()
     {
         if (InventorySystem.Instance != null)
@@ -86,7 +94,7 @@ public class InventoryUI : MonoBehaviour
         Refresh();
     }
 
-    void CloseInventory()
+    public void CloseInventory()
     {
         _isOpen = false;
         inventoryPanel.SetActive(false);
