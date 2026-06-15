@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 95161500554173096}
   - component: {fileID: 5573722532284331055}
   - component: {fileID: 5946102006294303942}
+  - component: {fileID: 5216248485800524619}
   m_Layer: 0
   m_Name: firstaid
   m_TagString: Untagged
@@ -134,3 +135,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   highlightColor: {r: 0.4339623, g: 0.4339623, b: 0.4339623, a: 1}
+--- !u!65 &5216248485800524619
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1987713744733760}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.8154834, y: 0.3475596, z: 0.62949526}
+  m_Center: {x: -0.0068259835, y: 0.1600316, z: 0.0025842488}

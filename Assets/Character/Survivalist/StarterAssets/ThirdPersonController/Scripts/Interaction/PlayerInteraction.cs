@@ -16,6 +16,11 @@ public class PlayerInteraction : MonoBehaviour
     [SerializeField] private GameEventSO OnItemPickedUp;
     [SerializeField] private GameEventSO OnItemDropped;
 
+    [Header("Tùy chỉnh UI Tương tác")]
+    [SerializeField] private string _interactKey = "[F]";
+    [SerializeField] private Color _keyColor = new Color(1f, 0.8f, 0f); // Màu Vàng mặc định
+    [SerializeField] private Color _itemColor = new Color(0.6f, 0.6f, 0.6f); // Màu Xám mặc định
+
     private Animator _animator;
     private ThirdPersonController _tpc;
     private GameObject _currentTarget = null;
@@ -109,6 +114,13 @@ public class PlayerInteraction : MonoBehaviour
 
     bool ShowPromptForTarget(GameObject hitObject)
     {
+        // Chuyển màu bạn chọn ở Inspector sang mã Hex HTML (chỉ chạy 1 lần khi đưa tâm vào vật)
+        string hexKey = ColorUtility.ToHtmlStringRGB(_keyColor);
+        string hexItem = ColorUtility.ToHtmlStringRGB(_itemColor);
+
+        // Tạo sẵn nút bấm với màu bạn chọn
+        string fBtn = $"<b><color=#{hexKey}>{_interactKey}</color></b>";
+
         // ── IQuestRequirement (cửa, máy móc cần item) ─────────
         var questReq = hitObject.GetComponentInParent<IQuestRequirement>();
         if (questReq != null)
@@ -127,27 +139,31 @@ public class PlayerInteraction : MonoBehaviour
             return prompt != null;
         }
 
+        // ── Examinable ────────────────────────────────────────
         var examinable = hitObject.GetComponent<ExaminableObject>();
         if (examinable != null)
         {
-            InteractionUIManager.Instance.ShowPrompt($"[F] Đọc {examinable.objectName}");
+            InteractionUIManager.Instance.ShowPrompt($"{fBtn} Đọc <color=#{hexItem}>{examinable.objectName}</color>");
             return true;
         }
 
+        // ── Panel zone ────────────────────────────────────────
         var panelZone = hitObject.GetComponentInParent<PanelInteractZone>();
         if (panelZone != null)
         {
-            InteractionUIManager.Instance.ShowPrompt(panelZone.enterPrompt);
+            InteractionUIManager.Instance.ShowPrompt($"{fBtn} {panelZone.enterPrompt}");
             return true;
         }
 
+        // ── Main switch ───────────────────────────────────────
         var mainSwitch = hitObject.GetComponentInParent<MainSwitchInteractable>();
         if (mainSwitch != null)
         {
-            InteractionUIManager.Instance.ShowPrompt("[F] Gạt cần điện");
+            InteractionUIManager.Instance.ShowPrompt($"{fBtn} Gạt cần điện");
             return true;
         }
 
+        // ── WorldItem (Nhặt đồ) ────────────────────────────────
         var worldItem = hitObject.GetComponent<WorldItem>();
         if (worldItem != null && worldItem.itemData != null)
         {
@@ -155,16 +171,17 @@ public class PlayerInteraction : MonoBehaviour
                 ? $"Cầu chì [{f.fuseID}]"
                 : worldItem.itemData.itemName;
 
-            // THÊM DÒNG NÀY: Nếu số lượng > 1 thì hiện thêm chữ (x30)
             string qtyText = worldItem.quantity > 1 ? $" (x{worldItem.quantity})" : "";
 
-            InteractionUIManager.Instance.ShowPrompt($"[F] Nhặt {name}{qtyText}");
+            // Phím [F] lấy màu _keyColor, Tên item lấy màu _itemColor
+            InteractionUIManager.Instance.ShowPrompt($"{fBtn} Nhặt <color=#{hexItem}>{name}{qtyText}</color>");
             return true;
         }
 
+        // ── Electrical key ────────────────────────────────────
         if (hitObject.CompareTag("ElectricalKey"))
         {
-            InteractionUIManager.Instance.ShowPrompt("[F] Lấy chìa khóa");
+            InteractionUIManager.Instance.ShowPrompt($"{fBtn} Lấy chìa khóa");
             return true;
         }
 
