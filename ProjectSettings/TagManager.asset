@@ -11,6 +11,9 @@ TagManager:
   - EmergencyLight
   - ElectricalBoxDoor
   - ElectricalKey
+  - Weapon
+  - SecondCamera
+  - BulletSpawn
   layers:
   - Default
   - TransparentFX
@@ -23,8 +26,8 @@ TagManager:
   - Zombie
   - Interactable
   - Environment
-  - 
-  - 
+  - FPS_Arms
+  - TPP_Body
   - 
   - 
   - 
