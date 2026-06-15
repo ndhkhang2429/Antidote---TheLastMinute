@@ -18,6 +18,9 @@ namespace StarterAssets
         public float RotationSmoothTime = 0.08f;
         public float SpeedChangeRate = 12.0f;
 
+        [Header("Player - Stamina System")]
+        public PlayerStamina playerStamina; // Reference tới hệ thống thể lực
+
         [Header("RE-Style Body Rotation")]
         [Tooltip("Tốc độ cơ thể xoay để luôn face theo camera (RE style)")]
         public float BodyTurnSpeed = 10f;
@@ -100,6 +103,9 @@ namespace StarterAssets
             _controller = GetComponent<CharacterController>();
             _input = GetComponent<StarterAssetsInputs>();
 
+            // Tự động tìm PlayerStamina nếu quên kéo thả trên Inspector
+            if (playerStamina == null) playerStamina = GetComponent<PlayerStamina>();
+
             AssignAnimationIDs();
 
             _jumpTimeoutDelta = JumpTimeout;
@@ -108,7 +114,6 @@ namespace StarterAssets
             _cameraTargetYaw = CameraTarget.rotation.eulerAngles.y;
             _cameraTargetPitch = CameraTarget.rotation.eulerAngles.x;
 
-            // Khởi tạo cơ thể face theo camera ngay từ đầu
             transform.rotation = Quaternion.Euler(0f, _cameraTargetYaw, 0f);
 
             if (_hasAnimator)
@@ -122,7 +127,7 @@ namespace StarterAssets
         {
             JumpAndGravity();
             GroundedCheck();
-            HandleRotation();  // RE: cơ thể luôn xoay theo camera
+            HandleRotation();
             HandleCrouch();
             Move();
         }
@@ -167,14 +172,9 @@ namespace StarterAssets
             if (_hasAnimator) _animator.SetBool(_animIDGrounded, Grounded);
         }
 
-        // ── RE Style: cơ thể LUÔN face theo camera yaw ──────────────────────────
         private void HandleRotation()
         {
             float currentYaw = transform.eulerAngles.y;
-
-            // Smooth xoay cơ thể về đúng hướng camera mọi lúc
-            // BodyTurnSpeed cao = phản hồi nhanh (như RE4 remake)
-            // BodyTurnSpeed thấp = lag nhẹ (như RE3)
             float smoothYaw = Mathf.LerpAngle(currentYaw, _cameraTargetYaw,
                 BodyTurnSpeed * Time.deltaTime);
 
@@ -183,20 +183,31 @@ namespace StarterAssets
 
         private void Move()
         {
+            bool isMoving = _input.move != Vector2.zero;
+
+            // Xác định xem người chơi CÓ THỂ chạy không
+            bool isSprinting = _input.sprint && isMoving && !_isCrouching;
+
+            if (playerStamina != null)
+            {
+                isSprinting = isSprinting && playerStamina.CanRun;
+                // Truyền tín hiệu cho PlayerStamina để xử lý tụt/hồi
+                playerStamina.HandleStamina(isSprinting);
+            }
+
+            // Gán tốc độ di chuyển
             float targetSpeed = 0f;
-            if (_input.move == Vector2.zero)
+            if (!isMoving)
                 targetSpeed = 0f;
             else if (_isCrouching)
                 targetSpeed = CrouchSpeed;
             else
-                targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
+                targetSpeed = isSprinting ? SprintSpeed : MoveSpeed;
 
             _speed = Mathf.MoveTowards(_speed, targetSpeed, SpeedChangeRate * Time.deltaTime);
             _animationBlend = Mathf.MoveTowards(_animationBlend, targetSpeed, SpeedChangeRate * Time.deltaTime);
             if (_animationBlend < 0.01f) _animationBlend = 0f;
 
-            // RE style: di chuyển theo hướng camera, cơ thể không xoay thêm
-            // → tạo ra strafe (đi ngang) tự nhiên
             Vector3 camForward = Vector3.ProjectOnPlane(_mainCamera.transform.forward, Vector3.up).normalized;
             Vector3 camRight = Vector3.ProjectOnPlane(_mainCamera.transform.right, Vector3.up).normalized;
             Vector3 moveDirection = camRight * _input.move.x + camForward * _input.move.y;
@@ -213,12 +224,11 @@ namespace StarterAssets
             {
                 _animator.SetFloat(_animIDSpeed, _animationBlend);
 
-                float inputMagnitude = _input.move == Vector2.zero ? 0f : 1f;
+                float inputMagnitude = isMoving ? 1f : 0f;
                 _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
 
-                // RE style: Horizontal/Vertical là tọa độ LOCAL
-                // → animator blend tree nhận đúng strafe left/right, forward/back
-                float speedRatio = _input.move == Vector2.zero ? 0f : (_input.sprint ? 1f : 0.5f);
+                // Cập nhật lại BlendTree để phản hồi đúng với tốc độ Sprint thực tế
+                float speedRatio = !isMoving ? 0f : (isSprinting ? 1f : 0.5f);
                 float lerpSpeed = Time.deltaTime * SpeedChangeRate * 2f;
 
                 float newH = Mathf.Lerp(_animator.GetFloat("Horizontal"), _input.move.x * speedRatio, lerpSpeed);
@@ -246,7 +256,6 @@ namespace StarterAssets
             }
         }
 
-        // ── Head IK: pitch camera → đầu nhìn lên/xuống ─────────────────────────
         private void OnAnimatorIK(int layerIndex)
         {
             if (!_animator || !EnableHeadLookIK) return;
@@ -254,15 +263,7 @@ namespace StarterAssets
             Vector3 lookAtPosition = _mainCamera.transform.position
                                    + _mainCamera.transform.forward * 100f;
 
-            // RE style: body weight thấp vì cơ thể đã xoay theo HandleRotation
-            // head weight cao để pitch (nhìn lên/xuống) vẫn hoạt động
-            _animator.SetLookAtWeight(
-                1f,     // globalWeight
-                0.05f,  // bodyWeight  — gần 0 vì HandleRotation đã lo phần yaw
-                1f,     // headWeight  — đầu xử lý pitch (nhìn lên/xuống)
-                0.5f,   // eyesWeight
-                0.5f    // clampWeight
-            );
+            _animator.SetLookAtWeight(1f, 0.05f, 1f, 0.5f, 0.5f);
             _animator.SetLookAtPosition(lookAtPosition);
         }
 
@@ -306,7 +307,6 @@ namespace StarterAssets
             return Mathf.Clamp(angle, min, max);
         }
 
-        // Giữ lại để dùng khi interact / nhặt đồ
         public void SmoothFaceCameraDirection()
         {
             StartCoroutine(SmoothTurnRoutine());
@@ -330,9 +330,7 @@ namespace StarterAssets
 
         private void OnDrawGizmosSelected()
         {
-            Gizmos.color = Grounded
-                ? new Color(0f, 1f, 0f, 0.35f)
-                : new Color(1f, 0f, 0f, 0.35f);
+            Gizmos.color = Grounded ? new Color(0f, 1f, 0f, 0.35f) : new Color(1f, 0f, 0f, 0.35f);
             Gizmos.DrawSphere(
                 new Vector3(transform.position.x, transform.position.y - GroundedOffset, transform.position.z),
                 GroundedRadius

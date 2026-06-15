@@ -25,12 +25,13 @@ MonoBehaviour:
   combatType: 0
   damage: 25
   attachPointName: 
-  fireRate: 0.2
+  fireRate: 0.1
   magazineSize: 30
+  reloadTime: 2
   compatibleAmmo: {fileID: 11400000, guid: 5234a551410493c4397a94d0026c25c1, type: 2}
   bulletPrefab: {fileID: 8984632437525268808, guid: d3353e8eb5fb2b6439db7b14d955dac2, type: 3}
   bulletSpeed: 80
-  muzzleFlashPrefab: {fileID: 0}
+  muzzleFlashPrefab: {fileID: 199458, guid: 51b76f616384d4946bed4ecc9a6c2c3e, type: 3}
   isAutomatic: 1
   cooldown: 0.5
   comboSteps: 3

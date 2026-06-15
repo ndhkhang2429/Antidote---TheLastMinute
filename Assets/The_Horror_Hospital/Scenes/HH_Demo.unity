@@ -6117,7 +6117,7 @@ GameObject:
   - component: {fileID: 80151293}
   - component: {fileID: 80151292}
   m_Layer: 5
-  m_Name: BarFill
+  m_Name: StaminaFill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6155,7 +6155,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.80784315, g: 0.5764706, b: 0.84705883, a: 1}
+  m_Color: {r: 0, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -31829,10 +31829,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hpBarFill: {fileID: 451994436}
-  poisonBarFill: {fileID: 80151292}
-  poisonTimerText: {fileID: 2053728277}
+  staminaBarFill: {fileID: 80151292}
   playerHealth: {fileID: 213715957}
-  poisonDuration: 1800
+  playerStamina: {fileID: 1395250616}
 --- !u!1001 &395070284
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -48855,63 +48854,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5550528355229434950, guid: 8acbb3ef759556a48ab7da61613cceca, type: 3}
   m_PrefabInstance: {fileID: 616634916}
   m_PrefabAsset: {fileID: 0}
---- !u!1001 &619003112
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 1663698874057940665, guid: 8f317dd6ea755c245930aa07e0fc3714, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -174.07246
-      objectReference: {fileID: 0}
-    - target: {fileID: 1663698874057940665, guid: 8f317dd6ea755c245930aa07e0fc3714, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1663698874057940665, guid: 8f317dd6ea755c245930aa07e0fc3714, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -175.50629
-      objectReference: {fileID: 0}
-    - target: {fileID: 1663698874057940665, guid: 8f317dd6ea755c245930aa07e0fc3714, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1663698874057940665, guid: 8f317dd6ea755c245930aa07e0fc3714, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1663698874057940665, guid: 8f317dd6ea755c245930aa07e0fc3714, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1663698874057940665, guid: 8f317dd6ea755c245930aa07e0fc3714, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1663698874057940665, guid: 8f317dd6ea755c245930aa07e0fc3714, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1663698874057940665, guid: 8f317dd6ea755c245930aa07e0fc3714, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1663698874057940665, guid: 8f317dd6ea755c245930aa07e0fc3714, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2043919424448136195, guid: 8f317dd6ea755c245930aa07e0fc3714, type: 3}
-      propertyPath: m_Name
-      value: Mutated1_V3
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 8f317dd6ea755c245930aa07e0fc3714, type: 3}
 --- !u!1001 &620965918
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -93788,7 +93730,7 @@ MonoBehaviour:
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
-  m_FillClockwise: 0
+  m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
@@ -111719,7 +111661,7 @@ GameObject:
   - component: {fileID: 1380170931}
   - component: {fileID: 1380170930}
   m_Layer: 5
-  m_Name: PoisonBar
+  m_Name: StaminaBar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -112764,6 +112706,22 @@ MonoBehaviour:
   - m_Rig: {fileID: 158460127}
     m_Active: 1
   m_Effectors: []
+--- !u!114 &1395250616
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1395250581}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49651507cf2fe47458cb60dbb9360e13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxStamina: 100
+  currentStamina: 0
+  drainRate: 15
+  regenRate: 5
 --- !u!1001 &1395848037
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -135462,6 +135420,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 814685830}
     - target: {fileID: 7649409274300217940, guid: 0c35c567edf471e468153ecc8d798e64, type: 3}
+      propertyPath: playerStamina
+      value: 
+      objectReference: {fileID: 1395250616}
+    - target: {fileID: 7649409274300217940, guid: 0c35c567edf471e468153ecc8d798e64, type: 3}
       propertyPath: EnableHeadLookIK
       value: 0
       objectReference: {fileID: 0}
@@ -135490,6 +135452,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5653107524642111943, guid: 0c35c567edf471e468153ecc8d798e64, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1395250604}
+    - targetCorrespondingSourceObject: {fileID: 5653107524642111943, guid: 0c35c567edf471e468153ecc8d798e64, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1395250616}
     - targetCorrespondingSourceObject: {fileID: 2882026059523058507, guid: 0c35c567edf471e468153ecc8d798e64, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1040800452}
@@ -212254,7 +212219,6 @@ SceneRoots:
   - {fileID: 1001862002}
   - {fileID: 1696727852}
   - {fileID: 497797698}
-  - {fileID: 619003112}
   - {fileID: 1680749527}
   - {fileID: 875466575}
   - {fileID: 1031648119}

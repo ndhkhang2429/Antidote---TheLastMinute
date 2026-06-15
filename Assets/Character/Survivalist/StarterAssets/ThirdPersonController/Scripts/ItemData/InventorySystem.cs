@@ -355,6 +355,7 @@ public class InventorySystem : MonoBehaviour
         return count;
     }
     // --- CƠ CHẾ SỬ DỤNG VẬT PHẨM (MÁU, NƯỚC) ---
+    // --- CƠ CHẾ SỬ DỤNG VẬT PHẨM (MÁU, NƯỚC) ---
     public void UseItem(InventorySlot slot)
     {
         if (slot == null || slot.IsEmpty) return;
@@ -365,35 +366,52 @@ public class InventorySystem : MonoBehaviour
         ConsumableDataSO consumable = slot.item as ConsumableDataSO;
         if (consumable != null)
         {
-            // 1. Tìm HealthSystem của Player thông qua Singleton PlayerState
             if (PlayerState.Instance != null)
             {
                 HealthSystem playerHealth = PlayerState.Instance.GetComponent<HealthSystem>();
-                if (playerHealth != null)
+                PlayerStamina playerStamina = PlayerState.Instance.GetComponent<PlayerStamina>();
+
+                // Kiểm tra xem người chơi có THỰC SỰ cần dùng vật phẩm này không
+                bool needHealth = playerHealth != null && consumable.healthRestore > 0 && playerHealth.CurrentHP < playerHealth.MaxHP;
+                bool needStamina = playerStamina != null && consumable.thirstRestore > 0 && playerStamina.currentStamina < playerStamina.maxStamina;
+
+                // Nếu cả máu và thể lực đều không cần hồi (hoặc vật phẩm không cung cấp)
+                if (!needHealth && !needStamina)
                 {
-                    // KIỂM TRA MÁU ĐẦY: Không cho dùng đồ để đỡ phí
-                    if (playerHealth.CurrentHP >= playerHealth.MaxHP)
-                    {
-                        InventoryUI.Instance.CloseInventory();
-                        if (NotificationUI.Instance != null)
-                            NotificationUI.Instance.ShowNotification("Máu đang đầy, không cần dùng!");
-                        return; // Ngắt hàm, không trừ item
-                    }
                     InventoryUI.Instance.CloseInventory();
-                    float useTime = consumable.useTime;
-                    ActionTimerManager.Instance.StartAction($"Đang dùng {consumable.itemName}...", useTime, () =>
-                    {
-                        // NHỮNG DÒNG CODE NÀY CHỈ CHẠY KHI VÒNG TRÒN ĐÃ QUAY XONG 100%
-                        playerHealth.Heal(consumable.healthRestore);
-
-                        if (NotificationUI.Instance != null)
-                            NotificationUI.Instance.ShowNotification($"Đã hồi {consumable.healthRestore} HP");
-
-                        slot.quantity--;
-                        if (slot.quantity <= 0) slot.Clear();
-                        NotifyInventoryChanged();
-                    });
+                    if (NotificationUI.Instance != null)
+                        NotificationUI.Instance.ShowNotification("Chỉ số đang đầy, không cần dùng!");
+                    return; // Ngắt hàm, không trừ item
                 }
+
+                InventoryUI.Instance.CloseInventory();
+                float useTime = consumable.useTime;
+
+                ActionTimerManager.Instance.StartAction($"Đang dùng {consumable.itemName}...", useTime, () =>
+                {
+                    // Hồi máu nếu vật phẩm có thông số hồi máu và người chơi đang mất máu
+                    if (needHealth)
+                    {
+                        playerHealth.Heal(consumable.healthRestore);
+                    }
+
+                    // Hồi thể lực nếu vật phẩm có thông số hồi nước và người chơi đang mất sức
+                    if (needStamina)
+                    {
+                        playerStamina.RestoreStamina(consumable.thirstRestore);
+                    }
+
+                    if (NotificationUI.Instance != null)
+                    {
+                        // Tạo thông báo linh hoạt dựa trên tác dụng của vật phẩm
+                        string notifMsg = $"Đã dùng {consumable.itemName}";
+                        NotificationUI.Instance.ShowNotification(notifMsg);
+                    }
+
+                    slot.quantity--;
+                    if (slot.quantity <= 0) slot.Clear();
+                    NotifyInventoryChanged();
+                });
             }
         }
     }

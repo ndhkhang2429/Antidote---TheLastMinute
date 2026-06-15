@@ -1,64 +1,42 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 /// <summary>
-/// Kết nối HealthSystem và Timer nhiễm độc với UI.
-/// Gắn script này vào Canvas hoặc HUD GameObject.
-///
-/// Thay đổi so với cũ:
-/// — Subscribe OnDamaged(currentHP, maxHP) thay vì OnHPChanged (không còn tồn tại)
-/// — Thêm OnDestroy để unsubscribe tránh memory leak
+/// Quản lý giao diện HUD (Máu và Năng lượng).
+/// Thay thế phiên bản cũ, đã gỡ bỏ Poison Timer.
 /// </summary>
 public class HUDManager : MonoBehaviour
 {
     [Header("HP Bar")]
     public Image hpBarFill;
 
-    [Header("Poison Timer")]
-    public Image poisonBarFill;
-    public TextMeshProUGUI poisonTimerText;
+    [Header("Stamina Bar")]
+    public Image staminaBarFill;
 
-    [Header("Health System")]
+    [Header("Systems Reference")]
     public HealthSystem playerHealth;
+    public PlayerStamina playerStamina;
 
-    [Header("Setting Poison Timer")]
-    public float poisonDuration = 1800f;
-
-    // ── Runtime state ──────────────────────────────────────
-    private float _poisonTimeLeft;
-    private bool _isPoisoned = true;
-
+    // ── Bảng màu UI ────────────────────────────────────────
     private readonly Color _colorHigh = new Color(0.51f, 0.78f, 0.52f);
     private readonly Color _colorMedium = new Color(1f, 0.72f, 0.30f);
     private readonly Color _colorLow = new Color(0.90f, 0.35f, 0.35f);
 
-    // ── Lifecycle ──────────────────────────────────────────
+    private readonly Color _staminaNormal = new Color(0.2f, 0.6f, 1f, 0.8f);
+    private readonly Color _staminaExhausted = new Color(0.90f, 0.2f, 0.2f, 0.9f); // Chớp đỏ khi kiệt sức
 
     private void Start()
     {
-        _poisonTimeLeft = poisonDuration;
-
         if (playerHealth != null)
         {
-            // Subscribe OnDamaged — fire cả khi heal (HealthSystem.OnHealed cũng có)
             playerHealth.OnDamaged += OnHealthChanged;
             playerHealth.OnHealed += OnHealthChanged;
-
-            // Cập nhật ngay lần đầu
             UpdateHPBar(playerHealth.CurrentHP, playerHealth.MaxHP);
         }
-        else
-        {
-            Debug.LogError("[HUDManager] Chưa gán PlayerHealth!");
-        }
-
-        UpdatePoisonUI();
     }
 
     private void OnDestroy()
     {
-        // Unsubscribe tránh memory leak khi HUD bị destroy
         if (playerHealth != null)
         {
             playerHealth.OnDamaged -= OnHealthChanged;
@@ -68,13 +46,13 @@ public class HUDManager : MonoBehaviour
 
     private void Update()
     {
-        if (_isPoisoned)
-            TickPoisonTimer();
+        if (playerStamina != null)
+        {
+            UpdateStaminaUI();
+        }
     }
 
     // ── HP Bar ─────────────────────────────────────────────
-
-    // Nhận (currentHP, maxHP) từ HealthSystem.OnDamaged / OnHealed
     private void OnHealthChanged(float currentHP, float maxHP)
     {
         UpdateHPBar(currentHP, maxHP);
@@ -92,56 +70,22 @@ public class HUDManager : MonoBehaviour
         else hpBarFill.color = _colorLow;
     }
 
-    // ── Poison Timer ───────────────────────────────────────
-
-    private void TickPoisonTimer()
+    // ── Stamina Bar ────────────────────────────────────────
+    private void UpdateStaminaUI()
     {
-        if (_poisonTimeLeft <= 0)
+        if (staminaBarFill == null) return;
+
+        float pct = playerStamina.currentStamina / playerStamina.maxStamina;
+        staminaBarFill.fillAmount = pct;
+
+        // Cảnh báo màu đỏ nếu đang trong trạng thái kiệt sức (đợi hồi 20%)
+        if (playerStamina.isExhausted)
         {
-            _poisonTimeLeft = 0;
-            _isPoisoned = false;
-            OnPoisonExpired();
-            return;
+            staminaBarFill.color = _staminaExhausted;
         }
-
-        _poisonTimeLeft -= Time.deltaTime;
-        UpdatePoisonUI();
-    }
-
-    private void UpdatePoisonUI()
-    {
-        if (poisonBarFill != null)
-            poisonBarFill.fillAmount = _poisonTimeLeft / poisonDuration;
-
-        if (poisonTimerText != null)
+        else
         {
-            int minutes = Mathf.FloorToInt(_poisonTimeLeft / 60f);
-            int seconds = Mathf.FloorToInt(_poisonTimeLeft % 60f);
-            poisonTimerText.text = $"{minutes:00}:{seconds:00}";
-            poisonTimerText.color = _poisonTimeLeft < 60f
-                ? _colorLow
-                : new Color(0.81f, 0.58f, 0.85f);
+            staminaBarFill.color = _staminaNormal;
         }
-    }
-
-    private void OnPoisonExpired()
-    {
-        Debug.Log("[HUDManager] Hết thời gian! Player biến thành zombie!");
-        // TODO: Trigger game over hoặc transform thành zombie
-    }
-
-    // ── Public API ─────────────────────────────────────────
-
-    public void AddPoisonTime(float seconds)
-    {
-        _poisonTimeLeft = Mathf.Min(_poisonTimeLeft + seconds, poisonDuration);
-    }
-
-    public void CurePoison()
-    {
-        _isPoisoned = false;
-        _poisonTimeLeft = poisonDuration;
-        UpdatePoisonUI();
-        Debug.Log("[HUDManager] Đã giải độc!");
     }
 }
