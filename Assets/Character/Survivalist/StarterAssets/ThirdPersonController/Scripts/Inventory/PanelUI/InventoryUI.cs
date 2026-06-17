@@ -88,7 +88,7 @@ public class InventoryUI : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
-        var tpc = FindObjectOfType<StarterAssets.ThirdPersonController>();
+        var tpc = FindObjectOfType<StarterAssets.FirstPersonController>();
         if (tpc != null) tpc.enabled = false;
 
         Refresh();
@@ -115,7 +115,7 @@ public class InventoryUI : MonoBehaviour
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
 
-            var tpc = FindObjectOfType<StarterAssets.ThirdPersonController>();
+            var tpc = FindObjectOfType<StarterAssets.FirstPersonController>();
             if (tpc != null) tpc.enabled = true;
         }
     }

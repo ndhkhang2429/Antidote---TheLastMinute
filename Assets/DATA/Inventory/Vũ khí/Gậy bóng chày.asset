@@ -24,13 +24,17 @@ MonoBehaviour:
   autoEquip: 0
   combatType: 1
   damage: 13
-  attachPointName: 
+  attachPointName: Right_Hand
   fireRate: 0
   magazineSize: 0
+  reloadTime: 2
   compatibleAmmo: {fileID: 0}
   bulletPrefab: {fileID: 0}
   bulletSpeed: 50
   muzzleFlashPrefab: {fileID: 0}
+  gripOffset: {x: 0, y: 0, z: 0}
+  gripRotation: {x: 0, y: 0, z: 0}
+  isAutomatic: 1
   cooldown: 0.8
   comboSteps: 3
   comboResetTime: 1.5

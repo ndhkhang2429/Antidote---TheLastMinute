@@ -40,6 +40,9 @@ namespace StarterAssets
         private bool _isCrouching = false;
         private int _animIDCrouch;
 
+        [Header("Body Pitch Reference")]
+        [SerializeField] private Transform _spine;
+
         [Header("FPS Camera Control")]
         [Tooltip("Điểm neo Camera (phải đặt ở vị trí mắt)")]
         public Transform CameraTarget;
@@ -125,6 +128,7 @@ namespace StarterAssets
 
         private void CameraRotation()
         {
+            if (Cursor.lockState != CursorLockMode.Locked) return;
             // Nếu có di chuyển chuột
             if (_input.look.sqrMagnitude >= _threshold)
             {

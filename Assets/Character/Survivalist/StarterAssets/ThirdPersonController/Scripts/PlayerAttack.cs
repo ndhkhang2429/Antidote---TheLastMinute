@@ -10,6 +10,9 @@ public class PlayerAttack : MonoBehaviour
     [Header("Events")]
     [SerializeField] private GameEventSO OnWeaponFired;
 
+    [Header("FPS Reference")]
+    [SerializeField] private Transform _cameraRoot;
+
     private Animator _animator;
     private StarterAssetsInputs _input;
 
@@ -116,7 +119,11 @@ public class PlayerAttack : MonoBehaviour
         var data = CurrentWeapon();
         if (data == null) data = _unarmedData;
 
-        Vector3 hitCenter = transform.position + transform.forward * data.hitDistance + Vector3.up * data.hitHeight;
+        Transform origin = _cameraRoot != null ? _cameraRoot : transform;
+        Vector3 hitCenter = origin.position
+                          + origin.forward * data.hitDistance
+                          + Vector3.up * data.hitHeight;
+
         Collider[] hits = Physics.OverlapSphere(hitCenter, data.hitRadius, _zombieLayer);
 
         if (hits.Length == 0) return;

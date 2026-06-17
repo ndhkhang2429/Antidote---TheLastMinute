@@ -14,17 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: 
   icon: {fileID: 0}
-  worldPrefab: {fileID: 0}
-  equipPrefab: {fileID: 0}
+  worldPrefab: {fileID: 1296605364670726625, guid: 9bac10e691f2b134e8a762aac4cb9231, type: 3}
+  equipPrefab: {fileID: 1296605364670726625, guid: 9bac10e691f2b134e8a762aac4cb9231, type: 3}
   description: 
   category: 1
   weaponSlotType: 1
   maxStack: 1
   weightPerUnit: 0
-  autoEquip: 0
+  autoEquip: 1
   combatType: 0
   damage: 25
-  attachPointName: 
+  attachPointName: WeaponHolder
   fireRate: 0.1
   magazineSize: 30
   reloadTime: 2
@@ -32,6 +32,8 @@ MonoBehaviour:
   bulletPrefab: {fileID: 8984632437525268808, guid: d3353e8eb5fb2b6439db7b14d955dac2, type: 3}
   bulletSpeed: 80
   muzzleFlashPrefab: {fileID: 199458, guid: 51b76f616384d4946bed4ecc9a6c2c3e, type: 3}
+  gripOffset: {x: -0.006, y: 0.115, z: -0.162}
+  gripRotation: {x: 53.452, y: -48.206, z: -48.936}
   isAutomatic: 1
   cooldown: 0.5
   comboSteps: 3

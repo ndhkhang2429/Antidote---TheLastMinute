@@ -23,6 +23,10 @@ public class WeaponDataSO : ItemDataSO // Kế thừa từ ItemDataSO gốc củ
     public float bulletSpeed = 50f;    // Tốc độ bay của đạn
     public GameObject muzzleFlashPrefab; // Hiệu ứng tia lửa đầu nòng
 
+    [Header("Equip Transform")]
+    public Vector3 gripOffset = Vector3.zero;
+    public Vector3 gripRotation = Vector3.zero;
+
     [Tooltip("Tick chọn nếu là súng Liên thanh (AKM). Bỏ tick nếu là súng bắn Phát một (Pistol, Shotgun).")]
     public bool isAutomatic = true;
 
