@@ -32,8 +32,8 @@ MonoBehaviour:
   bulletPrefab: {fileID: 0}
   bulletSpeed: 50
   muzzleFlashPrefab: {fileID: 0}
-  gripOffset: {x: 0, y: 0, z: 0}
-  gripRotation: {x: 0, y: 0, z: 0}
+  gripOffset: {x: -0.019, y: -0.102, z: -0.014}
+  gripRotation: {x: -13.372, y: 5.162, z: -30.777}
   isAutomatic: 1
   cooldown: 0.8
   comboSteps: 3
