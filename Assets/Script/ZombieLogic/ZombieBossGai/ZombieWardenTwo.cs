@@ -49,6 +49,25 @@ public class ZombieWardenTwo : ZombieBase
     [Range(0f, 1f)]
     public float enrageThreshold = 0.5f;
 
+    [Header("Rage Burst VFX")]
+    [Tooltip("Prefab VFX shockwave khi Rage Burst (spawn tại vị trí zombie)")]
+    public GameObject rageBurstVFXPrefab;
+
+    [Tooltip("Thời gian tồn tại của VFX trước khi tự destroy (giây)")]
+    public float rageBurstVFXLifetime = 3f;
+    [Header("Spike Projectile")]
+    [Tooltip("Prefab viên spike (cần có SpikeProjectile script + Collider trigger + Rigidbody kinematic)")]
+    public GameObject spikePrefab;
+
+    [Tooltip("Các điểm spawn spike — mỗi chi sau lưng 1 Transform, bắn đồng loạt cùng lúc")]
+    public Transform[] spikeSpawnPoints;
+
+    [Tooltip("Damage mỗi viên spike")]
+    public float spikeDamage = 15f;
+
+    [Tooltip("Góc lệch ngẫu nhiên mỗi viên so với hướng thẳng vào player (độ) — tạo cảm giác tự nhiên")]
+    public float spikeRandomAngle = 5f;
+
     [Tooltip("normalizedTime coi là animation xong")]
     [Range(0.5f, 1f)]
     public float exitThreshold = 0.85f;
@@ -297,6 +316,17 @@ public class ZombieWardenTwo : ZombieBase
     /// <summary>AoE shockwave: đẩy + damage player nếu trong bán kính.</summary>
     private void DoRageBurstExplosion()
     {
+        // Spawn VFX shockwave tại vị trí zombie
+        if (rageBurstVFXPrefab != null)
+        {
+            GameObject vfx = Instantiate(
+                rageBurstVFXPrefab,
+                transform.position,
+                Quaternion.identity
+            );
+            Destroy(vfx, rageBurstVFXLifetime);
+        }
+
         Collider[] hits = Physics.OverlapSphere(transform.position, rageBurstRadius);
         foreach (var hit in hits)
         {
@@ -414,21 +444,80 @@ public class ZombieWardenTwo : ZombieBase
     {
         if (player == null) return;
 
-        // Spike tầm xa có range rộng hơn cận chiến
         bool isFarSpike = _waitingStateName == "Attack2LSpike";
-        float hitRange = isFarSpike ? farRange + 1f : attackRange * 1.4f;
+        bool isAnySpike = _waitingStateName.Contains("Spike");
 
-        if (dist <= hitRange)
+        if (isAnySpike)
         {
-            player.GetComponent<HealthSystem>()?.TakeDamage(attackDamage, gameObject);
-
-            if (_bloodFX != null)
+            // Spike attack → spawn projectile thay vì check range
+            SpawnSpike(isFarSpike);
+        }
+        else
+        {
+            // Cận chiến thường
+            if (dist <= attackRange * 1.4f)
             {
-                Vector3 hitPoint = player.position + Vector3.up * 1.0f;
-                Vector3 hitNormal = (player.position - transform.position).normalized;
-                _bloodFX.OnHitMelee(hitPoint, hitNormal);
+                player.GetComponent<HealthSystem>()?.TakeDamage(attackDamage, gameObject);
+
+                if (_bloodFX != null)
+                {
+                    Vector3 hitPoint = player.position + Vector3.up * 1.0f;
+                    Vector3 hitNormal = (player.position - transform.position).normalized;
+                    _bloodFX.OnHitMelee(hitPoint, hitNormal);
+                }
             }
         }
+    }
+
+    /// <summary>
+    /// Spawn spike từ TẤT CẢ spikeSpawnPoints cùng lúc — mỗi chi sau lưng bắn 1 viên.
+    /// Mỗi viên hướng thẳng về player + lệch ngẫu nhiên spikeRandomAngle độ cho tự nhiên.
+    /// </summary>
+    private void SpawnSpike(bool isFarSpike)
+    {
+        if (spikePrefab == null)
+        {
+            Debug.LogWarning("[WardenII] spikePrefab chưa được gán!");
+            return;
+        }
+
+        if (spikeSpawnPoints == null || spikeSpawnPoints.Length == 0)
+        {
+            // Fallback: bắn từ vị trí zombie nếu chưa gán spawn points
+            Vector3 fallbackPos = transform.position + Vector3.up * 1.5f;
+            Vector3 fallbackDir = (player.position + Vector3.up - fallbackPos).normalized;
+            FireSpike(fallbackPos, fallbackDir);
+            Debug.LogWarning("[WardenII] spikeSpawnPoints chưa gán, dùng fallback!");
+            return;
+        }
+
+        // Bắn từ mỗi spawn point (mỗi chi) cùng lúc
+        foreach (Transform spawnPoint in spikeSpawnPoints)
+        {
+            if (spawnPoint == null) continue;
+
+            Vector3 spawnPos = spawnPoint.position;
+
+            // Hướng cơ bản về phía ngực player
+            Vector3 baseDir = (player.position + Vector3.up * 1f - spawnPos).normalized;
+
+            // Thêm góc lệch ngẫu nhiên nhỏ — mỗi chi bắn hơi lệch nhau trông tự nhiên hơn
+            float randomYaw = Random.Range(-spikeRandomAngle, spikeRandomAngle);
+            float randomPitch = Random.Range(-spikeRandomAngle * 0.5f, spikeRandomAngle * 0.5f);
+            Vector3 dir = Quaternion.Euler(randomPitch, randomYaw, 0f) * baseDir;
+
+            FireSpike(spawnPos, dir);
+        }
+    }
+
+    private void FireSpike(Vector3 spawnPos, Vector3 direction)
+    {
+        GameObject go = Instantiate(spikePrefab, spawnPos, Quaternion.identity);
+        SpikeProjectile spike = go.GetComponent<SpikeProjectile>();
+        if (spike != null)
+            spike.Init(direction, spikeDamage, gameObject);
+        else
+            Debug.LogWarning("[WardenII] spikePrefab thiếu SpikeProjectile script!");
     }
 
     private void CheckEnrage()
