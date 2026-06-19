@@ -2,103 +2,89 @@
 
 /// <summary>
 /// ZombieWardenOne — "THE RUSHER"
-/// Boss đầu tiên của DEAD ROOF. Personality: aggressive, lao thẳng vào mặt player,
-/// đánh combo tay thuần, không dùng spike.
 ///
-/// Animation triggers dùng:
-///   attack1  → đánh tay phải đơn (hit 1 của combo)
-///   attack2  → đánh 2 tay luân phiên (hit 2, kết thúc combo cơ bản)
-///   attack3  → đánh tay phải mạnh hơn (hit 3, finisher)
-///   attack4  → quất mạnh 1 cú ra trước (punish khi player đứng yên)
-///   attack5  → bước lên rồi đánh mạnh (phase 2 finisher, có bước tiến)
+/// Thay vì dùng Animation Events (dễ bị nuốt khi Animator transition về idle),
+/// script POLL trạng thái Animator mỗi frame:
+///   - Khi đang WaitingAnim: chờ Animator bước vào state attack tương ứng
+///     rồi chờ normalizedTime >= exitThreshold → tự chuyển combo step tiếp theo
+///   - OnHit vẫn dùng Animation Event bình thường (chỉ deal damage, không điều khiển flow)
 ///
-/// Phase 1 (HP > 50%): Combo 3 hit → attack1 → attack2 → attack3
-///                      Nếu player không di chuyển sau combo → attack4 (punish)
-/// Phase 2 (HP ≤ 50%): Tốc độ +25%, thỉnh thoảng thay attack3 bằng attack5,
-///                      cooldown ngắn hơn, bắt đầu FacePlayer liên tục
+/// Combo Phase 1 (HP > 50%): attack1 → attack2 → attack3
+/// Combo Phase 2 (HP ≤ 50%): attack1 → attack2 → attack5 (60%) hoặc attack3 (40%)
+/// Punish: attack4 nếu player đứng yên sau combo
 /// </summary>
 public class ZombieWardenOne : ZombieBase
 {
-    // ── Inspector ─────────────────────────────────────────────────────────────
     [Header("Warden I — Rusher Settings")]
-    [Tooltip("Khoảng cách bắt đầu combo (nên bằng hoặc lớn hơn attackRange một chút)")]
     public float comboStartRange = 2.5f;
 
-    [Tooltip("Damage nhân thêm cho attack4 (punish)")]
-    public float punishDamageMultiplier = 1.5f;
-
-    [Tooltip("Damage nhân thêm cho attack5 (phase 2 finisher)")]
-    public float enrageDamageMultiplier = 1.8f;
-
-    [Tooltip("HP % để kích hoạt Phase 2")]
     [Range(0f, 1f)]
     public float enrageThreshold = 0.5f;
-
-    [Tooltip("Tốc độ bonus khi Enrage (nhân với runSpeed)")]
     public float enrageSpeedMultiplier = 1.25f;
-
-    [Tooltip("Thời gian chờ giữa các combo (giây)")]
     public float comboCooldown = 2.0f;
+    public float recoverDuration = 0.8f;
 
-    [Tooltip("Thời gian delay giữa từng hit trong combo (giây)")]
-    public float hitDelay = 0.6f;
-
-    [Tooltip("Thời gian recover sau khi xong toàn bộ combo")]
-    public float recoverDuration = 1.0f;
-
-    [Tooltip("Xác suất dùng attack5 thay attack3 khi ở Phase 2")]
     [Range(0f, 1f)]
     public float enrageFinisherChance = 0.6f;
-
-    [Tooltip("Xác suất attack4 punish sau combo nếu player không di chuyển")]
     [Range(0f, 1f)]
     public float punishChance = 0.5f;
 
-    // ── Private State Machine ─────────────────────────────────────────────────
+    public float punishDamageMultiplier = 1.5f;
+    public float enrageDamageMultiplier = 1.8f;
+
+    [Tooltip("normalizedTime của clip đạt bao nhiêu thì coi là 'xong' (0.85 = 85%)")]
+    [Range(0.5f, 1f)]
+    public float exitThreshold = 0.85f;
+
+    // ── State Machine ─────────────────────────────────────────────────────────
     private enum CombatState
     {
-        Approach,       // Chạy đến gần player
-        ComboHit1,      // Đang thực hiện attack1
-        ComboHit2,      // Đang thực hiện attack2
-        ComboHit3,      // Đang thực hiện attack3 / attack5
-        PunishAttack,   // Đang thực hiện attack4
-        Recover,        // Thời gian nghỉ sau combo
-        CooldownWait,   // Chờ comboCooldown trước combo tiếp theo
+        Approach,
+        WaitingEnterAnim,   // Đã set trigger, chờ Animator BƯỚC VÀO state attack
+        WaitingFinishAnim,  // Animator đang chạy attack, chờ normalizedTime >= exitThreshold
+        Recover,
+        CooldownWait,
     }
 
     private CombatState _state = CombatState.Approach;
 
-    // Timers
-    private float _stateTimer = 0f;     // đếm thời gian trong state hiện tại
-    private float _cooldownTimer = 0f;  // đếm comboCooldown
-
-    // Phase tracking
+    // Combo
+    private int _comboStep = 0;
     private bool _isEnraged = false;
+    private bool _isFinisher = false;
+    private bool _isPunish = false;
 
-    // Punish tracking — kiểm tra player có di chuyển sau combo không
-    private Vector3 _playerPosAfterCombo = Vector3.zero;
-    private bool _checkingPunish = false;
+    // Tên state hiện tại đang chờ (để poll Animator)
+    private string _waitingStateName = "";
 
-    // Damage flag — tránh damage nhiều lần trong 1 swing
-    private bool _hit1Dealt = false;
-    private bool _hit2Dealt = false;
-    private bool _hit3Dealt = false;
-    private bool _punishDealt = false;
+    // Punish
+    private Vector3 _playerPosSnapshot = Vector3.zero;
+    private bool _pendingPunishCheck = false;
 
-    // ── ZombieBase Overrides ──────────────────────────────────────────────────
+    // Damage
+    private float _currentDamageMultiplier = 1f;
+    private bool _hitDealtThisSwing = false;
+
+    // Timers
+    private float _stateTimer = 0f;
+    private float _cooldownTimer = 0f;
+
+    // ── Overrides ─────────────────────────────────────────────────────────────
     protected override void OnEnterCombat()
     {
         _state = CombatState.Approach;
-        _cooldownTimer = 0f;
+        _comboStep = 0;
         _isEnraged = false;
-        Debug.Log("[WardenI] Enter Combat");
+        _pendingPunishCheck = false;
+        _isPunish = false;
     }
 
     protected override void OnExitCombat()
     {
         _state = CombatState.Approach;
-        _isEnraged = false;
-        _checkingPunish = false;
+        _comboStep = 0;
+        _pendingPunishCheck = false;
+        _isPunish = false;
     }
 
     protected override void UpdateCombatBehaviour()
@@ -108,43 +94,20 @@ public class ZombieWardenOne : ZombieBase
         CheckEnrage();
 
         float dist = Vector3.Distance(transform.position, player.position);
-        float currentRunSpeed = _isEnraged ? runSpeed * enrageSpeedMultiplier : runSpeed;
+        float speed = _isEnraged ? runSpeed * enrageSpeedMultiplier : runSpeed;
 
         switch (_state)
         {
-            case CombatState.Approach:
-                HandleApproach(dist, currentRunSpeed);
-                break;
-
-            case CombatState.ComboHit1:
-                HandleComboHit1(dist);
-                break;
-
-            case CombatState.ComboHit2:
-                HandleComboHit2(dist);
-                break;
-
-            case CombatState.ComboHit3:
-                HandleComboHit3(dist);
-                break;
-
-            case CombatState.PunishAttack:
-                HandlePunishAttack();
-                break;
-
-            case CombatState.Recover:
-                HandleRecover();
-                break;
-
-            case CombatState.CooldownWait:
-                HandleCooldownWait(dist, currentRunSpeed);
-                break;
+            case CombatState.Approach: HandleApproach(dist, speed); break;
+            case CombatState.WaitingEnterAnim: HandleWaitingEnter(); break;
+            case CombatState.WaitingFinishAnim: HandleWaitingFinish(); break;
+            case CombatState.Recover: HandleRecover(); break;
+            case CombatState.CooldownWait: HandleCooldownWait(dist, speed); break;
         }
     }
 
     // ── State Handlers ────────────────────────────────────────────────────────
 
-    /// <summary>Chạy thẳng về phía player, khi vào tầm bắt đầu combo.</summary>
     private void HandleApproach(float dist, float speed)
     {
         ResumeAgent(speed);
@@ -153,125 +116,68 @@ public class ZombieWardenOne : ZombieBase
         anim.SetFloat("Speed", 2f, 0.1f, Time.deltaTime);
 
         if (dist <= comboStartRange)
-        {
-            StartComboHit1();
-        }
+            StartCombo();
     }
 
-    /// <summary>Hit 1 — attack1 (tay phải đơn).</summary>
-    private void HandleComboHit1(float dist)
+    /// <summary>
+    /// Chờ Animator thực sự BƯỚC VÀO state attack mà ta vừa trigger.
+    /// Cần bước này vì SetTrigger không apply ngay — có thể mất 1-2 frame.
+    /// </summary>
+    private void HandleWaitingEnter()
     {
         StopAgentCompletely();
+        anim.SetFloat("Speed", 0f, 0.05f, Time.deltaTime);
         FacePlayer();
-        _stateTimer += Time.deltaTime;
 
-        // Deal damage tại midpoint của animation
-        if (!_hit1Dealt && _stateTimer >= hitDelay * 0.5f)
+        // Kiểm tra Animator đã vào đúng state chưa
+        AnimatorStateInfo info = anim.GetCurrentAnimatorStateInfo(0);
+        if (info.IsName(_waitingStateName))
         {
-            if (dist <= attackRange * 1.3f)
-                DealDamageToPlayer();
-            _hit1Dealt = true;
+            _state = CombatState.WaitingFinishAnim;
+            _hitDealtThisSwing = false;
         }
 
-        if (_stateTimer >= hitDelay)
+        // Timeout 0.5s phòng trigger bị nuốt → thử lại
+        _stateTimer += Time.deltaTime;
+        if (_stateTimer > 0.5f)
         {
-            TransitionTo(CombatState.ComboHit2);
-            anim.SetTrigger("attack2");
+            Debug.LogWarning($"[WardenI] Trigger bị nuốt, thử lại: {_waitingStateName}");
+            anim.SetTrigger(_waitingStateName.ToLower()); // tên trigger = tên state lowercase
+            _stateTimer = 0f;
         }
     }
 
-    /// <summary>Hit 2 — attack2 (2 tay luân phiên).</summary>
-    private void HandleComboHit2(float dist)
+    /// <summary>
+    /// Chờ animation chạy đến exitThreshold rồi chuyển bước tiếp.
+    /// Đồng thời deal damage tại hitThreshold (50% clip).
+    /// </summary>
+    private void HandleWaitingFinish()
     {
         StopAgentCompletely();
+        anim.SetFloat("Speed", 0f, 0.05f, Time.deltaTime);
         FacePlayer();
-        _stateTimer += Time.deltaTime;
 
-        if (!_hit2Dealt && _stateTimer >= hitDelay * 0.6f)
+        AnimatorStateInfo info = anim.GetCurrentAnimatorStateInfo(0);
+
+        // Kiểm tra vẫn còn trong đúng state
+        if (!info.IsName(_waitingStateName)) return;
+
+        float t = info.normalizedTime;
+
+        // Deal damage tại 50% clip
+        if (!_hitDealtThisSwing && t >= 0.5f)
         {
-            if (dist <= attackRange * 1.3f)
-                DealDamageToPlayer();
-            _hit2Dealt = true;
+            DealHitDamage();
+            _hitDealtThisSwing = true;
         }
 
-        if (_stateTimer >= hitDelay)
+        // Animation xong → chuyển bước
+        if (t >= exitThreshold)
         {
-            // Ghi vị trí player để check punish sau
-            _playerPosAfterCombo = player.position;
-            _checkingPunish = true;
-
-            TransitionTo(CombatState.ComboHit3);
-
-            // Phase 2: random dùng attack5 (bước lên đánh) hoặc attack3
-            if (_isEnraged && Random.value < enrageFinisherChance)
-                anim.SetTrigger("attack5");
-            else
-                anim.SetTrigger("attack3");
+            OnCurrentAnimDone();
         }
     }
 
-    /// <summary>Hit 3 — attack3 hoặc attack5 (finisher).</summary>
-    private void HandleComboHit3(float dist)
-    {
-        StopAgentCompletely();
-        FacePlayer();
-        _stateTimer += Time.deltaTime;
-
-        if (!_hit3Dealt && _stateTimer >= hitDelay * 0.5f)
-        {
-            if (dist <= attackRange * 1.5f) // attack5 có bước tiến nên range rộng hơn
-            {
-                float dmg = attackDamage * (_isEnraged ? enrageDamageMultiplier : 1f);
-                player.GetComponent<HealthSystem>()?.TakeDamage(dmg, gameObject);
-            }
-            _hit3Dealt = true;
-        }
-
-        if (_stateTimer >= hitDelay * 1.2f) // finisher animation dài hơn
-        {
-            // Kiểm tra xem có punish không
-            if (_checkingPunish && Random.value < punishChance)
-            {
-                float moved = Vector3.Distance(player.position, _playerPosAfterCombo);
-                if (moved < 1.5f) // player đứng yên → punish
-                {
-                    TransitionTo(CombatState.PunishAttack);
-                    anim.SetTrigger("attack4");
-                    _checkingPunish = false;
-                    return;
-                }
-            }
-
-            _checkingPunish = false;
-            TransitionTo(CombatState.Recover);
-        }
-    }
-
-    /// <summary>Punish — attack4 (quất mạnh 1 cú, damage cao).</summary>
-    private void HandlePunishAttack()
-    {
-        StopAgentCompletely();
-        FacePlayer();
-        _stateTimer += Time.deltaTime;
-
-        if (!_punishDealt && _stateTimer >= hitDelay * 0.4f)
-        {
-            float dist = Vector3.Distance(transform.position, player.position);
-            if (dist <= attackRange * 1.2f)
-            {
-                float dmg = attackDamage * punishDamageMultiplier;
-                player.GetComponent<HealthSystem>()?.TakeDamage(dmg, gameObject);
-            }
-            _punishDealt = true;
-        }
-
-        if (_stateTimer >= hitDelay * 0.9f)
-        {
-            TransitionTo(CombatState.Recover);
-        }
-    }
-
-    /// <summary>Recover — đứng yên ngắn sau combo.</summary>
     private void HandleRecover()
     {
         StopAgentCompletely();
@@ -281,94 +187,171 @@ public class ZombieWardenOne : ZombieBase
 
         if (_stateTimer >= recoverDuration)
         {
-            TransitionTo(CombatState.CooldownWait);
+            // Kiểm tra punish
+            if (_pendingPunishCheck && Random.value < punishChance)
+            {
+                float moved = Vector3.Distance(player.position, _playerPosSnapshot);
+                if (moved < 1.5f)
+                {
+                    _pendingPunishCheck = false;
+                    DoPunish();
+                    return;
+                }
+            }
+
+            _pendingPunishCheck = false;
+            _state = CombatState.CooldownWait;
             _cooldownTimer = 0f;
+            _comboStep = 0;
+            _isPunish = false;
         }
     }
 
-    /// <summary>CooldownWait — tiến lại gần player trong lúc chờ cooldown.</summary>
     private void HandleCooldownWait(float dist, float speed)
     {
         _cooldownTimer += Time.deltaTime;
 
-        // Vẫn tiến về phía player trong lúc chờ (không đứng yên)
         float approachSpeed = _isEnraged ? speed : walkSpeed;
         ResumeAgent(approachSpeed);
         agent.stoppingDistance = comboStartRange - 0.3f;
         agent.SetDestination(player.position);
-
-        float animSpeed = _isEnraged ? 2f : 1f;
-        anim.SetFloat("Speed", animSpeed, 0.15f, Time.deltaTime);
+        anim.SetFloat("Speed", _isEnraged ? 2f : 1f, 0.15f, Time.deltaTime);
 
         float cd = _isEnraged ? comboCooldown * 0.7f : comboCooldown;
         if (_cooldownTimer >= cd)
+            _state = CombatState.Approach;
+    }
+
+    // ── Combo Logic ───────────────────────────────────────────────────────────
+
+    private void StartCombo()
+    {
+        _comboStep = 1;
+        _currentDamageMultiplier = 1f;
+        _isFinisher = false;
+        _isPunish = false;
+        TriggerAttack("Attack1");
+    }
+
+    /// <summary>Gọi khi animation hiện tại đã chạy xong (normalizedTime >= exitThreshold).</summary>
+    private void OnCurrentAnimDone()
+    {
+        if (_isPunish)
         {
-            TransitionTo(CombatState.Approach);
+            // Punish xong → về CooldownWait
+            _state = CombatState.CooldownWait;
+            _cooldownTimer = 0f;
+            _comboStep = 0;
+            _isPunish = false;
+            return;
+        }
+
+        if (_comboStep == 1)
+        {
+            _comboStep = 2;
+            _currentDamageMultiplier = 1f;
+            TriggerAttack("Attack2");
+        }
+        else if (_comboStep == 2)
+        {
+            _comboStep = 3;
+            _playerPosSnapshot = player.position;
+            _pendingPunishCheck = true;
+
+            if (_isEnraged && Random.value < enrageFinisherChance)
+            {
+                _isFinisher = true;
+                _currentDamageMultiplier = enrageDamageMultiplier;
+                TriggerAttack("Attack5");
+            }
+            else
+            {
+                _isFinisher = false;
+                _currentDamageMultiplier = 1.2f;
+                TriggerAttack("Attack3");
+            }
+        }
+        else
+        {
+            // Combo step 3 xong → Recover
+            _state = CombatState.Recover;
+            _stateTimer = 0f;
         }
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
-
-    private void StartComboHit1()
+    private void DoPunish()
     {
-        TransitionTo(CombatState.ComboHit1);
-        anim.SetTrigger("attack1");
+        _isPunish = true;
+        _currentDamageMultiplier = punishDamageMultiplier;
+        TriggerAttack("Attack4");
     }
 
-    /// <summary>Chuyển state, reset timer và damage flags liên quan.</summary>
-    private void TransitionTo(CombatState next)
+    /// <summary>
+    /// Set trigger VÀ ghi nhớ tên state đang chờ.
+    /// Tên trigger = lowercase của tên state (attack1, attack2...).
+    /// Tên state trong Animator = Attack1, Attack2... (viết hoa chữ đầu).
+    /// </summary>
+    private void TriggerAttack(string stateName)
     {
-        _state = next;
+        _waitingStateName = stateName;
         _stateTimer = 0f;
+        _state = CombatState.WaitingEnterAnim;
+        StopAgentCompletely();
 
-        // Reset damage flags khi bắt đầu một đợt tấn công mới
-        if (next == CombatState.ComboHit1)
-        {
-            _hit1Dealt = false;
-            _hit2Dealt = false;
-            _hit3Dealt = false;
-            _punishDealt = false;
-        }
-        if (next == CombatState.PunishAttack)
-        {
-            _punishDealt = false;
-        }
+        // Trigger name = lowercase của stateName
+        anim.SetTrigger(stateName.ToLower());
     }
 
-    /// <summary>Kiểm tra HP để kích hoạt Enrage (Phase 2). Chỉ kích hoạt 1 lần.</summary>
-    private void CheckEnrage()
+    // ── Blood FX ──────────────────────────────────────────────────────────────
+    private ZombieBloodFXHandler _bloodFX;
+
+    protected override void Start()
     {
-        if (_isEnraged) return;
-        if (healthSystem == null) return;
-
-        float hpRatio = healthSystem.CurrentHP / healthSystem.MaxHP;
-        if (hpRatio <= enrageThreshold)
-        {
-            _isEnraged = true;
-            OnEnrage();
-        }
+        base.Start();
+        _bloodFX = GetComponent<ZombieBloodFXHandler>();
     }
 
-    private void OnEnrage()
-    {
-        Debug.Log("[WardenI] ENRAGE! Phase 2 activated.");
-        // Có thể trigger VFX, âm thanh, roar animation ở đây
-        // anim.SetTrigger("Scream"); // optional: gầm lên khi enrage
-    }
+    // ── Damage ────────────────────────────────────────────────────────────────
 
-    // ── Override DealDamageToPlayer (dùng attackDamage base) ─────────────────
-    public override void DealDamageToPlayer()
+    private void DealHitDamage()
     {
         if (player == null) return;
         float dist = Vector3.Distance(transform.position, player.position);
-        if (dist > attackRange * 1.3f) return;
-        player.GetComponent<HealthSystem>()?.TakeDamage(attackDamage, gameObject);
+        float hitRange = _isFinisher ? attackRange * 1.6f : attackRange * 1.3f;
+
+        if (dist <= hitRange)
+        {
+            float dmg = attackDamage * _currentDamageMultiplier;
+            player.GetComponent<HealthSystem>()?.TakeDamage(dmg, gameObject);
+
+            // Spawn blood VFX trên player
+            if (_bloodFX != null)
+            {
+                Vector3 hitPoint = player.position + Vector3.up * 1.0f;
+                Vector3 hitNormal = (player.position - transform.position).normalized;
+                _bloodFX.OnHitMelee(hitPoint, hitNormal);
+            }
+        }
+    }
+
+    public override void DealDamageToPlayer() { /* Poll-based, không dùng */ }
+
+    // ── Enrage ────────────────────────────────────────────────────────────────
+
+    private void CheckEnrage()
+    {
+        if (_isEnraged || healthSystem == null) return;
+        float ratio = healthSystem.CurrentHP / healthSystem.MaxHP;
+        if (ratio <= enrageThreshold)
+        {
+            _isEnraged = true;
+            Debug.Log("[WardenI] ENRAGE — Phase 2!");
+        }
     }
 
     // ── Gizmos ────────────────────────────────────────────────────────────────
     private void OnDrawGizmosSelected()
     {
-        // Combo start range
         Gizmos.color = Color.magenta;
         Gizmos.DrawWireSphere(transform.position, comboStartRange);
     }
