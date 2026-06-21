@@ -55,6 +55,9 @@ public class ZombieWardenTwo : ZombieBase
 
     [Tooltip("Thời gian tồn tại của VFX trước khi tự destroy (giây)")]
     public float rageBurstVFXLifetime = 3f;
+
+    [Tooltip("Scale của VFX so với mặc định (2 = to gấp đôi)")]
+    public float rageBurstVFXScale = 2.5f;
     [Header("Spike Projectile")]
     [Tooltip("Prefab viên spike (cần có SpikeProjectile script + Collider trigger + Rigidbody kinematic)")]
     public GameObject spikePrefab;
@@ -117,13 +120,15 @@ public class ZombieWardenTwo : ZombieBase
         _state = CombatState.Strafe;
         _strafeTimer = 0f;
         _spikeCooldownTimer = 0f;
-        _rageBurstTimer = rageBurstCooldown; // burst available ngay từ đầu nếu bị dồn
+        _rageBurstTimer = rageBurstCooldown;
         _isEnraged = false;
+        anim.applyRootMotion = false; // agent kiểm soát movement khi strafe
     }
 
     protected override void OnExitCombat()
     {
         _state = CombatState.Strafe;
+        anim.applyRootMotion = false;
     }
 
     protected override void UpdateCombatBehaviour()
@@ -134,9 +139,15 @@ public class ZombieWardenTwo : ZombieBase
 
         float dist = Vector3.Distance(transform.position, player.position);
 
-        // Tick cooldowns
+        // Tick spike cooldown luôn
         _spikeCooldownTimer += Time.deltaTime;
-        _rageBurstTimer += Time.deltaTime;
+
+        // Rage cooldown chỉ tick khi KHÔNG đang trong rage sequence
+        bool isRaging = _state == CombatState.RageBurstWindup
+                     || _state == CombatState.RageBurstRelease
+                     || _state == CombatState.RageBurstRecover;
+        if (!isRaging)
+            _rageBurstTimer += Time.deltaTime;
 
         switch (_state)
         {
@@ -256,10 +267,26 @@ public class ZombieWardenTwo : ZombieBase
     {
         _state = CombatState.RageBurstWindup;
         _stateTimer = 0f;
+        _rageBurstTimer = 0f; // reset cooldown ngay khi bắt đầu rage
         StopAgentCompletely();
+        anim.applyRootMotion = true;
         anim.SetFloat("Speed", 0f);
         anim.SetTrigger("rage");
-        Debug.Log("[WardenII] RAGE BURST — Windup!");
+
+        // Spawn VFX ngay lúc bắt đầu rage animation
+        if (rageBurstVFXPrefab != null)
+        {
+            GameObject vfx = Instantiate(
+                rageBurstVFXPrefab,
+                transform.position,
+                Quaternion.identity
+            );
+            // Scale to lên theo inspector
+            vfx.transform.localScale = Vector3.one * rageBurstVFXScale;
+            Destroy(vfx, rageBurstVFXLifetime);
+        }
+
+        Debug.Log("[WardenII] RAGE BURST — Windup + VFX!");
     }
 
     private void HandleRageWindup()
@@ -268,11 +295,11 @@ public class ZombieWardenTwo : ZombieBase
         FacePlayer();
         anim.SetFloat("Speed", 0f, 0.05f, Time.deltaTime);
 
-        // Chờ animation rage vào
         AnimatorStateInfo info = anim.GetCurrentAnimatorStateInfo(0);
+
+        // Tại 60% animation → phát damage + knockback
         if (info.IsName("Rage") && info.normalizedTime >= 0.6f)
         {
-            // Lúc 60% animation rage → phát nổ
             _state = CombatState.RageBurstRelease;
             _stateTimer = 0f;
         }
@@ -289,9 +316,8 @@ public class ZombieWardenTwo : ZombieBase
 
     private void HandleRageRelease()
     {
-        // Phát nổ 1 lần
+        // Phát damage + knockback đúng 1 lần
         DoRageBurstExplosion();
-        _rageBurstTimer = 0f; // reset cooldown
         _state = CombatState.RageBurstRecover;
         _stateTimer = 0f;
     }
@@ -302,31 +328,16 @@ public class ZombieWardenTwo : ZombieBase
         anim.SetFloat("Speed", 0f, 0.1f, Time.deltaTime);
         _stateTimer += Time.deltaTime;
 
-        // Chờ animation rage kết thúc
         AnimatorStateInfo info = anim.GetCurrentAnimatorStateInfo(0);
         bool rageDone = !info.IsName("Rage") || info.normalizedTime >= exitThreshold;
 
         if (rageDone && _stateTimer > 0.5f)
-        {
-            _state = CombatState.Strafe;
-            _strafeTimer = 0f;
-        }
+            ReturnToStrafe();
     }
 
-    /// <summary>AoE shockwave: đẩy + damage player nếu trong bán kính.</summary>
+    /// <summary>AoE damage + knockback player tại 60% animation rage.</summary>
     private void DoRageBurstExplosion()
     {
-        // Spawn VFX shockwave tại vị trí zombie
-        if (rageBurstVFXPrefab != null)
-        {
-            GameObject vfx = Instantiate(
-                rageBurstVFXPrefab,
-                transform.position,
-                Quaternion.identity
-            );
-            Destroy(vfx, rageBurstVFXLifetime);
-        }
-
         Collider[] hits = Physics.OverlapSphere(transform.position, rageBurstRadius);
         foreach (var hit in hits)
         {
@@ -335,22 +346,41 @@ public class ZombieWardenTwo : ZombieBase
             // Damage
             hit.GetComponent<HealthSystem>()?.TakeDamage(rageBurstDamage, gameObject);
 
-            // Knockback
+            // Knockback — hỗ trợ cả Rigidbody lẫn CharacterController
+            Vector3 dir = (hit.transform.position - transform.position).normalized;
+            dir.y = 0.4f;
+            dir = dir.normalized;
+
             Rigidbody rb = hit.GetComponent<Rigidbody>();
             if (rb != null)
             {
-                Vector3 dir = (hit.transform.position - transform.position).normalized;
-                dir.y = 0.3f; // hơi đẩy lên
                 rb.AddForce(dir * rageBurstForce, ForceMode.Impulse);
             }
+            else
+            {
+                CharacterController cc = hit.GetComponent<CharacterController>();
+                StartCoroutine(KnockbackCC(cc, dir));
+            }
 
-            Debug.Log("[WardenII] Rage Burst hit player!");
+            Debug.Log($"[WardenII] Rage Burst hit! Damage={rageBurstDamage}");
             break;
         }
-
-        // Optional: spawn VFX explosion ở đây
-        // Instantiate(rageBurstVFX, transform.position, Quaternion.identity);
     }
+
+    private System.Collections.IEnumerator KnockbackCC(CharacterController cc, Vector3 dir)
+    {
+        if (cc == null) yield break;
+        float elapsed = 0f;
+        float duration = 0.3f;
+        while (elapsed < duration)
+        {
+            float t = 1f - (elapsed / duration);
+            cc.Move(dir * rageBurstForce * t * Time.deltaTime);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+    }
+
 
     // ── Attack Anim Polling ───────────────────────────────────────────────────
 
@@ -398,10 +428,7 @@ public class ZombieWardenTwo : ZombieBase
 
         // Xong → về Strafe
         if (t >= exitThreshold)
-        {
-            _state = CombatState.Strafe;
-            _strafeTimer = 0f;
-        }
+            ReturnToStrafe();
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
@@ -426,7 +453,15 @@ public class ZombieWardenTwo : ZombieBase
         _stateTimer = 0f;
         _state = CombatState.WaitingEnterAnim;
         StopAgentCompletely();
+        anim.applyRootMotion = true;  // bật root motion để animation phóng gai tự nhiên
         anim.SetTrigger(AnimStateToTrigger(stateName));
+    }
+
+    private void ReturnToStrafe()
+    {
+        anim.applyRootMotion = false; // tắt root motion → agent kiểm soát lại vị trí
+        _state = CombatState.Strafe;
+        _strafeTimer = 0f;
     }
 
     /// <summary>

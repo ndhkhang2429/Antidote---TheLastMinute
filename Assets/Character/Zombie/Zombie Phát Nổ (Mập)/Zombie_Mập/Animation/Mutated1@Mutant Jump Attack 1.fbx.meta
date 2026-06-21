@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: b965f568344ef544a820663af445f424
+guid: fd6ed3b16f3153f48a548b046b8d1dad
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -57,13 +57,6 @@ ModelImporter:
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
       events:
-      - time: 0.49287748
-        functionName: Event_TriggerStompShockwave
-        data: 
-        objectReferenceParameter: {instanceID: 0}
-        floatParameter: 0
-        intParameter: 0
-        messageOptions: 0
       - time: 1
         functionName: ResetToNormalCombatState
         data: 

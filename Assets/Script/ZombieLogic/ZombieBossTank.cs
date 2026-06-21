@@ -55,7 +55,7 @@ public class MutatedBossZombie : ZombieBase
         if (modelV2 != null) modelV2.SetActive(true);
         if (modelV3 != null) modelV3.SetActive(false);
 
-        // Đẩy timer lên trước để Boss có thể dùng chiêu ngay khi vào trận nếu đủ điều kiện
+        // Đẩy timer lên trước để Boss có thể dùng chiêu ngay khi vào trận
         _stompTimer = stompCooldown;
         _summonTimer = summonCooldown - 5f; // Chờ 5s sau khi hú mới gọi đệ
         _chargeTimer = chargeCooldown;
@@ -64,10 +64,8 @@ public class MutatedBossZombie : ZombieBase
     }
 
     // ── Override Hooks từ Lớp Cha ────────────────────────────────────────────
-
     protected override void OnEnterCombat()
     {
-        // Khi lớp cha báo hiệu chính thức vào Combat (Scream xong)
         if (!_isPhase2)
             _bossState = BossCombatState.P1_Normal;
         else
@@ -76,7 +74,6 @@ public class MutatedBossZombie : ZombieBase
 
     protected override void OnExitCombat()
     {
-        // Khi mất dấu người chơi
         _bossState = BossCombatState.None;
     }
 
@@ -107,69 +104,60 @@ public class MutatedBossZombie : ZombieBase
         {
             // ==================== PHASE 1 LOGIC ====================
             case BossCombatState.P1_Normal:
-                // Ưu tiên 1: Gọi đệ (Summon)
                 if (_summonTimer >= summonCooldown)
                 {
                     ExecuteP1_Summon();
                 }
-                // Ưu tiên 2: Dậm đất khi người chơi lại quá gần (Stomp)
                 else if (distanceToPlayer <= 4.5f && _stompTimer >= stompCooldown)
                 {
                     ExecuteP1_Stomp();
                 }
-                // Mặc định: Tiếp cận người chơi bằng tốc độ chạy thông thường
                 else
                 {
                     ResumeAgent(runSpeed);
                     agent.stoppingDistance = attackRange;
                     agent.SetDestination(player.position);
-                    anim.SetFloat("Speed", 2f, 0.1f, Time.deltaTime);
+                    anim.SetFloat("Speed", 1f, 0.1f, Time.deltaTime); // Phase 1 dùng Walk (Speed 1)
                 }
                 break;
 
             // ==================== PHASE 2 LOGIC ====================
             case BossCombatState.P2_Normal:
-                // Ưu tiên 1: Nhảy bổ cự ly xa (Leap Smash)
                 if (distanceToPlayer >= 14f && _leapTimer >= leapCooldown)
                 {
                     ExecuteP2_Leap();
                 }
-                // Ưu tiên 2: Lao tới đâm húc cự ly tầm trung (Charge)
                 else if (distanceToPlayer >= 6f && distanceToPlayer < 14f && _chargeTimer >= chargeCooldown)
                 {
                     ExecuteP2_Charge();
                 }
-                // Ưu tiên 3: Chuỗi cào xé điên cuồng cự ly cận chiến (Frenzy Swipes)
                 else if (distanceToPlayer <= attackRange && _frenzyTimer >= frenzyCooldown)
                 {
                     ExecuteP2_Frenzy();
                 }
-                // Mặc định: Áp sát điên cuồng (Enraged Run)
                 else
                 {
                     ResumeAgent(enragedRunSpeed);
                     agent.stoppingDistance = attackRange;
                     agent.SetDestination(player.position);
-                    anim.SetFloat("Speed", 2.5f, 0.1f, Time.deltaTime); // Kích tốc độ chạy animation lên
+                    anim.SetFloat("Speed", 2f, 0.1f, Time.deltaTime); // Phase 2 dùng Run (Speed 2)
                 }
                 break;
 
             case BossCombatState.P2_Charge:
-                // Logic xử lý khi đang trong trạng thái lao tới đâm húc
                 UpdateChargeMovement();
                 break;
         }
     }
 
     // ── Xử Lý Các Đòn Đánh Phase 1 ───────────────────────────────────────────
-
     private void ExecuteP1_Stomp()
     {
         _bossState = BossCombatState.P1_Stomp;
         _stompTimer = 0f;
         StopAgentCompletely();
         FacePlayer(true);
-        anim.SetTrigger("StompTrigger"); // Mixamo: "Mutant Stomp"
+        anim.SetTrigger("StompTrigger");
     }
 
     private void ExecuteP1_Summon()
@@ -177,11 +165,10 @@ public class MutatedBossZombie : ZombieBase
         _bossState = BossCombatState.P1_Summon;
         _summonTimer = 0f;
         StopAgentCompletely();
-        anim.SetTrigger("SummonTrigger"); // Mixamo: "Mutant Roar" / "Taunt"
+        anim.SetTrigger("SummonTrigger");
     }
 
     // ── Xử Lý Các Đòn Đánh Phase 2 ───────────────────────────────────────────
-
     private void ExecuteP2_Leap()
     {
         _bossState = BossCombatState.P2_Leap;
@@ -189,32 +176,27 @@ public class MutatedBossZombie : ZombieBase
         StopAgentCompletely();
         FacePlayer(true);
 
-        // Khóa mục tiêu và dịch chuyển NavMeshAgent hoặc bật root motion
         agent.SetDestination(player.position);
-        anim.SetTrigger("LeapTrigger"); // Mixamo: "Jumping Smash"
+        anim.SetTrigger("LeapTrigger");
     }
 
     private void ExecuteP2_Charge()
     {
         _bossState = BossCombatState.P2_Charge;
         _chargeTimer = 0f;
-
-        // Khóa vị trí của người chơi tại thời điểm ra chiêu
         _chargeTargetPos = player.position;
 
         ResumeAgent(chargeSpeed);
         agent.stoppingDistance = 0f;
         agent.SetDestination(_chargeTargetPos);
 
-        anim.SetTrigger("ChargeTrigger"); // Mixamo: "Shoulder Tackle" hoặc "Mutant Run" tốc độ cao
+        anim.SetTrigger("ChargeTrigger");
     }
 
     private void UpdateChargeMovement()
     {
-        // Nếu đã đến gần điểm khóa mục tiêu ban đầu
         if (!agent.pathPending && agent.remainingDistance <= 0.5f)
         {
-            // Kết thúc đòn húc mà không đâm trúng vật cản cứng
             ResetToNormalCombatState();
         }
     }
@@ -225,7 +207,7 @@ public class MutatedBossZombie : ZombieBase
         _frenzyTimer = 0f;
         StopAgentCompletely();
         FacePlayer();
-        anim.SetTrigger("FrenzyTrigger"); // Mixamo: "Frenzy Attack" / "Mutant Swiping"
+        anim.SetTrigger("FrenzyTrigger");
     }
 
     // ── Đánh Chặn TakeDamage Để Chuyển Pha ────────────────────────────────────
@@ -233,13 +215,11 @@ public class MutatedBossZombie : ZombieBase
     {
         if (_isDead) return;
 
-        // Gọi logic xử lý nhận sát thương cốt lõi từ lớp cha
         base.TakeDamage(damage, attacker);
 
-        // Kiểm tra tỷ lệ máu qua HealthSystem được thừa kế
         if (healthSystem != null && !_isPhase2 && _bossState != BossCombatState.Transition)
         {
-            float hpPercent = (float)healthSystem.CurrentHP / healthSystem.MaxHP; // Đảm bảo lớp HealthSystem của bạn có các thuộc tính này
+            float hpPercent = (float)healthSystem.CurrentHP / healthSystem.MaxHP;
             if (hpPercent <= 0.5f)
             {
                 StartCoroutine(TriggerPhaseTransition());
@@ -253,27 +233,20 @@ public class MutatedBossZombie : ZombieBase
         _isPhase2 = true;
         StopAgentCompletely();
 
-        // Chạy animation gầm thét đau đớn dữ dội
-        anim.SetTrigger("RoarTransition"); // Mixamo: "Zombie Scream" dài dốc sức
+        anim.SetTrigger("RoarTransition");
 
-        // TẠI ĐÂY: Bạn có thể kích hoạt Particle System khói độc/vfx máu bắn ra che mắt người chơi
-        yield return new WaitForSeconds(2.0f); // Thời gian chờ thích hợp với clip anim gầm rú
+        yield return new WaitForSeconds(2.0f);
 
-        // HOÁN ĐỔI MODEL PREFAB
         if (modelV2 != null) modelV2.SetActive(false);
         if (modelV3 != null) modelV3.SetActive(true);
 
-        // Tăng tốc độ cơ bản của Animator lên một chút để thể hiện trạng thái điên cuồng
         anim.speed = 1.25f;
-
-        // Đưa boss về trạng thái chạy Phase 2 bình thường
         _bossState = BossCombatState.P2_Normal;
     }
 
-    // ── Xử Lý Va Chạm Khi Lao Tới (Đâm vào Trụ Bệnh Viện) ────────────────────
+    // ── Xử Lý Va Chạm Khi Lao Tới ─────────────────────────────────────────────
     private void OnCollisionEnter(Collision collision)
     {
-        // Nếu đang trong trạng thái lao tới đâm húc và đâm trúng vật cản có Tag "Pillar" hoặc cấu trúc tường cứng
         if (_bossState == BossCombatState.P2_Charge && collision.gameObject.CompareTag("Pillar"))
         {
             StartCoroutine(TriggerStunRoutine());
@@ -284,37 +257,28 @@ public class MutatedBossZombie : ZombieBase
     {
         _isStunned = true;
         StopAgentCompletely();
-        anim.SetTrigger("StunnedTrigger"); // Mixamo: "Bounced Back" hoặc "Hit Head"
+        anim.SetTrigger("StunnedTrigger");
 
-        yield return new WaitForSeconds(2.5f); // Bị choáng 2.5 giây cho người chơi xả đạn
+        yield return new WaitForSeconds(2.5f);
 
         _isStunned = false;
         ResetToNormalCombatState();
     }
 
-    // ── ANIMATION EVENTS (BẮT BUỘC PHẢI GẮN VÀO CÁC TIMELINE CLIP TRÊN UNITY) ──
-
-    /// <summary>
-    /// Gắn vào đúng Frame mà chân boss dậm mạnh xuống đất trên clip "Mutant Stomp"
-    /// </summary>
+    // ── ANIMATION EVENTS ──────────────────────────────────────────────────────
     public void Event_TriggerStompShockwave()
     {
-        // Quét bán kính xung quanh xem người chơi có đứng trong vùng ảnh hưởng không
         float shockwaveRadius = 6.0f;
-        float dist = Vector3.Distance(transform.position, player.position);
+        if (player == null) return; // An toàn chống lỗi null
 
+        float dist = Vector3.Distance(transform.position, player.position);
         if (dist <= shockwaveRadius)
         {
-            // Gây sát thương và có thể gọi hàm Player.SlowDown() nếu game bạn có cơ chế này
             player.GetComponent<HealthSystem>()?.TakeDamage(attackDamage * 1.2f, gameObject);
             Debug.Log("Người chơi trúng làn sóng chấn động dậm đất!");
         }
-        // Có thể Instantiate một hiệu ứng bụi đất hình tròn tại đây
     }
 
-    /// <summary>
-    /// Gắn vào Frame miệng boss há to gầm rú trên clip "Mutant Roar"
-    /// </summary>
     public void Event_TriggerSummonMinions()
     {
         if (minionPrefab == null || minionSpawnPoints == null) return;
@@ -323,13 +287,8 @@ public class MutatedBossZombie : ZombieBase
         {
             Instantiate(minionPrefab, t.position, t.rotation);
         }
-        Debug.Log("Boss đã triệu hồi lính lác từ phòng bệnh!");
     }
 
-    /// <summary>
-    /// Gắn vào TẤT CẢ các Frame cuối cùng của các clip kỹ năng (Stomp, Summon, Leap, Frenzy)
-    /// Để giải phóng Boss về trạng thái di chuyển/săn đuổi thông thường.
-    /// </summary>
     public void ResetToNormalCombatState()
     {
         if (_isDead) return;

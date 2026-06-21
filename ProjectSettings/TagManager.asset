@@ -14,6 +14,7 @@ TagManager:
   - Weapon
   - SecondCamera
   - BulletSpawn
+  - Pillar
   layers:
   - Default
   - TransparentFX
