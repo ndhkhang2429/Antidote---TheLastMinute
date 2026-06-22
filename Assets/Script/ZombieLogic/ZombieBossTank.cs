@@ -49,18 +49,17 @@ public class MutatedBossZombie : ZombieBase
     // ── Khởi tạo ─────────────────────────────────────────────────────────────
     protected override void Start()
     {
-        base.Start(); // Gọi khởi tạo cấu trúc BT của lớp cha
+        base.Start();
 
-        // Đảm bảo ban đầu chỉ hiển thị Model dạng bình thường (V2)
         if (modelV2 != null) modelV2.SetActive(true);
         if (modelV3 != null) modelV3.SetActive(false);
 
-        // Đẩy timer lên trước để Boss có thể dùng chiêu ngay khi vào trận
         _stompTimer = stompCooldown;
-        _summonTimer = summonCooldown - 5f; // Chờ 5s sau khi hú mới gọi đệ
+        _summonTimer = summonCooldown - 5f;
         _chargeTimer = chargeCooldown;
         _leapTimer = leapCooldown;
         _frenzyTimer = frenzyCooldown;
+        ForceAlert();
     }
 
     // ── Override Hooks từ Lớp Cha ────────────────────────────────────────────
@@ -79,11 +78,10 @@ public class MutatedBossZombie : ZombieBase
 
     protected override void Update()
     {
-        base.Update(); // Chạy BT ở lớp cha để tính toán Mode lớn
+        base.Update();
 
         if (_isDead || player == null || _mode != ZombieMode.Combat || !ScreamDone) return;
 
-        // Cập nhật thời gian hồi chiêu theo thời gian thực
         _stompTimer += Time.deltaTime;
         _summonTimer += Time.deltaTime;
         _chargeTimer += Time.deltaTime;
@@ -91,9 +89,6 @@ public class MutatedBossZombie : ZombieBase
         _frenzyTimer += Time.deltaTime;
     }
 
-    /// <summary>
-    /// Hàm cốt lõi: Override logic combat mặc định của lớp cha thành State Machine của Boss
-    /// </summary>
     protected override void UpdateCombatBehaviour()
     {
         if (_isStunned || _bossState == BossCombatState.Transition) return;
@@ -117,7 +112,7 @@ public class MutatedBossZombie : ZombieBase
                     ResumeAgent(runSpeed);
                     agent.stoppingDistance = attackRange;
                     agent.SetDestination(player.position);
-                    anim.SetFloat("Speed", 1f, 0.1f, Time.deltaTime); // Phase 1 dùng Walk (Speed 1)
+                    anim.SetFloat("Speed", 1f, 0.1f, Time.deltaTime);
                 }
                 break;
 
@@ -140,7 +135,7 @@ public class MutatedBossZombie : ZombieBase
                     ResumeAgent(enragedRunSpeed);
                     agent.stoppingDistance = attackRange;
                     agent.SetDestination(player.position);
-                    anim.SetFloat("Speed", 2f, 0.1f, Time.deltaTime); // Phase 2 dùng Run (Speed 2)
+                    anim.SetFloat("Speed", 2f, 0.1f, Time.deltaTime);
                 }
                 break;
 
@@ -155,7 +150,11 @@ public class MutatedBossZombie : ZombieBase
     {
         _bossState = BossCombatState.P1_Stomp;
         _stompTimer = 0f;
+
         StopAgentCompletely();
+        // KHÓA NAVMESH: Cho phép animation Stomp nhấc bổng Boss lên
+        agent.updatePosition = false;
+
         FacePlayer(true);
         anim.SetTrigger("StompTrigger");
     }
@@ -173,10 +172,12 @@ public class MutatedBossZombie : ZombieBase
     {
         _bossState = BossCombatState.P2_Leap;
         _leapTimer = 0f;
-        StopAgentCompletely();
-        FacePlayer(true);
 
-        agent.SetDestination(player.position);
+        StopAgentCompletely();
+        // KHÓA NAVMESH: Cho phép animation Leap vọt tới trước và nhảy lên
+        agent.updatePosition = false;
+
+        FacePlayer(true);
         anim.SetTrigger("LeapTrigger");
     }
 
@@ -206,6 +207,7 @@ public class MutatedBossZombie : ZombieBase
         _bossState = BossCombatState.P2_Frenzy;
         _frenzyTimer = 0f;
         StopAgentCompletely();
+        agent.updatePosition = false;
         FacePlayer();
         anim.SetTrigger("FrenzyTrigger");
     }
@@ -266,16 +268,36 @@ public class MutatedBossZombie : ZombieBase
     }
 
     // ── ANIMATION EVENTS ──────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Gắn vào frame chạm đất của clip STOMP (Phase 1)
+    /// </summary>
     public void Event_TriggerStompShockwave()
     {
         float shockwaveRadius = 6.0f;
-        if (player == null) return; // An toàn chống lỗi null
+        if (player == null) return;
 
         float dist = Vector3.Distance(transform.position, player.position);
         if (dist <= shockwaveRadius)
         {
             player.GetComponent<HealthSystem>()?.TakeDamage(attackDamage * 1.2f, gameObject);
-            Debug.Log("Người chơi trúng làn sóng chấn động dậm đất!");
+            Debug.Log("Người chơi trúng làn sóng chấn động dậm đất (Stomp)!");
+        }
+    }
+
+    /// <summary>
+    /// Gắn vào frame chạm đất của clip LEAP (Phase 2)
+    /// </summary>
+    public void Event_TriggerLeapShockwave()
+    {
+        float shockwaveRadius = 8.0f; // Leap xa hơn nên sóng xung kích to hơn
+        if (player == null) return;
+
+        float dist = Vector3.Distance(transform.position, player.position);
+        if (dist <= shockwaveRadius)
+        {
+            player.GetComponent<HealthSystem>()?.TakeDamage(attackDamage * 1.5f, gameObject);
+            Debug.Log("Người chơi trúng làn sóng nhảy bổ (Leap)!");
         }
     }
 
@@ -289,6 +311,9 @@ public class MutatedBossZombie : ZombieBase
         }
     }
 
+    /// <summary>
+    /// Gắn vào FRAME CUỐI CÙNG của TẤT CẢ các clip đòn đánh (Stomp, Leap, Charge, Summon, Frenzy, Stunned).
+    /// </summary>
     public void ResetToNormalCombatState()
     {
         if (_isDead) return;
@@ -297,6 +322,10 @@ public class MutatedBossZombie : ZombieBase
 
         if (agent.isActiveAndEnabled && agent.isOnNavMesh)
         {
+            // BẬT LẠI NAVMESH VÀ ĐỒNG BỘ VỊ TRÍ
+            agent.updatePosition = true;
+            agent.Warp(transform.position); // Ép NavMesh đi theo vị trí mới của Boss do Root Motion kéo đi
+
             agent.isStopped = false;
         }
     }
