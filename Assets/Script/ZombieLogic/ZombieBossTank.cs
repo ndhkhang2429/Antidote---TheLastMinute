@@ -1,16 +1,16 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
 public class MutatedBossZombie : ZombieBase
 {
-    // Định nghĩa các trạng thái Combat nội bộ của riêng Boss
     protected enum BossCombatState
     {
         None,
         P1_Normal, P1_Stomp, P1_Summon,
         Transition,
-        P2_Normal, P2_Charge, P2_Leap, P2_Frenzy
+        P2_Normal, P2_Preparing, P2_Charge, P2_Leap, P2_Frenzy
     }
 
     [Header("== BOSS MODELS & PHASES ==")]
@@ -19,29 +19,44 @@ public class MutatedBossZombie : ZombieBase
     [SerializeField] private Transform[] minionSpawnPoints;
     [SerializeField] private GameObject minionPrefab;
 
+    [Header("== EFFECTS & VFX ==")]
+    [SerializeField] private GameObject stompVfxPrefab;
+    [SerializeField] private GameObject leapVfxPrefab;
+    [SerializeField] private GameObject groundCrackPrefab;
+
     [Header("Phase 1 Cooldowns")]
     [SerializeField] private float stompCooldown = 8f;
     [SerializeField] private float summonCooldown = 20f;
 
-    [Header("Phase 2 Cooldowns")]
+    [Header("Phase 2 Settings (Pattern & Telegraph)")]
+    [SerializeField] private float p2AttackInterval = 4f;
+    [SerializeField] private float windUpTime = 1.5f;
     [SerializeField] private float chargeCooldown = 12f;
     [SerializeField] private float leapCooldown = 15f;
     [SerializeField] private float frenzyCooldown = 5f;
 
+    [Header("== TUNING CÚ NHẢY (LEAP CONFIG) ==")]
+    [Tooltip("Độ cao cực đại của cú nhảy (mét)")]
+    [SerializeField] private float leapMaxHeight = 4f;
+    [Tooltip("Thời gian bay trên không cho đến khi chạm đất (giây)")]
+    [SerializeField] private float leapFlyDuration = 1.0f;
+    [Tooltip("Thời gian Boss lấy đà nhún người trước khi thực sự bay lên")]
+    [SerializeField] private float leapTakeoffDelay = 0.2f;
+
     [Header("Phase 2 Stats Boost")]
-    [SerializeField] private float enragedRunSpeed = 6f;
     [SerializeField] private float chargeSpeed = 16f;
 
     // Các biến trạng thái nội bộ
     private BossCombatState _bossState = BossCombatState.None;
     private bool _isPhase2 = false;
 
-    // Bộ đếm thời gian hồi chiêu (Timers)
     private float _stompTimer = 0f;
     private float _summonTimer = 0f;
+    private float _p2DecisionTimer = 0f;
     private float _chargeTimer = 0f;
     private float _leapTimer = 0f;
     private float _frenzyTimer = 0f;
+    private float _wanderTimer = 0f;
 
     private Vector3 _chargeTargetPos;
     private bool _isStunned = false;
@@ -56,13 +71,14 @@ public class MutatedBossZombie : ZombieBase
 
         _stompTimer = stompCooldown;
         _summonTimer = summonCooldown - 5f;
+        _p2DecisionTimer = p2AttackInterval;
         _chargeTimer = chargeCooldown;
         _leapTimer = leapCooldown;
         _frenzyTimer = frenzyCooldown;
+
         ForceAlert();
     }
 
-    // ── Override Hooks từ Lớp Cha ────────────────────────────────────────────
     protected override void OnEnterCombat()
     {
         if (!_isPhase2)
@@ -84,29 +100,32 @@ public class MutatedBossZombie : ZombieBase
 
         _stompTimer += Time.deltaTime;
         _summonTimer += Time.deltaTime;
-        _chargeTimer += Time.deltaTime;
-        _leapTimer += Time.deltaTime;
-        _frenzyTimer += Time.deltaTime;
+
+        if (_isPhase2)
+        {
+            _p2DecisionTimer += Time.deltaTime;
+            _chargeTimer += Time.deltaTime;
+            _leapTimer += Time.deltaTime;
+            _frenzyTimer += Time.deltaTime;
+        }
+
+        if (_bossState == BossCombatState.P2_Preparing)
+        {
+            FacePlayer(false);
+        }
     }
 
     protected override void UpdateCombatBehaviour()
     {
-        if (_isStunned || _bossState == BossCombatState.Transition) return;
+        if (_isStunned || _bossState == BossCombatState.Transition || _bossState == BossCombatState.P2_Preparing || _bossState == BossCombatState.P2_Leap) return;
 
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
         switch (_bossState)
         {
-            // ==================== PHASE 1 LOGIC ====================
             case BossCombatState.P1_Normal:
-                if (_summonTimer >= summonCooldown)
-                {
-                    ExecuteP1_Summon();
-                }
-                else if (distanceToPlayer <= 4.5f && _stompTimer >= stompCooldown)
-                {
-                    ExecuteP1_Stomp();
-                }
+                if (_summonTimer >= summonCooldown) { ExecuteP1_Summon(); }
+                else if (distanceToPlayer <= 4.5f && _stompTimer >= stompCooldown) { ExecuteP1_Stomp(); }
                 else
                 {
                     ResumeAgent(runSpeed);
@@ -116,26 +135,14 @@ public class MutatedBossZombie : ZombieBase
                 }
                 break;
 
-            // ==================== PHASE 2 LOGIC ====================
             case BossCombatState.P2_Normal:
-                if (distanceToPlayer >= 14f && _leapTimer >= leapCooldown)
+                if (_p2DecisionTimer >= p2AttackInterval)
                 {
-                    ExecuteP2_Leap();
-                }
-                else if (distanceToPlayer >= 6f && distanceToPlayer < 14f && _chargeTimer >= chargeCooldown)
-                {
-                    ExecuteP2_Charge();
-                }
-                else if (distanceToPlayer <= attackRange && _frenzyTimer >= frenzyCooldown)
-                {
-                    ExecuteP2_Frenzy();
+                    ChooseRandomP2Attack();
                 }
                 else
                 {
-                    ResumeAgent(enragedRunSpeed);
-                    agent.stoppingDistance = attackRange;
-                    agent.SetDestination(player.position);
-                    anim.SetFloat("Speed", 2f, 0.1f, Time.deltaTime);
+                    UpdateP2WanderLogic();
                 }
                 break;
 
@@ -145,16 +152,52 @@ public class MutatedBossZombie : ZombieBase
         }
     }
 
-    // ── Xử Lý Các Đòn Đánh Phase 1 ───────────────────────────────────────────
+    private void UpdateP2WanderLogic()
+    {
+        _wanderTimer -= Time.deltaTime;
+
+        if (_wanderTimer <= 0)
+        {
+            Vector3 randomDirection = Random.insideUnitSphere * 8f;
+            randomDirection += transform.position;
+            NavMeshHit hit;
+            if (NavMesh.SamplePosition(randomDirection, out hit, 8f, 1))
+            {
+                agent.SetDestination(hit.position);
+            }
+            _wanderTimer = 3f;
+        }
+
+        ResumeAgent(runSpeed);
+        agent.stoppingDistance = 0f;
+        anim.SetFloat("Speed", 1f, 0.1f, Time.deltaTime);
+    }
+
+    private void ChooseRandomP2Attack()
+    {
+        _p2DecisionTimer = 0f;
+
+        List<int> availableAttacks = new List<int>();
+
+        if (_leapTimer >= leapCooldown) availableAttacks.Add(0);
+        if (_chargeTimer >= chargeCooldown) availableAttacks.Add(1);
+        if (_frenzyTimer >= frenzyCooldown) availableAttacks.Add(2);
+
+        if (availableAttacks.Count == 0) return;
+
+        int randomIndex = availableAttacks[Random.Range(0, availableAttacks.Count)];
+
+        if (randomIndex == 0) StartCoroutine(ExecuteP2_Leap_Routine());
+        else if (randomIndex == 1) StartCoroutine(ExecuteP2_Charge_Routine());
+        else if (randomIndex == 2) ExecuteP2_Frenzy();
+    }
+
     private void ExecuteP1_Stomp()
     {
         _bossState = BossCombatState.P1_Stomp;
         _stompTimer = 0f;
-
         StopAgentCompletely();
-        // KHÓA NAVMESH: Cho phép animation Stomp nhấc bổng Boss lên
         agent.updatePosition = false;
-
         FacePlayer(true);
         anim.SetTrigger("StompTrigger");
     }
@@ -167,25 +210,66 @@ public class MutatedBossZombie : ZombieBase
         anim.SetTrigger("SummonTrigger");
     }
 
-    // ── Xử Lý Các Đòn Đánh Phase 2 ───────────────────────────────────────────
-    private void ExecuteP2_Leap()
+    // ── THUẬT TOÁN NHẢY VÒNG CUNG THEO PLAYER (ĐÃ SỬA LỖI TẠI CHỖ) ───────────────────
+    private IEnumerator ExecuteP2_Leap_Routine()
     {
+        _bossState = BossCombatState.P2_Preparing;
+        StopAgentCompletely();
+
+        // 1. Chờ gồng chiêu dọa Player
+        yield return new WaitForSeconds(windUpTime);
+
         _bossState = BossCombatState.P2_Leap;
         _leapTimer = 0f;
 
-        StopAgentCompletely();
-        // KHÓA NAVMESH: Cho phép animation Leap vọt tới trước và nhảy lên
-        agent.updatePosition = false;
+        // 2. Chốt tọa độ mục tiêu của người chơi TẠI THỜI ĐIỂM NÀY và tắt AI Agent
+        Vector3 targetPosition = player.position;
+        Vector3 startPosition = transform.position;
+        agent.enabled = false;
 
         FacePlayer(true);
         anim.SetTrigger("LeapTrigger");
+
+        // 3. Chờ hoạt ảnh nhún người lấy đà trước khi nhấc chân khỏi mặt đất
+        yield return new WaitForSeconds(leapTakeoffDelay);
+
+        // 4. Vòng lặp toán học di chuyển Boss bay lên theo hình vòng cung
+        float elapsedTime = 0f;
+        while (elapsedTime < leapFlyDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            float t = elapsedTime / leapFlyDuration; // Tỷ lệ từ 0.0 -> 1.0
+
+            // Nội suy di chuyển phẳng trên trục XZ tiến về mục tiêu
+            Vector3 currentPos = Vector3.Lerp(startPosition, targetPosition, t);
+
+            // Tính toán độ cao trục Y dựa trên hàm Sin (Sin từ 0 đến PI tạo ra đồ thị vòng cung)
+            float height = Mathf.Sin(t * Mathf.PI) * leapMaxHeight;
+            currentPos.y += height;
+
+            // Đưa tọa độ mới vào Boss
+            transform.position = currentPos;
+            yield return null;
+        }
+
+        // 5. Đảm bảo đáp chính xác xuống mặt đất khi kết thúc loop
+        transform.position = targetPosition;
     }
 
-    private void ExecuteP2_Charge()
+    private IEnumerator ExecuteP2_Charge_Routine()
     {
+        _bossState = BossCombatState.P2_Preparing;
+        StopAgentCompletely();
+
+        yield return new WaitForSeconds(windUpTime);
+
         _bossState = BossCombatState.P2_Charge;
         _chargeTimer = 0f;
-        _chargeTargetPos = player.position;
+
+        Vector3 directionToPlayer = (player.position - transform.position).normalized;
+        directionToPlayer.y = 0;
+
+        _chargeTargetPos = transform.position + (directionToPlayer * 50f);
 
         ResumeAgent(chargeSpeed);
         agent.stoppingDistance = 0f;
@@ -196,7 +280,9 @@ public class MutatedBossZombie : ZombieBase
 
     private void UpdateChargeMovement()
     {
-        if (!agent.pathPending && agent.remainingDistance <= 0.5f)
+        if (_chargeTimer < 0.5f) return;
+
+        if (!agent.pathPending && agent.remainingDistance <= 1.0f)
         {
             ResetToNormalCombatState();
         }
@@ -206,13 +292,14 @@ public class MutatedBossZombie : ZombieBase
     {
         _bossState = BossCombatState.P2_Frenzy;
         _frenzyTimer = 0f;
+
         StopAgentCompletely();
-        agent.updatePosition = false;
+        agent.updatePosition = true;
+
         FacePlayer();
         anim.SetTrigger("FrenzyTrigger");
     }
 
-    // ── Đánh Chặn TakeDamage Để Chuyển Pha ────────────────────────────────────
     public override void TakeDamage(float damage, GameObject attacker = null)
     {
         if (_isDead) return;
@@ -246,10 +333,10 @@ public class MutatedBossZombie : ZombieBase
         _bossState = BossCombatState.P2_Normal;
     }
 
-    // ── Xử Lý Va Chạm Khi Lao Tới ─────────────────────────────────────────────
     private void OnCollisionEnter(Collision collision)
     {
-        if (_bossState == BossCombatState.P2_Charge && collision.gameObject.CompareTag("Pillar"))
+        if (_bossState == BossCombatState.P2_Charge &&
+           (collision.gameObject.CompareTag("Pillar") || collision.gameObject.CompareTag("Wall")))
         {
             StartCoroutine(TriggerStunRoutine());
         }
@@ -268,12 +355,22 @@ public class MutatedBossZombie : ZombieBase
     }
 
     // ── ANIMATION EVENTS ──────────────────────────────────────────────────────
-
-    /// <summary>
-    /// Gắn vào frame chạm đất của clip STOMP (Phase 1)
-    /// </summary>
     public void Event_TriggerStompShockwave()
     {
+        if (stompVfxPrefab != null)
+        {
+            GameObject vfx = Instantiate(stompVfxPrefab, transform.position, stompVfxPrefab.transform.rotation);
+            Destroy(vfx, 4f);
+        }
+
+        if (groundCrackPrefab != null)
+        {
+            Vector3 crackPos = new Vector3(transform.position.x, transform.position.y + 0.7f, transform.position.z);
+            Quaternion crackRot = Quaternion.Euler(-90, 0, 0);
+            GameObject crack = Instantiate(groundCrackPrefab, crackPos, crackRot);
+            Destroy(crack, 10f);
+        }
+
         float shockwaveRadius = 6.0f;
         if (player == null) return;
 
@@ -281,23 +378,32 @@ public class MutatedBossZombie : ZombieBase
         if (dist <= shockwaveRadius)
         {
             player.GetComponent<HealthSystem>()?.TakeDamage(attackDamage * 1.2f, gameObject);
-            Debug.Log("Người chơi trúng làn sóng chấn động dậm đất (Stomp)!");
         }
     }
 
-    /// <summary>
-    /// Gắn vào frame chạm đất của clip LEAP (Phase 2)
-    /// </summary>
     public void Event_TriggerLeapShockwave()
     {
-        float shockwaveRadius = 8.0f; // Leap xa hơn nên sóng xung kích to hơn
+        if (leapVfxPrefab != null)
+        {
+            GameObject vfx = Instantiate(leapVfxPrefab, transform.position, leapVfxPrefab.transform.rotation);
+            Destroy(vfx, 4f);
+        }
+
+        if (groundCrackPrefab != null)
+        {
+            Vector3 crackPos = new Vector3(transform.position.x, transform.position.y + 0.05f, transform.position.z);
+            Quaternion crackRot = Quaternion.Euler(-90, 0, 0);
+            GameObject crack = Instantiate(groundCrackPrefab, crackPos, crackRot);
+            Destroy(crack, 10f);
+        }
+
+        float shockwaveRadius = 8.0f;
         if (player == null) return;
 
         float dist = Vector3.Distance(transform.position, player.position);
         if (dist <= shockwaveRadius)
         {
             player.GetComponent<HealthSystem>()?.TakeDamage(attackDamage * 1.5f, gameObject);
-            Debug.Log("Người chơi trúng làn sóng nhảy bổ (Leap)!");
         }
     }
 
@@ -311,21 +417,21 @@ public class MutatedBossZombie : ZombieBase
         }
     }
 
-    /// <summary>
-    /// Gắn vào FRAME CUỐI CÙNG của TẤT CẢ các clip đòn đánh (Stomp, Leap, Charge, Summon, Frenzy, Stunned).
-    /// </summary>
     public void ResetToNormalCombatState()
     {
         if (_isDead) return;
 
         _bossState = _isPhase2 ? BossCombatState.P2_Normal : BossCombatState.P1_Normal;
 
+        if (!agent.enabled)
+        {
+            agent.enabled = true;
+        }
+
         if (agent.isActiveAndEnabled && agent.isOnNavMesh)
         {
-            // BẬT LẠI NAVMESH VÀ ĐỒNG BỘ VỊ TRÍ
             agent.updatePosition = true;
-            agent.Warp(transform.position); // Ép NavMesh đi theo vị trí mới của Boss do Root Motion kéo đi
-
+            agent.Warp(transform.position);
             agent.isStopped = false;
         }
     }
