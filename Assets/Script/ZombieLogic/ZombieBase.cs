@@ -529,6 +529,10 @@ public class ZombieBase : MonoBehaviour
         if (col != null) col.enabled = false;
     }
 
+    public virtual void ResetToNormalCombatState()
+    {
+    }
+
     // ── Gizmos ───────────────────────────────────────────────────────────────
     private void OnDrawGizmosSelected()
     {

@@ -13,9 +13,12 @@ public class MutatedBossZombie : ZombieBase
         P2_Normal, P2_Preparing, P2_RockSpikes, P2_Leap, P2_Frenzy
     }
 
-    [Header("== BOSS MODELS & PHASES ==")]
-    [SerializeField] private GameObject modelV2;
-    [SerializeField] private GameObject modelV3;
+    [Header("== BOSS MATERIALS (CẬP NHẬT ĐỔI MÀU DA) ==")]
+    [Tooltip("Kéo Material của V2 (Da thường) vào đây")]
+    [SerializeField] private Material materialV2;
+    [Tooltip("Kéo Material của V3 (Da máu me/Đột biến) vào đây")]
+    [SerializeField] private Material materialV3;
+
     [SerializeField] private Transform[] minionSpawnPoints;
     [SerializeField] private GameObject minionPrefab;
 
@@ -28,21 +31,18 @@ public class MutatedBossZombie : ZombieBase
     [SerializeField] private float stompCooldown = 8f;
     [SerializeField] private float summonCooldown = 20f;
 
-    [Header("Phase 2 Settings (Pattern & Telegraph)")]
+    [Header("Phase 2 Settings")]
     [SerializeField] private float p2AttackInterval = 4f;
     [SerializeField] private float windUpTime = 1.5f;
     [SerializeField] private float leapCooldown = 15f;
     [SerializeField] private float frenzyCooldown = 5f;
 
     [Header("== CHIÊU TRỤ ĐÁ (ROCK SPIKES) ==")]
-    [SerializeField] private GameObject spikeWarningPrefab; // Cảnh báo vòng đỏ
+    [SerializeField] private GameObject spikeWarningPrefab;
     [SerializeField] private float rockSpikesCooldown = 12f;
-    [SerializeField] private int spikeCount = 15;           // Số lượng trụ đá
+    [SerializeField] private int spikeCount = 25;
 
-    [Tooltip("Kéo một Empty Object đặt ở giữa phòng vào đây")]
     [SerializeField] private Transform roomCenter;
-
-    [Tooltip("Kích thước khu vực mọc đá (Chiều Rộng x Chiều Dài)")]
     [SerializeField] private Vector2 roomSize = new Vector2(40f, 40f);
 
     [Header("== TUNING CÚ NHẢY (LEAP CONFIG) ==")]
@@ -50,7 +50,6 @@ public class MutatedBossZombie : ZombieBase
     [SerializeField] private float leapFlyDuration = 1.0f;
     [SerializeField] private float leapTakeoffDelay = 0.2f;
 
-    // Các biến trạng thái nội bộ
     private BossCombatState _bossState = BossCombatState.None;
     private bool _isPhase2 = false;
 
@@ -62,13 +61,19 @@ public class MutatedBossZombie : ZombieBase
     private float _frenzyTimer = 0f;
     private float _wanderTimer = 0f;
 
-    // ── Khởi tạo ─────────────────────────────────────────────────────────────
+    private SkinnedMeshRenderer _skmr;
+
     protected override void Start()
     {
         base.Start();
 
-        if (modelV2 != null) modelV2.SetActive(true);
-        if (modelV3 != null) modelV3.SetActive(false);
+        _skmr = GetComponentInChildren<SkinnedMeshRenderer>();
+
+        // Mặc áo V2 lúc mới vào game
+        if (_skmr != null && materialV2 != null)
+        {
+            _skmr.sharedMaterial = materialV2;
+        }
 
         _stompTimer = stompCooldown;
         _summonTimer = summonCooldown - 5f;
@@ -95,7 +100,6 @@ public class MutatedBossZombie : ZombieBase
 
     protected override void Update()
     {
-        // Khi đang nhảy, tạm thời chặn base.Update để lớp cha không can thiệp
         if (_bossState == BossCombatState.P2_Leap) return;
 
         base.Update();
@@ -213,7 +217,6 @@ public class MutatedBossZombie : ZombieBase
         anim.SetTrigger("SummonTrigger");
     }
 
-    // ── ĐÒN GỌI TRỤ ĐÁ (ROCK SPIKES) ───────────────────────────────────────────
     private IEnumerator ExecuteP2_RockSpikes_Routine()
     {
         _bossState = BossCombatState.P2_Preparing;
@@ -222,7 +225,6 @@ public class MutatedBossZombie : ZombieBase
         FacePlayer(true);
         anim.SetTrigger("StompTrigger");
 
-        // Đợi đến thời điểm chân Boss chạm đất
         yield return new WaitForSeconds(1.0f);
 
         _bossState = BossCombatState.P2_RockSpikes;
@@ -230,31 +232,31 @@ public class MutatedBossZombie : ZombieBase
 
         if (spikeWarningPrefab != null)
         {
-            for (int i = 0; i < spikeCount; i++)
-            {
-                // 1. Lấy tâm phòng làm gốc (Nếu quên gán tâm phòng thì lấy tạm vị trí Boss)
-                Vector3 centerPos = roomCenter != null ? roomCenter.position : transform.position;
+            Vector3 centerPos = roomCenter != null ? roomCenter.position : transform.position;
+            int spawnedCount = 0;
+            int attempts = 0;
+            int maxAttempts = 100;
 
-                // 2. Tính toán một vị trí Random theo hình chữ nhật (Room Size)
+            while (spawnedCount < spikeCount && attempts < maxAttempts)
+            {
+                attempts++;
                 float randomX = Random.Range(-roomSize.x / 2f, roomSize.x / 2f);
                 float randomZ = Random.Range(-roomSize.y / 2f, roomSize.y / 2f);
                 Vector3 targetPos = centerPos + new Vector3(randomX, 0, randomZ);
 
-                // 3. Snap (Kéo) vị trí đó xuống mặt đất hợp lệ bằng NavMesh để tránh vòng đỏ bay lơ lửng
                 NavMeshHit hit;
-                if (NavMesh.SamplePosition(targetPos, out hit, 2f, NavMesh.AllAreas))
+                if (NavMesh.SamplePosition(targetPos, out hit, 4f, NavMesh.AllAreas))
                 {
                     Instantiate(spikeWarningPrefab, hit.position, Quaternion.identity);
+                    spawnedCount++;
                 }
             }
         }
 
-        // Đợi Boss gầm gừ thu thế xong rồi quay lại chiến đấu
         yield return new WaitForSeconds(1.5f);
         ResetToNormalCombatState();
     }
 
-    // ── ĐÒN NHẢY BỔ (LEAP) ─────────────────────────────────────────────────────
     private IEnumerator ExecuteP2_Leap_Routine()
     {
         _bossState = BossCombatState.P2_Preparing;
@@ -330,14 +332,16 @@ public class MutatedBossZombie : ZombieBase
 
         yield return new WaitForSeconds(2.0f);
 
-        if (modelV2 != null) modelV2.SetActive(false);
-        if (modelV3 != null) modelV3.SetActive(true);
+        // ĐỔI MÀU DA TẠI ĐÂY BẰNG CÁCH THAY MATERIAL
+        if (_skmr != null && materialV3 != null)
+        {
+            _skmr.sharedMaterial = materialV3;
+        }
 
         anim.speed = 1.25f;
         _bossState = BossCombatState.P2_Normal;
     }
 
-    // ── ANIMATION EVENTS ──────────────────────────────────────────────────────
     public void Event_TriggerStompShockwave()
     {
         if (stompVfxPrefab != null)
@@ -400,7 +404,7 @@ public class MutatedBossZombie : ZombieBase
         }
     }
 
-    public void ResetToNormalCombatState()
+    public override void ResetToNormalCombatState()
     {
         if (_isDead) return;
 
@@ -419,12 +423,11 @@ public class MutatedBossZombie : ZombieBase
         }
     }
 
-    // ── GIZMOS ĐỂ CĂN CHỈNH TRONG SCENE ─────────────────────────────────────────
     private void OnDrawGizmosSelected()
     {
         if (roomCenter != null)
         {
-            Gizmos.color = new Color(1f, 0f, 0f, 0.3f); // Màu đỏ trong suốt
+            Gizmos.color = new Color(1f, 0f, 0f, 0.3f);
             Gizmos.DrawCube(roomCenter.position, new Vector3(roomSize.x, 1f, roomSize.y));
         }
     }
