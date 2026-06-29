@@ -50,6 +50,13 @@ public class MutatedBossZombie : ZombieBase
     [SerializeField] private float leapFlyDuration = 1.0f;
     [SerializeField] private float leapTakeoffDelay = 0.2f;
 
+    [Tooltip("Kéo Prefab DarkEffect hoặc PoisonEffect vào đây để tạo vụ nổ che mắt")]
+    [SerializeField] private GameObject phase2RoarVfxPrefab;
+
+    [Header("== CUTSCENE PHASE TRANSITION ==")]
+    [SerializeField] private CutscenePhaseTransition cutsceneManager;
+    [SerializeField] private AudioCutsceneManager audioCutsceneManager;
+
     private BossCombatState _bossState = BossCombatState.None;
     private bool _isPhase2 = false;
 
@@ -81,6 +88,31 @@ public class MutatedBossZombie : ZombieBase
         _rockSpikeTimer = rockSpikesCooldown;
         _leapTimer = leapCooldown;
         _frenzyTimer = frenzyCooldown;
+        // === SETUP CUTSCENE MANAGER ===
+        if (cutsceneManager == null)
+        {
+            cutsceneManager = GetComponent<CutscenePhaseTransition>();
+            if (cutsceneManager == null)
+            {
+                Debug.LogError("[Boss] CutscenePhaseTransition not found!");
+                cutsceneManager = gameObject.AddComponent<CutscenePhaseTransition>();
+            }
+        }
+
+        // Initialize cutscene with references
+        cutsceneManager.Initialize(
+            this,
+            transform,
+            anim,
+            agent,
+            _skmr,
+            healthSystem
+        );
+
+        if (audioCutsceneManager == null)
+        {
+            audioCutsceneManager = GetComponent<AudioCutsceneManager>();
+        }
 
         ForceAlert();
     }
@@ -315,7 +347,7 @@ public class MutatedBossZombie : ZombieBase
         if (healthSystem != null && !_isPhase2 && _bossState != BossCombatState.Transition)
         {
             float hpPercent = (float)healthSystem.CurrentHP / healthSystem.MaxHP;
-            if (hpPercent <= 0.5f)
+            if (hpPercent <= 0.5f && !cutsceneManager.IsCutsceneActive)
             {
                 StartCoroutine(TriggerPhaseTransition());
             }
@@ -326,20 +358,26 @@ public class MutatedBossZombie : ZombieBase
     {
         _bossState = BossCombatState.Transition;
         _isPhase2 = true;
+
+        // Lock combat
         StopAgentCompletely();
 
-        anim.SetTrigger("RoarTransition");
+        // Start cutscene
+        cutsceneManager.StartPhaseTransitionCutscene();
 
-        yield return new WaitForSeconds(2.0f);
-
-        // ĐỔI MÀU DA TẠI ĐÂY BẰNG CÁCH THAY MATERIAL
-        if (_skmr != null && materialV3 != null)
+        if (audioCutsceneManager != null)
         {
-            _skmr.sharedMaterial = materialV3;
+            audioCutsceneManager.StartCutsceneAudio();
         }
 
-        anim.speed = 1.25f;
-        _bossState = BossCombatState.P2_Normal;
+        // Wait for cutscene to complete
+        while (cutsceneManager.IsCutsceneActive)
+        {
+            yield return null;
+        }
+
+        // Cutscene has called ResetToNormalCombatState(), we're ready for phase 2 combat
+        yield return null;
     }
 
     public void Event_TriggerStompShockwave()

@@ -19,7 +19,10 @@ ModelImporter:
     rigImportErrors: 
     rigImportWarnings: 
     animationImportErrors: 
-    animationImportWarnings: 
+    animationImportWarnings: Event NewEvent has a time (2.786408) outside the clip's
+      valid range (0.000000..2.733334). It will never be firedEvent Event_RoarPeak
+      has a time (2.800000) outside the clip's valid range (0.000000..2.733334).
+      It will never be fired
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
     importAnimatedCustomProperties: 0
@@ -57,8 +60,8 @@ ModelImporter:
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
       events:
-      - time: 1
-        functionName: ResetToNormalCombatState
+      - time: 0.9951456
+        functionName: NewEvent
         data: 
         objectReferenceParameter: {instanceID: 0}
         floatParameter: 0
