@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Playables; // Thêm thư viện để dùng Timeline
 
 namespace Art_Equilibrium
 {
@@ -15,8 +16,8 @@ namespace Art_Equilibrium
         private bool isKeyPressed;
 
         [Header("Door Type")]
-        public bool isSlidingDoor = false;                  // Тумблер: обычная или раздвижная
-        public Vector3 slideOffset = new Vector3(1, 0, 0);  // Направление сдвига для раздвижной двери (в локальных координатах)
+        public bool isSlidingDoor = false;
+        public Vector3 slideOffset = new Vector3(1, 0, 0);
 
         [Header("GUI Settings")]
         public string openMessage = "Open F";
@@ -33,6 +34,21 @@ namespace Art_Equilibrium
         public AudioClip closeSound;
         private AudioSource audioSource;
 
+        // ==========================================
+        // THÊM MỚI: TÍNH NĂNG DÀNH RIÊNG CHO BOSS DOOR
+        // ==========================================
+        [Header("Boss Door Settings")]
+        [Tooltip("Tick vào ô này nếu đây là cánh cửa dẫn tới phòng Boss")]
+        public bool isBossDoor = false;
+
+        public PlayableDirector timelineDirector;  // Timeline Cutscene
+        public Transform bossRoomSpawnPoint;       // Điểm dịch chuyển
+        public Transform playerTransform;          // Nhân vật
+        public MonoBehaviour playerMovementScript; // Script di chuyển của nhân vật
+
+        private bool hasTransitioned = false;      // Chống bấm F spam nhiều lần
+        // ==========================================
+
         private void Start()
         {
             defaultRot = transform.rotation;
@@ -46,6 +62,7 @@ namespace Art_Equilibrium
 
         private void Update()
         {
+            // Xử lý hoạt ảnh mở/đóng cửa thông thường (nếu không phải cửa boss, hoặc cửa boss nhưng có animation)
             if (isSlidingDoor)
             {
                 Vector3 targetPos = open ? targetLocalSlidePos : defaultLocalPos;
@@ -57,11 +74,27 @@ namespace Art_Equilibrium
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * smooth);
             }
 
+            // Xử lý Input
             if (Input.GetKeyDown(KeyCode.F) && trig && !isKeyPressed)
             {
-                open = !open;
                 isKeyPressed = true;
-                PlayDoorSound();
+
+                // KIỂM TRA: NẾU LÀ CỬA BOSS THÌ CHẠY CUTSCENE
+                if (isBossDoor)
+                {
+                    if (!hasTransitioned)
+                    {
+                        hasTransitioned = true;
+                        doorMessage = ""; // Xóa chữ "Open F" trên màn hình
+                        StartTransitionSequence();
+                    }
+                }
+                // NẾU LÀ CỬA THƯỜNG THÌ MỞ BÌNH THƯỜNG
+                else
+                {
+                    open = !open;
+                    PlayDoorSound();
+                }
             }
 
             if (Input.GetKeyUp(KeyCode.F))
@@ -69,7 +102,11 @@ namespace Art_Equilibrium
                 isKeyPressed = false;
             }
 
-            doorMessage = trig ? (open ? closeMessage : openMessage) : "";
+            // Cập nhật thông báo GUI (Ẩn đi nếu đã vào phòng boss)
+            if (!hasTransitioned)
+            {
+                doorMessage = trig ? (open ? closeMessage : openMessage) : "";
+            }
         }
 
         private void OnGUI()
@@ -100,7 +137,7 @@ namespace Art_Equilibrium
 
         private void OnTriggerEnter(Collider coll)
         {
-            if (coll.CompareTag("Player"))
+            if (coll.CompareTag("Player") && !hasTransitioned)
             {
                 doorMessage = open ? closeMessage : openMessage;
                 trig = true;
@@ -131,6 +168,65 @@ namespace Art_Equilibrium
                     audioSource.Play();
                 }
             }
+        }
+
+        // ==========================================
+        // CÁC HÀM XỬ LÝ DỊCH CHUYỂN & CUTSCENE BOSS
+        // ==========================================
+        private void StartTransitionSequence()
+        {
+            // 1. Khóa di chuyển của Player
+            if (playerMovementScript != null)
+            {
+                playerMovementScript.enabled = false;
+            }
+
+            // 2. Dịch chuyển Player
+            TeleportPlayer();
+
+            // 3. Play Timeline Cutscene
+            if (timelineDirector != null)
+            {
+                timelineDirector.Play();
+                timelineDirector.stopped += OnCutsceneFinished;
+            }
+            else
+            {
+                Debug.LogWarning("Chưa gắn Timeline Director cho Boss Door!");
+            }
+        }
+
+        private void TeleportPlayer()
+        {
+            if (playerTransform == null || bossRoomSpawnPoint == null) return;
+
+            // Tắt CharacterController để tránh xung đột vật lý của Unity khi Teleport
+            CharacterController cc = playerTransform.GetComponent<CharacterController>();
+            if (cc != null) cc.enabled = false;
+
+            // Dịch chuyển
+            playerTransform.position = bossRoomSpawnPoint.position;
+            playerTransform.rotation = bossRoomSpawnPoint.rotation;
+
+            // Bật lại CharacterController
+            if (cc != null) cc.enabled = true;
+        }
+
+        private void OnCutsceneFinished(PlayableDirector director)
+        {
+            // 4. Trả lại quyền di chuyển
+            if (playerMovementScript != null)
+            {
+                playerMovementScript.enabled = true;
+            }
+
+            // Hủy đăng ký sự kiện
+            if (timelineDirector != null)
+            {
+                timelineDirector.stopped -= OnCutsceneFinished;
+            }
+
+            Debug.Log("Kết thúc Cutscene. Boss Fight bắt đầu!");
         }
     }
 }
