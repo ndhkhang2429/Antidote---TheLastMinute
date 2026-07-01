@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
-using UnityEngine.Playables; // Thêm thư viện để dùng Timeline
+using UnityEngine.Playables;
+using System.Collections; // Cần thiết để chạy Coroutine (Hiệu ứng theo thời gian)
 
 namespace Art_Equilibrium
 {
@@ -34,20 +35,19 @@ namespace Art_Equilibrium
         public AudioClip closeSound;
         private AudioSource audioSource;
 
-        // ==========================================
-        // THÊM MỚI: TÍNH NĂNG DÀNH RIÊNG CHO BOSS DOOR
-        // ==========================================
         [Header("Boss Door Settings")]
-        [Tooltip("Tick vào ô này nếu đây là cánh cửa dẫn tới phòng Boss")]
         public bool isBossDoor = false;
+        public PlayableDirector timelineDirector;
+        public Transform bossRoomSpawnPoint;
+        public Transform playerTransform;
+        public MonoBehaviour playerMovementScript;
 
-        public PlayableDirector timelineDirector;  // Timeline Cutscene
-        public Transform bossRoomSpawnPoint;       // Điểm dịch chuyển
-        public Transform playerTransform;          // Nhân vật
-        public MonoBehaviour playerMovementScript; // Script di chuyển của nhân vật
+        // --- THÊM PHẦN HIỆU ỨNG CHUYỂN CẢNH ---
+        [Header("Transition Effects")]
+        public CanvasGroup fadeCanvasGroup; // Kéo UI BlackScreen vào đây
+        public float fadeSpeed = 1.5f;      // Tốc độ tối/sáng màn hình (càng nhỏ càng chậm)
 
-        private bool hasTransitioned = false;      // Chống bấm F spam nhiều lần
-        // ==========================================
+        private bool hasTransitioned = false;
 
         private void Start()
         {
@@ -62,7 +62,6 @@ namespace Art_Equilibrium
 
         private void Update()
         {
-            // Xử lý hoạt ảnh mở/đóng cửa thông thường (nếu không phải cửa boss, hoặc cửa boss nhưng có animation)
             if (isSlidingDoor)
             {
                 Vector3 targetPos = open ? targetLocalSlidePos : defaultLocalPos;
@@ -74,22 +73,20 @@ namespace Art_Equilibrium
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * smooth);
             }
 
-            // Xử lý Input
             if (Input.GetKeyDown(KeyCode.F) && trig && !isKeyPressed)
             {
                 isKeyPressed = true;
 
-                // KIỂM TRA: NẾU LÀ CỬA BOSS THÌ CHẠY CUTSCENE
                 if (isBossDoor)
                 {
                     if (!hasTransitioned)
                     {
                         hasTransitioned = true;
-                        doorMessage = ""; // Xóa chữ "Open F" trên màn hình
-                        StartTransitionSequence();
+                        doorMessage = "";
+                        // Chạy hiệu ứng Fade To Black thay vì chuyển ngay lập tức
+                        StartCoroutine(TransitionRoutine());
                     }
                 }
-                // NẾU LÀ CỬA THƯỜNG THÌ MỞ BÌNH THƯỜNG
                 else
                 {
                     open = !open;
@@ -102,7 +99,6 @@ namespace Art_Equilibrium
                 isKeyPressed = false;
             }
 
-            // Cập nhật thông báo GUI (Ẩn đi nếu đã vào phòng boss)
             if (!hasTransitioned)
             {
                 doorMessage = trig ? (open ? closeMessage : openMessage) : "";
@@ -120,10 +116,7 @@ namespace Art_Equilibrium
                     normal = { textColor = fontColor }
                 };
 
-                if (messageFont != null)
-                {
-                    style.font = messageFont;
-                }
+                if (messageFont != null) style.font = messageFont;
 
                 float screenWidth = Screen.width;
                 float screenHeight = Screen.height;
@@ -171,28 +164,50 @@ namespace Art_Equilibrium
         }
 
         // ==========================================
-        // CÁC HÀM XỬ LÝ DỊCH CHUYỂN & CUTSCENE BOSS
+        // COROUTINE: XỬ LÝ FADE MÀN HÌNH & CHUYỂN CẢNH
         // ==========================================
-        private void StartTransitionSequence()
+        private IEnumerator TransitionRoutine()
         {
-            // 1. Khóa di chuyển của Player
-            if (playerMovementScript != null)
+            // 1. Khóa di chuyển của Player ngay khi vừa bấm nút
+            if (playerMovementScript != null) playerMovementScript.enabled = false;
+
+            // 2. Màn hình từ từ tối lại
+            if (fadeCanvasGroup != null)
             {
-                playerMovementScript.enabled = false;
+                float timer = 0f;
+                while (timer < 1f)
+                {
+                    timer += Time.deltaTime * fadeSpeed;
+                    fadeCanvasGroup.alpha = Mathf.Lerp(0f, 1f, timer);
+                    yield return null; // Chờ tới frame tiếp theo
+                }
+                fadeCanvasGroup.alpha = 1f; // Đảm bảo đen hoàn toàn
             }
 
-            // 2. Dịch chuyển Player
+            // Chờ thêm một chút (0.2s) lúc đen thui cho ngầu
+            yield return new WaitForSeconds(0.2f);
+
+            // 3. Trong lúc màn hình đang đen, ta âm thầm dịch chuyển Player
             TeleportPlayer();
 
-            // 3. Play Timeline Cutscene
+            // 4. Chạy Timeline Cutscene (Phòng Boss)
             if (timelineDirector != null)
             {
                 timelineDirector.Play();
                 timelineDirector.stopped += OnCutsceneFinished;
             }
-            else
+
+            // 5. Từ từ sáng màn hình lên để lộ ra cảnh Camera đang lia quanh phòng Boss
+            if (fadeCanvasGroup != null)
             {
-                Debug.LogWarning("Chưa gắn Timeline Director cho Boss Door!");
+                float timer = 0f;
+                while (timer < 1f)
+                {
+                    timer += Time.deltaTime * fadeSpeed;
+                    fadeCanvasGroup.alpha = Mathf.Lerp(1f, 0f, timer);
+                    yield return null;
+                }
+                fadeCanvasGroup.alpha = 0f; // Trả lại độ trong suốt 100%
             }
         }
 
@@ -200,33 +215,26 @@ namespace Art_Equilibrium
         {
             if (playerTransform == null || bossRoomSpawnPoint == null) return;
 
-            // Tắt CharacterController để tránh xung đột vật lý của Unity khi Teleport
             CharacterController cc = playerTransform.GetComponent<CharacterController>();
             if (cc != null) cc.enabled = false;
 
-            // Dịch chuyển
             playerTransform.position = bossRoomSpawnPoint.position;
             playerTransform.rotation = bossRoomSpawnPoint.rotation;
 
-            // Bật lại CharacterController
             if (cc != null) cc.enabled = true;
         }
 
         private void OnCutsceneFinished(PlayableDirector director)
         {
-            // 4. Trả lại quyền di chuyển
             if (playerMovementScript != null)
             {
                 playerMovementScript.enabled = true;
             }
 
-            // Hủy đăng ký sự kiện
             if (timelineDirector != null)
             {
                 timelineDirector.stopped -= OnCutsceneFinished;
             }
-
-            Debug.Log("Kết thúc Cutscene. Boss Fight bắt đầu!");
         }
     }
 }
