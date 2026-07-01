@@ -9,14 +9,9 @@ public class BulletProjectile : MonoBehaviour
     [Tooltip("Kéo Prefab Vết đạn hoặc Tia lửa vào đây")]
     public GameObject wallHitPrefab;
 
-    // (Tùy chọn) Có thể thêm prefab máu văng khi bắn trúng Zombie
-    // public GameObject fleshHitPrefab; 
-
     public void SetupBullet(float damageAmount)
     {
         _bulletDamage = damageAmount;
-
-        // Tự hủy đạn sau 3 giây nếu bắn chỉ thiên không trúng gì cả
         Destroy(gameObject, 3f);
     }
 
@@ -25,23 +20,28 @@ public class BulletProjectile : MonoBehaviour
         if (collision.gameObject.CompareTag("Player") || collision.gameObject.name.Contains("Bullet")) return;
 
         ContactPoint contact = collision.contacts[0];
-
-        // --- SỬA Ở ĐÂY ---
-        // 1. Thêm dấu TRỪ (-) trước contact.normal để lật ngược hướng máy chiếu, đâm thẳng vào tường
         Quaternion hitRotation = Quaternion.LookRotation(-contact.normal);
 
+        // Kiểm tra nếu trúng Zombie (đối tượng có HealthSystem)
+        // Kiểm tra nếu trúng Zombie (đối tượng có HealthSystem)
         if (collision.gameObject.TryGetComponent<HealthSystem>(out HealthSystem targetHealth))
         {
             targetHealth.TakeDamage(_bulletDamage);
+
+            ZombieBloodFXHandler bloodFX = collision.gameObject.GetComponentInParent<ZombieBloodFXHandler>();
+
+            if (bloodFX != null)
+            {
+                // Gọi thẳng hàm mới tạo, truyền vào tọa độ, hướng, và Transform của bộ phận bị trúng đạn
+                // Dùng contact.otherCollider.transform để lấy chính xác khúc xương bị bắn trúng
+                bloodFX.OnHitProjectile(contact.point, contact.normal, contact.otherCollider.transform);
+            }
         }
-        else
+        else // Trúng tường, môi trường
         {
             if (wallHitPrefab != null)
             {
-                // 2. Kéo máy chiếu lùi ra ngoài không khí một chút xíu (0.05 unit) 
-                // để tránh vách hộp máy chiếu bị kẹt sâu vào trong tường gây lỗi Z-Fighting
                 Vector3 spawnPosition = contact.point + contact.normal * 0.05f;
-
                 GameObject hole = Instantiate(wallHitPrefab, spawnPosition, hitRotation);
                 hole.transform.SetParent(collision.transform);
                 Destroy(hole, 10f);

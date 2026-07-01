@@ -20,6 +20,13 @@ public class ZombieBloodFXHandler : MonoBehaviour
         SpawnBloodFX(hit.point, hit.normal, hit.transform);
     }
 
+    // ── Dùng cho ĐẠN VẬT LÝ (Projectile) ──────────────────
+    public void OnHitProjectile(Vector3 hitPoint, Vector3 hitNormal, Transform hitTransform)
+    {
+        // Gọi thẳng vào hàm private SpawnBloodFX của bạn
+        SpawnBloodFX(hitPoint, hitNormal, hitTransform);
+    }
+
     // ── Dùng cho MELEE (hiện tại) ─────────────────
     public void OnHitMelee(Vector3 hitPoint, Vector3 hitNormal)
     {
