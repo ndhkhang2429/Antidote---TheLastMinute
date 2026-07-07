@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6586edb0ef340dd45bd287706b4f6596, type: 3}
+  m_Name: Doc_GuardNote
+  m_EditorClassIdentifier: 
+  itemName: "Ghi ch\xFA c\u1EE7a b\u1EA3o v\u1EC7"
+  icon: {fileID: 0}
+  worldPrefab: {fileID: 0}
+  equipPrefab: {fileID: 0}
+  description: 
+  category: 6
+  weaponSlotType: 0
+  maxStack: 1
+  weightPerUnit: 0
+  autoEquip: 0
+  contentText: "T\u1EEB sau v\u1EE5 ch\xE1y tu\u1EA7n tr\u01B0\u1EDBc, v\u1EADt t\u01B0
+    y t\u1EBF \u0111\u01B0\u1EE3c chuy\u1EC3n sang ph\xF2ng c\u1EA1nh qu\u1EA7y l\u1EC5
+    t\xE2n. S\u1EBFp b\u1EA3o kh\xF3a l\u1EA1i, ch\xECa \u0111\u1EC3 trong ng\u0103n
+    k\xE9o b\xE0n tr\u1EF1c"
+  contentSprite: {fileID: 0}
+  openSound: {fileID: 0}
+  documentID: 
+  onFirstReadEvent: {fileID: 0}

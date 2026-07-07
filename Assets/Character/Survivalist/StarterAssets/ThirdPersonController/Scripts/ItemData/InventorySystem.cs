@@ -150,6 +150,9 @@ public class InventorySystem : MonoBehaviour
             if (!heldItemSlot.IsEmpty && heldItemSlot.item == item)
                 heldItemSlot.quantity = CountItem(item);
             OnInventoryChanged?.Invoke();
+
+            if (item.category != ItemCategory.Document)
+                QuestManager.Instance?.ReportEvent(QuestCompletionType.PickupItem, item.itemName);
         }
 
         return remaining;

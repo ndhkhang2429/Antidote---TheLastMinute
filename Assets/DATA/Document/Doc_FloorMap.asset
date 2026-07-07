@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6586edb0ef340dd45bd287706b4f6596, type: 3}
+  m_Name: Doc_FloorMap
+  m_EditorClassIdentifier: 
+  itemName: "S\u01A1 \u0111\u1ED3 t\u1EA7ng tr\u1EC7t"
+  icon: {fileID: 0}
+  worldPrefab: {fileID: 0}
+  equipPrefab: {fileID: 0}
+  description: 
+  category: 6
+  weaponSlotType: 0
+  maxStack: 1
+  weightPerUnit: 0
+  autoEquip: 0
+  contentText: "B\u1EA3n \u0111\u1ED3 c\u0169, h\u01A1i m\u1EDD nh\u01B0ng v\u1EABn
+    \u0111\u1ECDc \u0111\u01B0\u1EE3c c\xE1c ph\xF2ng ch\xEDnh."
+  contentSprite: {fileID: 0}
+  openSound: {fileID: 0}
+  documentID: 
+  onFirstReadEvent: {fileID: 0}

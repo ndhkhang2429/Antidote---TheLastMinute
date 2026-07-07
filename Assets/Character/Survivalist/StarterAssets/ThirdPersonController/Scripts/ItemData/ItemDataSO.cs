@@ -7,7 +7,8 @@ public enum ItemCategory
     Grenade,     // Lựu đạn → chiếm sức chứa
     Consumable,  // Máu, đồ uống → chiếm sức chứa
     Ammo,        // Đạn → chiếm sức chứa
-    QuestItem    // Vật phẩm nhiệm vụ → chiếm sức chứa
+    QuestItem,    // Vật phẩm nhiệm vụ → chiếm sức chứa
+    Document
 }
 
 public enum WeaponSlotType
