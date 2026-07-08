@@ -10,6 +10,9 @@ public class LightingManager : MonoBehaviour
     [Header("Transition")]
     public float fadeDuration = 1.5f;
 
+    [Header("Exceptions")]
+    public List<Renderer> ignoreRenderers = new List<Renderer>(); // Kéo 2 cái đèn tủ vào đây
+
     // Lưu trạng thái ban đầu
     private List<Light> managedLights = new List<Light>();
     private List<RendererEmissionData> managedEmissives = new List<RendererEmissionData>();
@@ -44,7 +47,7 @@ public class LightingManager : MonoBehaviour
         Renderer[] allRenderers = FindObjectsOfType<Renderer>();
         foreach (Renderer rend in allRenderers)
         {
-            if (rend.CompareTag("EmergencyLight")) continue;
+            if (rend.CompareTag("EmergencyLight") || ignoreRenderers.Contains(rend)) continue;
 
             foreach (Material mat in rend.materials)
             {

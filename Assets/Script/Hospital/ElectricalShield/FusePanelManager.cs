@@ -7,11 +7,17 @@ public class FusePanelManager : MonoBehaviour
     public SwitchSlider[] allSwitches;
     public bool[] correctSwitchStates;
 
-    [Header("Indicators")]
-    public Renderer powerOKLight;
-    public Renderer lineBreakLight;
-    public Material matLightOn;
-    public Material matLightOff;
+    [Header("Indicators - Renderers")]
+    public Renderer powerOKLight;   // Đèn Xanh
+    public Renderer lineBreakLight; // Đèn Đỏ
+
+    [Header("Indicators - Materials Đèn Xanh")]
+    public Material matGreenOn;
+    public Material matGreenOff;
+
+    [Header("Indicators - Materials Đèn Đỏ")]
+    public Material matRedOn;
+    public Material matRedOff;
 
     public bool IsPanelReady { get; private set; } = false;
 
@@ -32,10 +38,8 @@ public class FusePanelManager : MonoBehaviour
         var inv = InventorySystem.Instance;
         if (inv == null) return false;
 
-        // 1. Lấy vật phẩm nhân vật ĐANG CẦM TRÊN TAY
         var heldItem = inv.GetHeldItem();
 
-        // 2. Kiểm tra xem nó có phải Cầu chì (FuseItemDataSO) không VÀ có đúng ID không
         bool isHoldingCorrectFuse = heldItem != null
                                  && heldItem is FuseItemDataSO fuse
                                  && fuse.fuseID == slot.correctFuseID;
@@ -49,11 +53,10 @@ public class FusePanelManager : MonoBehaviour
             return false;
         }
 
-        // 3. Nếu đúng đồ, tiến hành gắn vào bảng
         bool success = slot.TryInsertFuse(slot.correctFuseID);
         if (success)
         {
-            inv.RemoveItem(heldItem, 1); // Trừ vật phẩm khỏi balo/tay
+            inv.RemoveItem(heldItem, 1);
             UpdatePanelState();
         }
         return success;
@@ -87,9 +90,12 @@ public class FusePanelManager : MonoBehaviour
 
     void UpdateIndicatorLights()
     {
+        // Xử lý Đèn Xanh (Power OK): Sẵn sàng thì ON, chưa thì OFF
         if (powerOKLight != null)
-            powerOKLight.material = IsPanelReady ? matLightOn : matLightOff;
+            powerOKLight.material = IsPanelReady ? matGreenOn : matGreenOff;
+
+        // Xử lý Đèn Đỏ (Line Break): Sẵn sàng thì OFF, chưa thì ON
         if (lineBreakLight != null)
-            lineBreakLight.material = IsPanelReady ? matLightOff : matLightOn;
+            lineBreakLight.material = IsPanelReady ? matRedOff : matRedOn;
     }
 }

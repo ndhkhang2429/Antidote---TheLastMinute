@@ -226,6 +226,11 @@ public class ItemSlotUI : MonoBehaviour,
                 {
                     InventorySystem.Instance.UseItem(BoundSlot);
                 }
+                // MỚI — nếu là tài liệu/ghi chú thì mở panel đọc, KHÔNG tiêu hao item
+                else if (BoundSlot.item.category == ItemCategory.Document)
+                {
+                    ExamineUIController.Instance.OpenExamine(BoundSlot.item as DocumentDataSO);
+                }
                 else
                 {
                     Debug.Log($"❌ [ItemSlotUI] Không thể sử dụng! Món đồ này là {BoundSlot.item.category}, hệ thống chỉ cho phép dùng Consumable.");

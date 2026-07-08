@@ -15,7 +15,7 @@ public class PanelInteractZone : MonoBehaviour
     [Header("Player References")]
     public GameObject playerObject;
     public MonoBehaviour playerInputComponent;  // StarterAssetsInputs
-    public MonoBehaviour thirdPersonController; // ThirdPersonController - THÊM MỚI
+    public MonoBehaviour firstPersonController; // ThirdPersonController - THÊM MỚI
 
     [Header("Settings")]
     public float blendWaitTime = 0.8f;
@@ -83,8 +83,8 @@ public class PanelInteractZone : MonoBehaviour
     void SetPlayerControl(bool enabled)
     {
         // 1. Disable ThirdPersonController TRƯỚC (ngăn nó gọi Move)
-        if (thirdPersonController != null)
-            thirdPersonController.enabled = enabled;
+        if (firstPersonController != null)
+            firstPersonController.enabled = enabled;
 
         // 2. Sau đó mới disable CharacterController
         if (playerObject != null)
