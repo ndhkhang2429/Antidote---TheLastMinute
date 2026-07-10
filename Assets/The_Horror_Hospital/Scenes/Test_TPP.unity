@@ -92757,7 +92757,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67846d1f07fcde645bdae15cb8824119, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startsWithPowerOff: 1
+  startsWithPowerOff: 0
   fadeDuration: 1.5
   ignoreRenderers:
   - {fileID: 3309880552203157243}
