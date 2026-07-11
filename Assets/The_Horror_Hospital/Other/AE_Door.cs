@@ -49,6 +49,17 @@ namespace Art_Equilibrium
 
         private bool hasTransitioned = false;
 
+        // ===========================================
+        // MỚI THÊM: Khóa mật khẩu (mặc định TẮT, không ảnh hưởng cửa khác)
+        // ===========================================
+        [Header("Password Lock (chỉ dùng cho cửa cần mật khẩu)")]
+        [Tooltip("Bật true nếu cửa này cần mở khóa bằng mật khẩu trước khi cho phép bấm F mở cửa")]
+        public bool requiresPassword = false;
+        [Tooltip("Chữ hiện khi player đứng gần nhưng CHƯA nhập đúng mật khẩu")]
+        public string lockedMessage = "Cần mật khẩu";
+
+        private bool isUnlocked = false;
+
         private void Start()
         {
             defaultRot = transform.rotation;
@@ -77,7 +88,12 @@ namespace Art_Equilibrium
             {
                 isKeyPressed = true;
 
-                if (isBossDoor)
+                // MỚI THÊM: nếu cửa yêu cầu mật khẩu và chưa mở khóa, chặn hành động F hoàn toàn
+                if (requiresPassword && !isUnlocked)
+                {
+                    // Không làm gì - player phải giải puzzle mật khẩu trước
+                }
+                else if (isBossDoor)
                 {
                     if (!hasTransitioned)
                     {
@@ -101,7 +117,11 @@ namespace Art_Equilibrium
 
             if (!hasTransitioned)
             {
-                doorMessage = trig ? (open ? closeMessage : openMessage) : "";
+                // MỚI THÊM: hiện chữ "Cần mật khẩu" thay vì Open/Close khi còn khóa
+                if (requiresPassword && !isUnlocked)
+                    doorMessage = trig ? lockedMessage : "";
+                else
+                    doorMessage = trig ? (open ? closeMessage : openMessage) : "";
             }
         }
 
@@ -161,6 +181,18 @@ namespace Art_Equilibrium
                     audioSource.Play();
                 }
             }
+        }
+
+        // ===========================================
+        // MỚI THÊM: Gọi hàm này từ PasswordDoorController khi Keypad báo mật khẩu đúng
+        // ===========================================
+        public void UnlockByPassword()
+        {
+            if (isUnlocked) return;
+            isUnlocked = true;
+            open = true;
+            doorMessage = "";
+            PlayDoorSound();
         }
 
         // ==========================================
