@@ -81,6 +81,14 @@ public class ZombieBase : MonoBehaviour
     private float _idleDuration = 0f;
     private bool _wanderDestinationSet = false;
 
+    // ===========================================
+    // MỚI THÊM: cờ "buộc đuổi player bất kể khoảng cách"
+    // Dùng cho zombie vừa được AlarmSystem spawn ra, cần lao thẳng tới player
+    // dù đang ở xa hơn detectionRange * 1.5 (điều kiện ShouldChase bình thường).
+    // Tự tắt khi zombie đã thực sự phát hiện player theo cách thông thường (CanDetectPlayer).
+    // ===========================================
+    private bool _forcedByAlarm = false;
+
     // Public read-only
     public bool IsDead => _isDead;
     public bool ScreamDone => _screamDone;
@@ -183,6 +191,9 @@ public class ZombieBase : MonoBehaviour
 
     private bool ShouldChase()
     {
+        // MỚI THÊM: nếu đang bị buộc đuổi bởi AlarmSystem, luôn chase bất kể khoảng cách
+        if (_forcedByAlarm) return true;
+
         if (!_hasDetectedPlayer || player == null) return false;
         return Vector3.Distance(transform.position, player.position) <= detectionRange * 1.5f;
     }
@@ -198,6 +209,10 @@ public class ZombieBase : MonoBehaviour
             agent.isStopped = true;
             agent.velocity = Vector3.zero;
         }
+
+        // MỚI THÊM: đã thực sự phát hiện player theo cách bình thường,
+        // không cần cờ "buộc đuổi" nữa từ giờ trở đi
+        _forcedByAlarm = false;
 
         _mode = ZombieMode.Combat;
         return NodeState.Success;
@@ -227,6 +242,9 @@ public class ZombieBase : MonoBehaviour
             _isWanderIdle = false;
             SetNewWanderDestination();
         }
+
+        // MỚI THÊM: an toàn - đảm bảo cờ buộc đuổi không bị kẹt mãi nếu rơi vào Patrol
+        _forcedByAlarm = false;
 
         _mode = ZombieMode.Patrol;
         return NodeState.Success;
@@ -500,6 +518,23 @@ public class ZombieBase : MonoBehaviour
         _hasDetectedPlayer = true;
         _screamDone = true;
         _screamPhase = ScreamPhase.None;
+    }
+
+    // ===========================================
+    // MỚI THÊM: gọi từ AlarmSystem ngay sau khi Instantiate zombie mới.
+    // Buộc zombie lao thẳng tới player bất kể khoảng cách ban đầu bao xa,
+    // cho tới khi thực sự phát hiện player theo cách bình thường (CanDetectPlayer),
+    // lúc đó cơ chế scream/combat gốc sẽ tự tiếp quản.
+    // ===========================================
+    public void ForceChasePlayer()
+    {
+        if (_isDead) return;
+        // LƯU Ý: KHÔNG set _hasDetectedPlayer = true ở đây.
+        // ShouldChase() đã tự trả true khi thấy _forcedByAlarm, không cần _hasDetectedPlayer.
+        // Nếu set _hasDetectedPlayer = true sớm, khi CanDetectPlayer() thành true sau này,
+        // SetCombatMode() sẽ tưởng đây KHÔNG PHẢI lần đầu phát hiện (vì check "if (!_hasDetectedPlayer)"),
+        // nên bỏ qua toàn bộ chuỗi Scream -> _screamDone mãi mãi false -> combat không bao giờ chạy.
+        _forcedByAlarm = true;
     }
 
     public virtual void TakeDamage(float damage, GameObject attacker = null)

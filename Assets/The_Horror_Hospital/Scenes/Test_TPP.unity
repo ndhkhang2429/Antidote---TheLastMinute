@@ -12587,7 +12587,15 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2303921294396319334, guid: 2cf8072ebed1149479d25d30c324125c, type: 3}
+      propertyPath: onAccessDenied.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2303921294396319334, guid: 2cf8072ebed1149479d25d30c324125c, type: 3}
       propertyPath: onAccessGranted.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2303921294396319334, guid: 2cf8072ebed1149479d25d30c324125c, type: 3}
+      propertyPath: onAccessDenied.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2303921294396319334, guid: 2cf8072ebed1149479d25d30c324125c, type: 3}
@@ -12595,9 +12603,21 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2303921294396319334, guid: 2cf8072ebed1149479d25d30c324125c, type: 3}
+      propertyPath: onAccessDenied.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2134476184}
+    - target: {fileID: 2303921294396319334, guid: 2cf8072ebed1149479d25d30c324125c, type: 3}
       propertyPath: onAccessGranted.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1725475857}
+    - target: {fileID: 2303921294396319334, guid: 2cf8072ebed1149479d25d30c324125c, type: 3}
+      propertyPath: onAccessDenied.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2303921294396319334, guid: 2cf8072ebed1149479d25d30c324125c, type: 3}
+      propertyPath: onAccessDenied.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: TriggerAlarm
+      objectReference: {fileID: 0}
     - target: {fileID: 2303921294396319334, guid: 2cf8072ebed1149479d25d30c324125c, type: 3}
       propertyPath: onAccessGranted.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
@@ -12607,8 +12627,16 @@ PrefabInstance:
       value: OnPasswordCorrect
       objectReference: {fileID: 0}
     - target: {fileID: 2303921294396319334, guid: 2cf8072ebed1149479d25d30c324125c, type: 3}
+      propertyPath: onAccessDenied.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: AlarmTriggerZone, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 2303921294396319334, guid: 2cf8072ebed1149479d25d30c324125c, type: 3}
       propertyPath: onAccessGranted.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
       value: PasswordDoorController, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 2303921294396319334, guid: 2cf8072ebed1149479d25d30c324125c, type: 3}
+      propertyPath: onAccessDenied.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 2303921294396319334, guid: 2cf8072ebed1149479d25d30c324125c, type: 3}
       propertyPath: onAccessGranted.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
@@ -12627,7 +12655,10 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2303921294396319333, guid: 2cf8072ebed1149479d25d30c324125c, type: 3}
       insertIndex: 1
       addedObject: {fileID: 956194693}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2303921294396319335, guid: 2cf8072ebed1149479d25d30c324125c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2134476184}
   m_SourcePrefab: {fileID: 100100000, guid: 2cf8072ebed1149479d25d30c324125c, type: 3}
 --- !u!1001 &146656014
 PrefabInstance:
@@ -65981,6 +66012,37 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5550528355229434950, guid: 8acbb3ef759556a48ab7da61613cceca, type: 3}
   m_PrefabInstance: {fileID: 719006991}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &719480092
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 719480093}
+  m_Layer: 0
+  m_Name: SpawnPoint2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &719480093
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 719480092}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.7075067, z: 0, w: 0.70670664}
+  m_LocalPosition: {x: -7.9472723, y: 0.42697334, z: -9.484152}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2101030088}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &719651892
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -82546,6 +82608,11 @@ Transform:
 Transform:
   m_CorrespondingSourceObject: {fileID: 7560383579650695759, guid: e5a49625b202a4c498f6dabf31339ca9, type: 3}
   m_PrefabInstance: {fileID: 813490409}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &878981250 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2303921294396319335, guid: 2cf8072ebed1149479d25d30c324125c, type: 3}
+  m_PrefabInstance: {fileID: 145819676}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &879904454
 PrefabInstance:
@@ -159697,6 +159764,37 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2558758367560387516, guid: 3cb1768b05793d74dbb05f8c9f4b1152, type: 3}
   m_PrefabInstance: {fileID: 1714924778}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1716479361
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1716479362}
+  m_Layer: 0
+  m_Name: SpawnPoint1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1716479362
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1716479361}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.7075067, z: 0, w: 0.70670664}
+  m_LocalPosition: {x: 27.324543, y: -0.6937556, z: -11.907148}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2101030088}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1716578307
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -164749,6 +164847,57 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 0
+--- !u!1 &1763703953
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1763703955}
+  - component: {fileID: 1763703954}
+  m_Layer: 0
+  m_Name: _AlarmSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1763703954
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1763703953}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9ce0a9c63537464d96d1347cb2740a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  zombiePrefabs:
+  - {fileID: 6176856055419875589, guid: d85c6093db19f354d848fe6d4fcf103f, type: 3}
+  - {fileID: 1075863169306009699, guid: a7d09a8327dd0f145b76dd3aff8af79b, type: 3}
+  - {fileID: 6178577023303151387, guid: 0433f766ad92df24086f5e496c1eff54, type: 3}
+  - {fileID: 7238489583490075826, guid: d8f01a29bb1f0a34092440f39a810750, type: 3}
+  - {fileID: 7905118242751421230, guid: 74fd60609cba88d4bb0fc39e1cee5593, type: 3}
+  - {fileID: 1241832387351857126, guid: 20852c22a8981a04baba7018ac5c0a5c, type: 3}
+--- !u!4 &1763703955
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1763703953}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -4.650125, y: 5.550729, z: 28.10358}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1764022596
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -192720,6 +192869,39 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3957543964382168086, guid: c114116fa2d932d44885ab72fe60f7ca, type: 3}
   m_PrefabInstance: {fileID: 2100859688}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &2101030087
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2101030088}
+  m_Layer: 0
+  m_Name: SpawnGroup_KhuVucKeyPad
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2101030088
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2101030087}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.7075067, z: -0, w: 0.70670664}
+  m_LocalPosition: {x: -4.545, y: 5.4, z: 27.85}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1716479362}
+  - {fileID: 719480093}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 90.065, z: 0}
 --- !u!1001 &2101031599
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -195414,6 +195596,26 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2303921294396319333, guid: 2cf8072ebed1149479d25d30c324125c, type: 3}
   m_PrefabInstance: {fileID: 145819676}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2134476184
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 878981250}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 602638775a471eb4698986bc1fd748b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spawnPoints:
+  - {fileID: 1716479362}
+  - {fileID: 719480093}
+  zombieCount: 3
+  alarmAudioSource: {fileID: 0}
+  alarmSfx: {fileID: 0}
+  alarmLight: {fileID: 0}
+  lightFlashDuration: 3
 --- !u!1001 &2134710668
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -226144,6 +226346,7 @@ SceneRoots:
   - {fileID: 1843646071}
   - {fileID: 1452685542}
   - {fileID: 495942062}
+  - {fileID: 1763703955}
   - {fileID: 496445635}
   - {fileID: 1857490098}
   - {fileID: 588383584}
@@ -226193,3 +226396,4 @@ SceneRoots:
   - {fileID: 1799051822}
   - {fileID: 103488532}
   - {fileID: 145819676}
+  - {fileID: 2101030088}
