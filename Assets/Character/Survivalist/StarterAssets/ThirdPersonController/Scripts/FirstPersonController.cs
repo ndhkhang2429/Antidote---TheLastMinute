@@ -19,6 +19,9 @@ namespace StarterAssets
         [Header("Player - Stamina System")]
         public PlayerStamina playerStamina;
 
+        [Header("Player - Audio")]
+        public PlayerAudioController playerAudioController;
+
         [Header("Jump & Gravity")]
         public float JumpHeight = 1.2f;
         public float Gravity = -18.0f;
@@ -167,6 +170,11 @@ namespace StarterAssets
             {
                 isSprinting = isSprinting && playerStamina.CanRun;
                 playerStamina.HandleStamina(isSprinting);
+            }
+
+            if (playerAudioController != null)
+            {
+                playerAudioController.SetMovementState(isMoving, isSprinting);
             }
 
             float targetSpeed = 0f;
