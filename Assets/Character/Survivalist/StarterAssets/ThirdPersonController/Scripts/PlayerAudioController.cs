@@ -30,6 +30,12 @@ public class PlayerAudioController : MonoBehaviour
     [SerializeField] private AudioClip breathRun;
     [SerializeField] private AudioClip breathExhausted;
 
+    [Header("Jump & Land Clips")]
+    [SerializeField] private AudioClip[] jumpClips;
+    [SerializeField] private AudioClip[] landClips;
+    [SerializeField] private float jumpVolume = 0.7f;
+    [SerializeField] private float landVolume = 0.8f;
+
     private bool isMoving = false;
     private bool isRunning = false;
     private float stepTimer = 0f;
@@ -84,6 +90,28 @@ public class PlayerAudioController : MonoBehaviour
             if (hit.collider.CompareTag("Surface_Glass")) return footstepGlass;
         }
         return footstepConcrete;
+    }
+
+    // ================= JUMP & LAND =================
+
+    // Gọi từ FirstPersonController ngay lúc bắt đầu nhảy (lúc set _verticalVelocity)
+    public void PlayJumpSound()
+    {
+        PlayFromArray(jumpClips, jumpVolume);
+    }
+
+    // Gọi từ FirstPersonController ngay lúc Grounded chuyển từ false -> true
+    public void PlayLandSound()
+    {
+        PlayFromArray(landClips, landVolume);
+    }
+
+    private void PlayFromArray(AudioClip[] clips, float volume)
+    {
+        if (clips == null || clips.Length == 0 || footstepSource == null) return;
+        AudioClip clip = clips[Random.Range(0, clips.Length)];
+        footstepSource.pitch = Random.Range(pitchMin, pitchMax);
+        footstepSource.PlayOneShot(clip, volume);
     }
 
     // ================= BREATHING =================

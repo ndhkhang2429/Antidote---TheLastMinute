@@ -226237,6 +226237,12 @@ MonoBehaviour:
   raycastDistance: 0.5
   breathRun: {fileID: 0}
   breathExhausted: {fileID: 0}
+  jumpClips:
+  - {fileID: 8300000, guid: a929707354e47434cb0df79e29adc459, type: 3}
+  landClips:
+  - {fileID: 8300000, guid: 7b45a4d26eb2ade4c8746b5a1143493f, type: 3}
+  jumpVolume: 0.7
+  landVolume: 0.8
 --- !u!82 &9117289951091646795
 AudioSource:
   m_ObjectHideFlags: 0

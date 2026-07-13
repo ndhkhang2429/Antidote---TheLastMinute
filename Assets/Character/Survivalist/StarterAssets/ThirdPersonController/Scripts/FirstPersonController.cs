@@ -152,12 +152,20 @@ namespace StarterAssets
 
         private void GroundedCheck()
         {
+            bool wasGrounded = Grounded; // ← thêm dòng này, lưu lại trạng thái frame trước
+
             Vector3 spherePosition = new Vector3(transform.position.x,
                 transform.position.y - GroundedOffset, transform.position.z);
             Grounded = Physics.CheckSphere(spherePosition, GroundedRadius, GroundLayers,
                 QueryTriggerInteraction.Ignore);
 
             if (_hasAnimator) _animator.SetBool(_animIDGrounded, Grounded);
+
+            // Vừa từ trên không chạm đất -> phát tiếng tiếp đất
+            if (!wasGrounded && Grounded && playerAudioController != null)
+            {
+                playerAudioController.PlayLandSound();
+            }
         }
 
         private void Move()
@@ -248,6 +256,9 @@ namespace StarterAssets
                 {
                     _verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);
                     if (_hasAnimator) _animator.SetBool(_animIDJump, true);
+
+                    if (playerAudioController != null)
+                        playerAudioController.PlayJumpSound();
                 }
 
                 if (_jumpTimeoutDelta >= 0f) _jumpTimeoutDelta -= Time.deltaTime;
