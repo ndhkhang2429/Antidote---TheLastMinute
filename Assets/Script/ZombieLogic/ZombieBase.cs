@@ -24,6 +24,7 @@ public class ZombieBase : MonoBehaviour
     protected Animator anim;
     protected Transform player;
     protected HealthSystem healthSystem;
+    protected ZombieAudioController audioController;
 
     // ── Stats ────────────────────────────────────────────────────────────────
     [Header("Stats")]
@@ -93,12 +94,15 @@ public class ZombieBase : MonoBehaviour
     public bool IsDead => _isDead;
     public bool ScreamDone => _screamDone;
 
+    public bool IsInCombat => _mode == ZombieMode.Combat;
+
     // ── Unity Lifecycle ──────────────────────────────────────────────────────
     protected virtual void Start()
     {
         agent = GetComponent<NavMeshAgent>();
         anim = GetComponent<Animator>();
         healthSystem = GetComponent<HealthSystem>();
+        audioController = GetComponent<ZombieAudioController>();
 
         if (healthSystem == null)
             Debug.LogError($"[ZombieBase] {gameObject.name} thiếu HealthSystem!");
@@ -341,6 +345,7 @@ public class ZombieBase : MonoBehaviour
                 _screamPhase = ScreamPhase.Screaming;
                 _screamTimer = 0f;
                 anim.SetTrigger("Scream");
+                audioController?.PlayAlert();
             }
         }
         else if (_screamPhase == ScreamPhase.Screaming)
@@ -541,6 +546,7 @@ public class ZombieBase : MonoBehaviour
     {
         if (_isDead) return;
         healthSystem.TakeDamage(damage, attacker);
+        audioController?.PlayHurt();
         _hasDetectedPlayer = true;
         _screamDone = true;
         _screamPhase = ScreamPhase.None;
@@ -554,12 +560,18 @@ public class ZombieBase : MonoBehaviour
         player.GetComponent<HealthSystem>()?.TakeDamage(attackDamage, gameObject);
     }
 
+    public virtual void PlayAttackSound()
+    {
+        audioController?.PlayAttack();
+    }
+
     protected virtual void Die()
     {
         _isDead = true;
         agent.isStopped = true;
         agent.enabled = false;
         anim.SetTrigger("IsDead");
+        audioController?.PlayDeath();
         Collider col = GetComponent<Collider>();
         if (col != null) col.enabled = false;
     }
