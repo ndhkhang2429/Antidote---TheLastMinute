@@ -29,6 +29,8 @@ public class PlayerAudioController : MonoBehaviour
     [Header("Breathing Clips")]
     [SerializeField] private AudioClip breathRun;
     [SerializeField] private AudioClip breathExhausted;
+    [SerializeField][Range(0f, 1.5f)] private float breathRunVolume = 1f;
+    [SerializeField][Range(0f, 1.5f)] private float breathExhaustedVolume = 1f;
 
     [Header("Jump & Land Clips")]
     [SerializeField] private AudioClip[] jumpClips;
@@ -121,11 +123,18 @@ public class PlayerAudioController : MonoBehaviour
         if (playerStamina == null || breathSource == null) return;
 
         AudioClip target = null;
+        float targetVolume = 1f;
 
         if (playerStamina.isExhausted)
+        {
             target = breathExhausted;
+            targetVolume = breathExhaustedVolume;
+        }
         else if (isRunning)
+        {
             target = breathRun;
+            targetVolume = breathRunVolume;
+        }
         // else: đứng yên/đi bộ bình thường -> không có tiếng thở (im lặng, đúng chất horror)
 
         if (target == null)
@@ -134,9 +143,14 @@ public class PlayerAudioController : MonoBehaviour
             return;
         }
 
-        if (breathSource.clip == target && breathSource.isPlaying) return;
+        if (breathSource.clip == target && breathSource.isPlaying)
+        {
+            breathSource.volume = targetVolume; // vẫn cập nhật nếu chỉnh số trong Inspector lúc Play
+            return;
+        }
 
         breathSource.clip = target;
+        breathSource.volume = targetVolume;
         breathSource.loop = true;
         breathSource.Play();
     }
