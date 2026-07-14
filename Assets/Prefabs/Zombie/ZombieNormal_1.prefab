@@ -745,7 +745,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   oneShotSource: {fileID: 3847342689645694082}
   idleSource: {fileID: 7603223010417553186}
-  idleGroanClips: []
+  idleGroanClips:
+  - {fileID: 8300000, guid: 0ccec5d749b44e64ab64dc06eeb601f2, type: 3}
+  - {fileID: 8300000, guid: 6485c998ec9a509418b8c282cb323bec, type: 3}
+  - {fileID: 8300000, guid: 2d7bdc8a873e8c64cbe0899f00cd561d, type: 3}
+  - {fileID: 8300000, guid: b859a0b81b1405649a23ff8b627364d7, type: 3}
   idleGroanIntervalMin: 4
   idleGroanIntervalMax: 9
   idleGroanVolume: 0.5
