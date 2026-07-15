@@ -82465,7 +82465,15 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -25155430239884277, guid: 0f713ce5008c93f4caef6f27f04a2759, type: 2}
     - target: {fileID: 4259677474990629596, guid: 20852c22a8981a04baba7018ac5c0a5c, type: 3}
+      propertyPath: preExplodeChargeClip
+      value: 
+      objectReference: {fileID: 8300000, guid: 334c0ebcbce794048aaa541169c5baa6, type: 3}
+    - target: {fileID: 4259677474990629596, guid: 20852c22a8981a04baba7018ac5c0a5c, type: 3}
       propertyPath: waypoints.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4259677474990629596, guid: 20852c22a8981a04baba7018ac5c0a5c, type: 3}
+      propertyPath: explosionSfx.Array.size
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4259677474990629596, guid: 20852c22a8981a04baba7018ac5c0a5c, type: 3}
@@ -82476,6 +82484,26 @@ PrefabInstance:
       propertyPath: waypoints.Array.data[1]
       value: 
       objectReference: {fileID: 1997043175}
+    - target: {fileID: 4259677474990629596, guid: 20852c22a8981a04baba7018ac5c0a5c, type: 3}
+      propertyPath: explosionSfx.Array.data[0]
+      value: 
+      objectReference: {fileID: 8300000, guid: bdb8a70ccfde00e42a67eb8eb36d8cc7, type: 3}
+    - target: {fileID: 4259677474990629596, guid: 20852c22a8981a04baba7018ac5c0a5c, type: 3}
+      propertyPath: explosionSfx.Array.data[1]
+      value: 
+      objectReference: {fileID: 8300000, guid: e6802cb674f50a444b0e8f34e80ce509, type: 3}
+    - target: {fileID: 4259677474990629596, guid: 20852c22a8981a04baba7018ac5c0a5c, type: 3}
+      propertyPath: explosionSplatterSfx.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4259677474990629596, guid: 20852c22a8981a04baba7018ac5c0a5c, type: 3}
+      propertyPath: explosionSplatterSfx.Array.data[0]
+      value: 
+      objectReference: {fileID: 8300000, guid: 695e9b1ba3b3da1489e901e23d6398aa, type: 3}
+    - target: {fileID: 4259677474990629596, guid: 20852c22a8981a04baba7018ac5c0a5c, type: 3}
+      propertyPath: explosionSplatterSfx.Array.data[1]
+      value: 
+      objectReference: {fileID: 8300000, guid: be993f8c9164fe44dbae4230f8d9f96c, type: 3}
     - target: {fileID: 5516948585073297190, guid: 20852c22a8981a04baba7018ac5c0a5c, type: 3}
       propertyPath: m_ApplyRootMotion
       value: 0

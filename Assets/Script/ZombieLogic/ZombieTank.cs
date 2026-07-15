@@ -21,6 +21,19 @@ public class ZombieTank : ZombieBase
     [Header("Explosion VFX")]
     public GameObject explosionVFX;            // Prefab particle effect
 
+    [Header("Pre-Explosion Sound (giai đoạn cảnh báo, tăng dần)")]
+    [SerializeField] private AudioSource preExplodeSource; // AudioSource riêng, gắn trên Tank
+    [SerializeField] private AudioClip preExplodeChargeClip; // 1 clip loop ngắn, tiếng gằn/rền
+    [SerializeField] private float preExplodeVolumeStart = 0.25f;
+    [SerializeField] private float preExplodeVolumeEnd = 1f;
+    [SerializeField] private float preExplodePitchStart = 0.8f;
+    [SerializeField] private float preExplodePitchEnd = 1.4f;
+
+    [Header("Explosion Sound (khoảnh khắc nổ - gore)")]
+    [SerializeField] private AudioClip[] explosionSfx;         // tiếng nổ chính
+    [SerializeField] private AudioClip[] explosionSplatterSfx; // lớp phụ: thịt/máu văng, ướt
+    [SerializeField][Range(0f, 1f)] private float explosionVolume = 1f;
+
     // ── Private ─────────────────────────────────────────────
     private Vector3 _originalScale;
     private Renderer[] _renderers;
@@ -66,9 +79,16 @@ public class ZombieTank : ZombieBase
 
         // Trigger animation gồng người
         anim.SetTrigger("PreExplode");
-
-        // Bật emission trên tất cả material
         EnableEmission();
+
+        if (preExplodeSource != null && preExplodeChargeClip != null)
+        {
+            preExplodeSource.clip = preExplodeChargeClip;
+            preExplodeSource.loop = true;
+            preExplodeSource.volume = preExplodeVolumeStart;
+            preExplodeSource.pitch = preExplodePitchStart;
+            preExplodeSource.Play();
+        }
 
         // Bắt đầu hiệu ứng phình + đỏ → rồi nổ
         StartCoroutine(PreExplosionRoutine());
@@ -102,6 +122,13 @@ public class ZombieTank : ZombieBase
                 }
             }
 
+            // Âm thanh tích tụ tăng dần theo đúng t (đồng bộ với hình ảnh)
+            if (preExplodeSource != null)
+            {
+                preExplodeSource.volume = Mathf.Lerp(preExplodeVolumeStart, preExplodeVolumeEnd, t);
+                preExplodeSource.pitch = Mathf.Lerp(preExplodePitchStart, preExplodePitchEnd, t);
+            }
+
             // 3. Rung lắc nhẹ ở cuối (t > 0.7)
             if (t > 0.7f)
             {
@@ -113,7 +140,10 @@ public class ZombieTank : ZombieBase
             yield return null;
         }
 
-        // Hiệu ứng xong → NỔ
+        // Tắt tiếng charge ngay trước khi nổ
+        if (preExplodeSource != null)
+            preExplodeSource.Stop();
+
         Explode();
     }
 
@@ -126,6 +156,10 @@ public class ZombieTank : ZombieBase
         if (explosionVFX != null)
             Instantiate(explosionVFX, explosionCenter, Quaternion.identity);
 
+        PlayGoreSound(explosionSfx, explosionCenter, explosionVolume);
+
+        // Lớp phụ: thịt/máu văng (phát gần như đồng thời, tạo độ dày cho tiếng nổ)
+        PlayGoreSound(explosionSplatterSfx, explosionCenter, explosionVolume * 0.8f);
         // Detect tất cả collider trong bán kính
         Collider[] hits = Physics.OverlapSphere(transform.position, explosionRadius);
 
@@ -187,6 +221,25 @@ public class ZombieTank : ZombieBase
         foreach (var r in _renderers)
             foreach (var mat in r.materials)
                 mat.EnableKeyword("_EMISSION");
+    }
+
+    private void PlayGoreSound(AudioClip[] clips, Vector3 position, float volume)
+    {
+        if (clips == null || clips.Length == 0) return;
+
+        AudioClip clip = clips[Random.Range(0, clips.Length)];
+
+        // Tạo AudioSource tạm để có thể chỉnh pitch (PlayClipAtPoint mặc định không hỗ trợ pitch)
+        GameObject tempGO = new GameObject("TempGoreAudio");
+        tempGO.transform.position = position;
+        AudioSource tempSource = tempGO.AddComponent<AudioSource>();
+        tempSource.clip = clip;
+        tempSource.volume = volume;
+        tempSource.pitch = Random.Range(0.9f, 1.1f);
+        tempSource.spatialBlend = 1f;
+        tempSource.Play();
+
+        Destroy(tempGO, clip.length / tempSource.pitch);
     }
 
     // ── Gizmos ───────────────────────────────────────────────
