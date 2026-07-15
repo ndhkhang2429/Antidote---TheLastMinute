@@ -4,11 +4,13 @@
 /// ZombieSpitter – Zombie bắn acid từ xa.
 ///
 /// Chỉ override UpdateCombatBehaviour() — không đụng đến BT.
-/// State machine nội bộ hoàn toàn tách biệt:
+/// State machine nội bộ đơn giản, đứng tại chỗ ném:
 ///
 ///   Aiming → Attacking (đứng yên, phóng projectile)
-///          → Cooldown  (strafe trái/phải trên vòng tròn r=attackRange, tâm=player)
+///          → Cooldown  (đứng yên chờ, KHÔNG strafe)
 ///          → Aiming → ...
+///
+/// Nếu player ra khỏi attackRange ở bất kỳ pha nào → tự động chase lại gần.
 /// </summary>
 public class ZombieSpitter : ZombieBase
 {
@@ -18,10 +20,9 @@ public class ZombieSpitter : ZombieBase
     public Transform firePoint;
     public float projectileSpeed = 15f;
 
-    [Header("Cooldown Strafe")]
+    [Header("Cooldown (đứng yên chờ giữa 2 lần ném)")]
     public float minCooldown = 1.5f;
     public float maxCooldown = 3.0f;
-    public float strafeSpeed = 2.5f;
 
     [Header("Aiming")]
     public float aimTurnSpeed = 8f;
@@ -39,18 +40,12 @@ public class ZombieSpitter : ZombieBase
     private float _attackEndTime = 0f;
     private float _cooldownEndTime = 0f;
     private bool _shotFired = false;
-    private int _strafeDir = 1;       // +1 = phải, -1 = trái
-
-    // Path throttle (tránh giật cục khi SetDestination mỗi frame)
-    private float _lastPathTime = 0f;
-    private const float PATH_INTERVAL = 0.15f;
 
     // ── Init ─────────────────────────────────────────────────────────────────
     protected override void Start()
     {
         base.Start();
         if (anim != null) anim.applyRootMotion = false;
-        PickStrafeDir();
     }
 
     // ── Hooks từ ZombieBase ───────────────────────────────────────────────────
@@ -70,15 +65,18 @@ public class ZombieSpitter : ZombieBase
     // ── Combat State Machine (gọi mỗi frame bởi ZombieBase.ExecuteCombat) ───
     protected override void UpdateCombatBehaviour()
     {
-        // Chase thêm nếu player ra xa hơn attackRange (Spitter cần giữ khoảng cách)
+        // Player ra ngoài attackRange (dù đang ở pha nào) → chase lại gần
         float dist = Vector3.Distance(transform.position, player.position);
-        if (_state == SpitterState.Aiming && dist > attackRange)
+        if (dist > attackRange)
         {
-            // Chưa vào tầm → chase lại
             ResumeAgent(runSpeed);
             agent.SetDestination(player.position);
             agent.stoppingDistance = attackRange;
             anim.SetFloat("Speed", 2f, 0.1f, Time.deltaTime);
+
+            // Nếu đang giữa chừng ngắm/chờ mà player chạy ra xa, reset về Aiming
+            // để khi vào lại tầm sẽ ngắm lại đàng hoàng thay vì bắn ngay lập tức
+            if (_state != SpitterState.Attacking) _state = SpitterState.Aiming;
             return;
         }
 
@@ -133,50 +131,23 @@ public class ZombieSpitter : ZombieBase
             EnterCooldown();
     }
 
-    // ── Pha 3: Cooldown (Strafe) ──────────────────────────────────────────────
+    // ── Pha 3: Cooldown (đứng yên chờ, KHÔNG di chuyển) ─────────────────────
     private void EnterCooldown()
     {
         _state = SpitterState.Cooldown;
         _cooldownEndTime = Time.time + Random.Range(minCooldown, maxCooldown);
-        _lastPathTime = 0f;
-
-        PickStrafeDir();
-        ResumeAgent(strafeSpeed);
+        StopAgentCompletely();
     }
 
     private void HandleCooldown()
     {
-        anim.SetFloat("Speed", 2f, 0.1f, Time.deltaTime);
-        StrafeOnCircle();
+        // Đứng yên tại chỗ, chỉ nhìn theo player chờ hết giờ rồi ngắm lại
+        StopAgentCompletely();
+        anim.SetFloat("Speed", 0f, 0.15f, Time.deltaTime);
+        FacePlayer();
 
         if (Time.time >= _cooldownEndTime)
             _state = SpitterState.Aiming;
-    }
-
-    // ── Circle Strafe ────────────────────────────────────────────────────────
-    /// <summary>
-    /// Di chuyển trên vòng tròn bán kính attackRange, tâm = player.
-    /// Throttle PATH_INTERVAL để tránh giật cục.
-    /// </summary>
-    private void StrafeOnCircle()
-    {
-        if (player == null) return;
-        if (!agent.isActiveAndEnabled || !agent.isOnNavMesh) return;
-        if (Time.time - _lastPathTime < PATH_INTERVAL) return;
-        _lastPathTime = Time.time;
-
-        // Radial: từ player → zombie (normalized, XZ)
-        Vector3 radial = FlatDir(transform.position - player.position);
-        if (radial == Vector3.zero) radial = transform.forward;
-
-        // Tangent: xoay radial 90° theo _strafeDir
-        Vector3 tangent = Quaternion.Euler(0f, 90f * _strafeDir, 0f) * radial;
-
-        // Điểm đích = vị trí lý tưởng trên vòng tròn + dịch theo tangent
-        Vector3 circlePos = player.position + radial * attackRange;
-        Vector3 destination = circlePos + tangent * (strafeSpeed * PATH_INTERVAL * 4f);
-
-        agent.SetDestination(destination);
     }
 
     // ── Animation Event ──────────────────────────────────────────────────────
@@ -199,8 +170,7 @@ public class ZombieSpitter : ZombieBase
             Quaternion.LookRotation(shootDir));
 
         acidObj.GetComponent<AcidProjectile>()?.Setup(shootDir, attackDamage, projectileSpeed);
-    }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
-    private void PickStrafeDir() => _strafeDir = Random.value > 0.5f ? 1 : -1;
+        audioController?.PlayAttack();
+    }
 }

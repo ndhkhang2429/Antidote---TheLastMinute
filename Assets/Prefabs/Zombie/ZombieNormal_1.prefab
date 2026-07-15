@@ -753,13 +753,24 @@ MonoBehaviour:
   idleGroanIntervalMin: 4
   idleGroanIntervalMax: 9
   idleGroanVolume: 0.5
-  alertClips: []
+  alertClips:
+  - {fileID: 8300000, guid: 0f9f4ea19c264e44ba1f249d832b5e7e, type: 3}
+  - {fileID: 8300000, guid: 8972973a0f63fc94da480433ae2ace78, type: 3}
+  - {fileID: 8300000, guid: abb28281981e23a4da41d68083c63c9a, type: 3}
   alertVolume: 1
-  attackClips: []
+  attackClips:
+  - {fileID: 8300000, guid: aca447a559e490b4eb8cf4d673f3c31f, type: 3}
+  - {fileID: 8300000, guid: a67058b2c28f173409bb3c74ae9c3ecd, type: 3}
+  - {fileID: 8300000, guid: bf927f95370a6ce49bb484bdebef3396, type: 3}
+  - {fileID: 8300000, guid: f8e5e8841fd1f7740a239daecfe1132a, type: 3}
+  - {fileID: 8300000, guid: 319bb74d56d2e024db48d1a786497b60, type: 3}
   attackVolume: 0.9
-  hurtClips: []
+  hurtClips:
+  - {fileID: 8300000, guid: 833fa49a7a3167a4785a16a244036243, type: 3}
+  - {fileID: 8300000, guid: 9579afdb9d2116748857f44d62517975, type: 3}
   hurtVolume: 0.8
-  deathClips: []
+  deathClips:
+  - {fileID: 8300000, guid: a4c974b535cd47d4d9d8248e4931eadd, type: 3}
   deathVolume: 1
   pitchMin: 0.92
   pitchMax: 1.08

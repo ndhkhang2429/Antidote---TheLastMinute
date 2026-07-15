@@ -26,6 +26,9 @@ public class PlayerAudioController : MonoBehaviour
     [SerializeField] private AudioClip breathExhausted;
     [SerializeField][Range(0f, 1.5f)] private float breathRunVolume = 1f;
     [SerializeField][Range(0f, 1.5f)] private float breathExhaustedVolume = 1f;
+    [SerializeField] private float breathFadeSpeed = 1.2f; // volume/giây, số càng lớn fade càng nhanh
+
+    private float _currentBreathVolume = 0f;
 
     [Header("Jump & Land Clips")]
     [SerializeField] private AudioClip[] jumpClips;
@@ -144,7 +147,7 @@ public class PlayerAudioController : MonoBehaviour
         if (playerStamina == null || breathSource == null) return;
 
         AudioClip target = null;
-        float targetVolume = 1f;
+        float targetVolume = 0f;
 
         if (playerStamina.isExhausted)
         {
@@ -156,24 +159,27 @@ public class PlayerAudioController : MonoBehaviour
             target = breathRun;
             targetVolume = breathRunVolume;
         }
-        // else: đứng yên/đi bộ bình thường -> không có tiếng thở (im lặng, đúng chất horror)
+        // else: đứng yên/đi bộ bình thường -> targetVolume = 0, sẽ fade dần về im lặng
 
-        if (target == null)
+        // Nếu clip cần đổi (vd run -> exhausted), hoặc source đã bị Stop() từ lần fade-out trước,
+        // thì cần Play() lại. Chỉ check clip khác thôi sẽ bỏ sót trường hợp cùng clip nhưng đã Stop.
+        if (target != null && (breathSource.clip != target || !breathSource.isPlaying))
         {
-            if (breathSource.isPlaying) breathSource.Stop();
-            return;
+            breathSource.clip = target;
+            breathSource.loop = true;
+            breathSource.Play();
+            _currentBreathVolume = 0f;
         }
 
-        if (breathSource.clip == target && breathSource.isPlaying)
-        {
-            breathSource.volume = targetVolume; // vẫn cập nhật nếu chỉnh số trong Inspector lúc Play
-            return;
-        }
+        // Fade dần volume hiện tại về đúng target (0 nếu im lặng, hoặc targetVolume nếu đang thở)
+        _currentBreathVolume = Mathf.MoveTowards(_currentBreathVolume, targetVolume, breathFadeSpeed * Time.deltaTime);
+        breathSource.volume = _currentBreathVolume;
 
-        breathSource.clip = target;
-        breathSource.volume = targetVolume;
-        breathSource.loop = true;
-        breathSource.Play();
+        // Chỉ thực sự Stop() khi đã fade hết về 0, tránh cắt tiếng đột ngột
+        if (targetVolume <= 0f && _currentBreathVolume <= 0.001f && breathSource.isPlaying)
+        {
+            breathSource.Stop();
+        }
     }
 
     // ================= LOW HEALTH HEARTBEAT =================
