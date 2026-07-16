@@ -326,7 +326,6 @@ MonoBehaviour:
   projectileSpeed: 15
   minCooldown: 1.5
   maxCooldown: 3
-  strafeSpeed: 2.5
   aimTurnSpeed: 8
   aimThreshold: 0.97
   attackFallbackDuration: 1.5
@@ -494,17 +493,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   oneShotSource: {fileID: 4402906242349028492}
   idleSource: {fileID: -5852629197533319726}
-  idleGroanClips: []
+  idleGroanClips:
+  - {fileID: 8300000, guid: 0ccec5d749b44e64ab64dc06eeb601f2, type: 3}
+  - {fileID: 8300000, guid: 6485c998ec9a509418b8c282cb323bec, type: 3}
+  - {fileID: 8300000, guid: 2d7bdc8a873e8c64cbe0899f00cd561d, type: 3}
+  - {fileID: 8300000, guid: b859a0b81b1405649a23ff8b627364d7, type: 3}
   idleGroanIntervalMin: 4
   idleGroanIntervalMax: 9
   idleGroanVolume: 0.5
-  alertClips: []
+  alertClips:
+  - {fileID: 8300000, guid: 0f9f4ea19c264e44ba1f249d832b5e7e, type: 3}
+  - {fileID: 8300000, guid: 8972973a0f63fc94da480433ae2ace78, type: 3}
+  - {fileID: 8300000, guid: abb28281981e23a4da41d68083c63c9a, type: 3}
   alertVolume: 1
-  attackClips: []
+  attackClips:
+  - {fileID: 8300000, guid: 44197cb83aa3cff47bc211e6b038a8d7, type: 3}
+  - {fileID: 8300000, guid: 32d48c9f8f000ce419626b8a6ee5dcd5, type: 3}
+  - {fileID: 8300000, guid: 333c29600b4faa045bef934460d408c8, type: 3}
+  - {fileID: 8300000, guid: 9cb69a41c6fe6754cb6f8711061d749a, type: 3}
   attackVolume: 0.9
-  hurtClips: []
+  hurtClips:
+  - {fileID: 8300000, guid: 833fa49a7a3167a4785a16a244036243, type: 3}
+  - {fileID: 8300000, guid: 9579afdb9d2116748857f44d62517975, type: 3}
   hurtVolume: 0.8
-  deathClips: []
+  deathClips:
+  - {fileID: 8300000, guid: a4c974b535cd47d4d9d8248e4931eadd, type: 3}
   deathVolume: 1
   pitchMin: 0.92
   pitchMax: 1.08
