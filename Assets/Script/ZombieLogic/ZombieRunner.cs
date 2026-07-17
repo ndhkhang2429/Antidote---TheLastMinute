@@ -31,6 +31,16 @@ public class ZombieRunner : ZombieBase
     public float pounceSpeed = 15f;
     public float pounceDuration = 0.4f;
 
+    [Header("Pounce Sound")]
+    [SerializeField] private AudioClip[] pounceLaunchSfx;   // tiếng gầm/hự lúc bật nhảy
+    [SerializeField] private AudioClip[] pounceImpactSfx;   // tiếng va chạm lúc vồ trúng player
+    [SerializeField][Range(0f, 1f)] private float pounceLaunchVolume = 0.9f;
+    [SerializeField][Range(0f, 1f)] private float pounceImpactVolume = 1f;
+
+    [Header("Frenzy Sound")]
+    [SerializeField] private AudioClip[] frenzyRoarSfx;     // tiếng gầm lúc kích hoạt Frenzy (chỉ 1 lần)
+    [SerializeField][Range(0f, 1f)] private float frenzyVolume = 1f;
+
     // ── Runtime ──────────────────────────────────────────────────────────────
     private bool _isFrenzy = false;
     private bool _isPouncing = false;
@@ -51,6 +61,8 @@ public class ZombieRunner : ZombieBase
         screamDuration = runnerScreamDuration;
 
         base.Start();
+
+        if (anim != null) anim.applyRootMotion = false; // tránh xung đột với NavMeshAgent, gây giật
 
         _originalRunSpeed = runSpeed;
         _originalAttackCooldown = attackCooldown;
@@ -143,6 +155,8 @@ public class ZombieRunner : ZombieBase
         attackCooldown = _originalAttackCooldown * 0.5f;
         pounceSpeed *= 1.3f;
 
+        audioController?.PlaySound(frenzyRoarSfx, frenzyVolume);
+
         StartCoroutine(FrenzyVisualEffect());
         Debug.Log($"[ZombieRunner] {gameObject.name} FRENZY!");
     }
@@ -185,6 +199,8 @@ public class ZombieRunner : ZombieBase
         // Snap hướng về player
         Vector3 dir = FlatDir(player.position - transform.position);
         if (dir != Vector3.zero) transform.rotation = Quaternion.LookRotation(dir);
+
+        audioController?.PlaySound(pounceLaunchSfx, pounceLaunchVolume);
 
         Vector3 startPos = transform.position;
         Vector3 targetPos = player.position;
@@ -237,6 +253,7 @@ public class ZombieRunner : ZombieBase
                        ?? player.GetComponentInParent<HealthSystem>();
         ph?.TakeDamage(pounceDamage, gameObject);
         anim.SetTrigger("Attack");
+        audioController?.PlaySound(pounceImpactSfx, pounceImpactVolume);
         Debug.Log($"[ZombieRunner] Pounce trúng! Damage: {pounceDamage}");
     }
 

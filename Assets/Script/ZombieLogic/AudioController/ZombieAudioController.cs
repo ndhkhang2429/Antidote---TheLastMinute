@@ -103,6 +103,16 @@ public class ZombieAudioController : MonoBehaviour
         PlayFromArray(deathClips, deathVolume);
     }
 
+    /// <summary>
+    /// Dùng cho các sự kiện âm thanh riêng của từng loại zombie
+    /// (vd: Pounce, Frenzy của ZombieRunner) mà không có sẵn field chuẩn ở đây.
+    /// Subclass tự khai báo mảng AudioClip riêng, rồi gọi hàm này qua oneShotSource chung.
+    /// </summary>
+    public void PlaySound(AudioClip[] clips, float volume = 1f)
+    {
+        PlayFromArray(clips, volume);
+    }
+
     private void PlayFromArray(AudioClip[] clips, float volume)
     {
         if (clips == null || clips.Length == 0 || oneShotSource == null) return;
