@@ -12,17 +12,29 @@ public class LightingManager : MonoBehaviour
 
     [Header("Exceptions")]
     public List<Renderer> ignoreRenderers = new List<Renderer>(); // Kéo 2 cái đèn tủ vào đây
+    public static LightingManager Instance { get; private set; }
 
     // Lưu trạng thái ban đầu
     private List<Light> managedLights = new List<Light>();
     private List<RendererEmissionData> managedEmissives = new List<RendererEmissionData>();
     private bool isPowerOn = false;
+    public bool IsPowerOn => isPowerOn;
 
     // Struct lưu thông tin emission gốc
     private struct RendererEmissionData
     {
         public Material mat;
         public Color originalEmissionColor;
+    }
+
+    void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
     }
 
     void Start()

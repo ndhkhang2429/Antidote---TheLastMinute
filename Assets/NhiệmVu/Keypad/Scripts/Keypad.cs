@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -46,13 +46,35 @@ namespace NavKeypad
         private void Awake()
         {
             ClearInput();
-            panelMesh.material.SetVector("_EmissionColor", screenNormalColor * screenIntensity);
+            if (LightingManager.Instance != null && !LightingManager.Instance.IsPowerOn)
+            {
+                panelMesh.material.SetVector("_EmissionColor", Color.black);
+                keypadDisplayText.text = ""; // Xóa chữ trên màn hình cho giống máy đang tắt
+            }
+            else
+            {
+                panelMesh.material.SetVector("_EmissionColor", screenNormalColor * screenIntensity);
+            }
         }
 
 
         //Gets value from pressedbutton
         public void AddInput(string input)
         {
+            // --- KIỂM TRA ĐIỆN TRƯỚC KHI CHO PHÉP NHẬP ---
+            if (LightingManager.Instance != null && !LightingManager.Instance.IsPowerOn)
+            {
+                // Gọi Singleton của NotificationUI để hiện chữ
+                NotificationUI.Instance.ShowNotification("Chưa mở điện! Cần tìm tủ điện để cấp nguồn.");
+
+                // (Tùy chọn) Phát âm thanh báo lỗi để player biết nút không có tác dụng
+                if (audioSource != null && accessDeniedSfx != null)
+                {
+                    audioSource.PlayOneShot(accessDeniedSfx);
+                }
+
+                return; // Lệnh return này sẽ chặn đứng toàn bộ logic phía dưới, player không thể nhập pass
+            }
             audioSource.PlayOneShot(buttonClickedSfx);
             if (displayingResult || accessWasGranted) return;
             switch (input)

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.Playables;
-using System.Collections; // Cần thiết để chạy Coroutine (Hiệu ứng theo thời gian)
+using System.Collections;
 
 namespace Art_Equilibrium
 {
@@ -44,19 +44,31 @@ namespace Art_Equilibrium
 
         // --- THÊM PHẦN HIỆU ỨNG CHUYỂN CẢNH ---
         [Header("Transition Effects")]
-        public CanvasGroup fadeCanvasGroup; // Kéo UI BlackScreen vào đây
-        public float fadeSpeed = 1.5f;      // Tốc độ tối/sáng màn hình (càng nhỏ càng chậm)
+        public CanvasGroup fadeCanvasGroup;
+        public float fadeSpeed = 1.5f;
 
         private bool hasTransitioned = false;
 
         // ===========================================
-        // MỚI THÊM: Khóa mật khẩu (mặc định TẮT, không ảnh hưởng cửa khác)
+        // Khóa mật khẩu 
         // ===========================================
         [Header("Password Lock (chỉ dùng cho cửa cần mật khẩu)")]
         [Tooltip("Bật true nếu cửa này cần mở khóa bằng mật khẩu trước khi cho phép bấm F mở cửa")]
         public bool requiresPassword = false;
         [Tooltip("Chữ hiện khi player đứng gần nhưng CHƯA nhập đúng mật khẩu")]
         public string lockedMessage = "Cần mật khẩu";
+
+        // ===========================================
+        // Khóa bằng thẻ từ (Dùng cho phòng Boss)
+        // ===========================================
+        [Header("Keycard Lock (Thẻ từ)")]
+        [Tooltip("Bật true nếu cửa này cần quét thẻ từ để mở")]
+        public bool requiresKeycard = false;
+
+        [Tooltip("Kéo file Scriptable Object của chiếc thẻ từ vào đây")]
+        public ItemDataSO requiredKeycardSO;
+
+        public AudioClip accessDeniedSound;
 
         private bool isUnlocked = false;
 
@@ -73,6 +85,7 @@ namespace Art_Equilibrium
 
         private void Update()
         {
+            // Xử lý Animation cửa mở/đóng
             if (isSlidingDoor)
             {
                 Vector3 targetPos = open ? targetLocalSlidePos : defaultLocalPos;
@@ -84,22 +97,62 @@ namespace Art_Equilibrium
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * smooth);
             }
 
+            // Xử lý Tương tác phím F
             if (Input.GetKeyDown(KeyCode.F) && trig && !isKeyPressed)
             {
                 isKeyPressed = true;
 
-                // MỚI THÊM: nếu cửa yêu cầu mật khẩu và chưa mở khóa, chặn hành động F hoàn toàn
+                // 1. Kiểm tra Cửa Mật Khẩu
                 if (requiresPassword && !isUnlocked)
                 {
-                    // Không làm gì - player phải giải puzzle mật khẩu trước
+                    return; // Chặn lại, player phải giải puzzle mật khẩu trước
                 }
-                else if (isBossDoor)
+
+                // 2. Kiểm tra Cửa Thẻ Từ
+                if (requiresKeycard)
+                {
+                    // Ưu tiên 1: Cần có điện
+                    if (LightingManager.Instance != null && !LightingManager.Instance.IsPowerOn)
+                    {
+                        if (NotificationUI.Instance != null)
+                            NotificationUI.Instance.ShowNotification("Máy đọc thẻ không hoạt động. Cần mở hệ thống điện.");
+
+                        if (audioSource != null && accessDeniedSound != null)
+                            audioSource.PlayOneShot(accessDeniedSound);
+
+                        return; // Chặn lại
+                    }
+
+                    // Ưu tiên 2: Điện đã có -> Check túi đồ xem có thẻ không
+                    if (InventorySystem.Instance != null && requiredKeycardSO != null)
+                    {
+                        // Gọi hàm kiểm tra Item trong InventorySystem
+                        bool hasCard = InventorySystem.Instance.HasItem(requiredKeycardSO);
+
+                        if (!hasCard)
+                        {
+                            if (NotificationUI.Instance != null)
+                                NotificationUI.Instance.ShowNotification("Truy cập bị từ chối: Yêu cầu Thẻ Từ.");
+
+                            if (audioSource != null && accessDeniedSound != null)
+                                audioSource.PlayOneShot(accessDeniedSound);
+
+                            return; // Chặn lại
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogWarning("[AE_Door] Thiếu InventorySystem.Instance hoặc chưa kéo requiredKeycardSO vào Inspector!");
+                    }
+                }
+
+                // 3. Nếu mọi điều kiện hợp lệ
+                if (isBossDoor)
                 {
                     if (!hasTransitioned)
                     {
                         hasTransitioned = true;
                         doorMessage = "";
-                        // Chạy hiệu ứng Fade To Black thay vì chuyển ngay lập tức
                         StartCoroutine(TransitionRoutine());
                     }
                 }
@@ -115,9 +168,9 @@ namespace Art_Equilibrium
                 isKeyPressed = false;
             }
 
+            // Hiển thị chữ gợi ý trên màn hình
             if (!hasTransitioned)
             {
-                // MỚI THÊM: hiện chữ "Cần mật khẩu" thay vì Open/Close khi còn khóa
                 if (requiresPassword && !isUnlocked)
                     doorMessage = trig ? lockedMessage : "";
                 else
@@ -183,9 +236,7 @@ namespace Art_Equilibrium
             }
         }
 
-        // ===========================================
-        // MỚI THÊM: Gọi hàm này từ PasswordDoorController khi Keypad báo mật khẩu đúng
-        // ===========================================
+        // Gọi hàm này từ Keypad khi nhập đúng mật khẩu
         public void UnlockByPassword()
         {
             if (isUnlocked) return;
@@ -200,10 +251,8 @@ namespace Art_Equilibrium
         // ==========================================
         private IEnumerator TransitionRoutine()
         {
-            // 1. Khóa di chuyển của Player ngay khi vừa bấm nút
             if (playerMovementScript != null) playerMovementScript.enabled = false;
 
-            // 2. Màn hình từ từ tối lại
             if (fadeCanvasGroup != null)
             {
                 float timer = 0f;
@@ -211,25 +260,21 @@ namespace Art_Equilibrium
                 {
                     timer += Time.deltaTime * fadeSpeed;
                     fadeCanvasGroup.alpha = Mathf.Lerp(0f, 1f, timer);
-                    yield return null; // Chờ tới frame tiếp theo
+                    yield return null;
                 }
-                fadeCanvasGroup.alpha = 1f; // Đảm bảo đen hoàn toàn
+                fadeCanvasGroup.alpha = 1f;
             }
 
-            // Chờ thêm một chút (0.2s) lúc đen thui cho ngầu
             yield return new WaitForSeconds(0.2f);
 
-            // 3. Trong lúc màn hình đang đen, ta âm thầm dịch chuyển Player
             TeleportPlayer();
 
-            // 4. Chạy Timeline Cutscene (Phòng Boss)
             if (timelineDirector != null)
             {
                 timelineDirector.Play();
                 timelineDirector.stopped += OnCutsceneFinished;
             }
 
-            // 5. Từ từ sáng màn hình lên để lộ ra cảnh Camera đang lia quanh phòng Boss
             if (fadeCanvasGroup != null)
             {
                 float timer = 0f;
@@ -239,7 +284,7 @@ namespace Art_Equilibrium
                     fadeCanvasGroup.alpha = Mathf.Lerp(1f, 0f, timer);
                     yield return null;
                 }
-                fadeCanvasGroup.alpha = 0f; // Trả lại độ trong suốt 100%
+                fadeCanvasGroup.alpha = 0f;
             }
         }
 
