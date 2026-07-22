@@ -59,6 +59,27 @@ public class ZombieBase : MonoBehaviour
     public float turnSpeed = 10f;
     public float turnThreshold = 0.95f;
 
+    [System.Serializable]
+    public class LootEntry
+    {
+        [Tooltip("Prefab rớt ra (Prefab này phải gắn script WorldItem của bạn)")]
+        public GameObject itemPrefab;
+
+        [Range(0f, 1f)]
+        [Tooltip("Tỷ lệ rớt (0.5 = 50%, 0.1 = 10%)")]
+        public float dropChance = 0.5f;
+
+        [Tooltip("Số lượng tối thiểu rớt ra")]
+        public int minAmount = 1;
+
+        [Tooltip("Số lượng tối đa rớt ra")]
+        public int maxAmount = 1;
+    }
+
+    [Header("Loot System")]
+    [Tooltip("Danh sách các item có thể rớt ra khi zombie chết")]
+    public List<LootEntry> lootTable;
+
     // ── Mode (BT output) ─────────────────────────────────────────────────────
     protected enum ZombieMode { Patrol, Chase, Combat }
     protected ZombieMode _mode = ZombieMode.Patrol;
@@ -574,10 +595,57 @@ public class ZombieBase : MonoBehaviour
         audioController?.PlayDeath();
         Collider col = GetComponent<Collider>();
         if (col != null) col.enabled = false;
+
+        DropLoot(); 
     }
 
     public virtual void ResetToNormalCombatState()
     {
+    }
+
+    protected virtual void DropLoot()
+    {
+        if (lootTable == null || lootTable.Count == 0) return;
+
+        // Vị trí rớt từ bụng/ngực zombie
+        Vector3 spawnPos = transform.position + Vector3.up * 1.0f;
+
+        foreach (var loot in lootTable)
+        {
+            if (Random.value <= loot.dropChance)
+            {
+                int amountToDrop = Random.Range(loot.minAmount, loot.maxAmount + 1);
+
+                for (int i = 0; i < amountToDrop; i++) // Thay đổi nhỏ: lặp nếu rớt nhiều món riêng lẻ
+                {
+                    // Random một hướng văng ra xung quanh (trục X và Z), và hơi hất lên trên (trục Y)
+                    Vector3 randomDirection = new Vector3(
+                        Random.Range(-1f, 1f),
+                        Random.Range(0.5f, 1.5f), // Hất tung lên một chút
+                        Random.Range(-1f, 1f)
+                    ).normalized;
+
+                    GameObject droppedObject = Instantiate(loot.itemPrefab, spawnPos, Quaternion.identity);
+
+                    // Thiết lập số lượng (tuỳ logic hệ thống Inventory của bạn)
+                    // WorldItem worldItem = droppedObject.GetComponent<WorldItem>();
+                    // if (worldItem != null) worldItem.amount = 1;
+
+                    // Thêm lực đẩy vật lý (Force) để item văng ra
+                    Rigidbody rb = droppedObject.GetComponent<Rigidbody>();
+                    if (rb != null)
+                    {
+                        // Lực văng ngẫu nhiên từ 2 đến 4
+                        float dropForce = Random.Range(2f, 4f);
+                        // Hất văng đi (ForceMode.Impulse là tác dụng lực ngay lập tức giống như bị đá/bắn)
+                        rb.AddForce(randomDirection * dropForce, ForceMode.Impulse);
+
+                        // Xoay bừa một chút cho tự nhiên
+                        rb.AddTorque(Random.insideUnitSphere * Random.Range(1f, 3f), ForceMode.Impulse);
+                    }
+                }
+            }
+        }
     }
 
     // ── Gizmos ───────────────────────────────────────────────────────────────
