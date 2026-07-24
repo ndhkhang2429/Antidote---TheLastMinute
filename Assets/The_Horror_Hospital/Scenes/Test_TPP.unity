@@ -113485,6 +113485,74 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: cc57a95f956c63546825f75a4c0ad1e6, type: 2}
+    - target: {fileID: 3687362893146643922, guid: d85c6093db19f354d848fe6d4fcf103f, type: 3}
+      propertyPath: hurtClips.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3687362893146643922, guid: d85c6093db19f354d848fe6d4fcf103f, type: 3}
+      propertyPath: alertClips.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3687362893146643922, guid: d85c6093db19f354d848fe6d4fcf103f, type: 3}
+      propertyPath: deathClips.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3687362893146643922, guid: d85c6093db19f354d848fe6d4fcf103f, type: 3}
+      propertyPath: attackClips.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3687362893146643922, guid: d85c6093db19f354d848fe6d4fcf103f, type: 3}
+      propertyPath: hurtClips.Array.data[0]
+      value: 
+      objectReference: {fileID: 8300000, guid: 0c17c1e05867de7469d8207c84c78243, type: 3}
+    - target: {fileID: 3687362893146643922, guid: d85c6093db19f354d848fe6d4fcf103f, type: 3}
+      propertyPath: hurtClips.Array.data[1]
+      value: 
+      objectReference: {fileID: 8300000, guid: 000e4828858c79c4daecf4ed0983d752, type: 3}
+    - target: {fileID: 3687362893146643922, guid: d85c6093db19f354d848fe6d4fcf103f, type: 3}
+      propertyPath: alertClips.Array.data[0]
+      value: 
+      objectReference: {fileID: 8300000, guid: 000e4828858c79c4daecf4ed0983d752, type: 3}
+    - target: {fileID: 3687362893146643922, guid: d85c6093db19f354d848fe6d4fcf103f, type: 3}
+      propertyPath: alertClips.Array.data[1]
+      value: 
+      objectReference: {fileID: 8300000, guid: 0f9123129086a3b4ca9bad33b6dff621, type: 3}
+    - target: {fileID: 3687362893146643922, guid: d85c6093db19f354d848fe6d4fcf103f, type: 3}
+      propertyPath: alertClips.Array.data[2]
+      value: 
+      objectReference: {fileID: 8300000, guid: 0c17c1e05867de7469d8207c84c78243, type: 3}
+    - target: {fileID: 3687362893146643922, guid: d85c6093db19f354d848fe6d4fcf103f, type: 3}
+      propertyPath: deathClips.Array.data[0]
+      value: 
+      objectReference: {fileID: 8300000, guid: 1b51b3a4c0b16ce409cf6bd16c9516c2, type: 3}
+    - target: {fileID: 3687362893146643922, guid: d85c6093db19f354d848fe6d4fcf103f, type: 3}
+      propertyPath: attackClips.Array.data[0]
+      value: 
+      objectReference: {fileID: 8300000, guid: 8225a66a6aa5c644794ddd1197e71bee, type: 3}
+    - target: {fileID: 3687362893146643922, guid: d85c6093db19f354d848fe6d4fcf103f, type: 3}
+      propertyPath: attackClips.Array.data[1]
+      value: 
+      objectReference: {fileID: 8300000, guid: 0f9123129086a3b4ca9bad33b6dff621, type: 3}
+    - target: {fileID: 3687362893146643922, guid: d85c6093db19f354d848fe6d4fcf103f, type: 3}
+      propertyPath: idleGroanClips.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3687362893146643922, guid: d85c6093db19f354d848fe6d4fcf103f, type: 3}
+      propertyPath: idleGroanClips.Array.data[0]
+      value: 
+      objectReference: {fileID: 8300000, guid: c6c69b4a4399ebd4da6222131c88b14e, type: 3}
+    - target: {fileID: 3687362893146643922, guid: d85c6093db19f354d848fe6d4fcf103f, type: 3}
+      propertyPath: idleGroanClips.Array.data[1]
+      value: 
+      objectReference: {fileID: 8300000, guid: 91a52f06828dceb42a0561b7803c96c7, type: 3}
+    - target: {fileID: 3687362893146643922, guid: d85c6093db19f354d848fe6d4fcf103f, type: 3}
+      propertyPath: idleGroanClips.Array.data[2]
+      value: 
+      objectReference: {fileID: 8300000, guid: 8b48193e289634a4eb43f1835e7fd7ec, type: 3}
+    - target: {fileID: 3687362893146643922, guid: d85c6093db19f354d848fe6d4fcf103f, type: 3}
+      propertyPath: idleGroanClips.Array.data[3]
+      value: 
+      objectReference: {fileID: 8300000, guid: 22e6569be02a0e54fb6d5335854698a5, type: 3}
     - target: {fileID: 6176856055419875589, guid: d85c6093db19f354d848fe6d4fcf103f, type: 3}
       propertyPath: m_Name
       value: ZombieAxe
