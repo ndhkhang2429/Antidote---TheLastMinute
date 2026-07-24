@@ -314,6 +314,7 @@ public class PlayerInteraction : MonoBehaviour
             {
                 // Trường hợp 1: Nhặt sạch sẽ -> Xóa hộp đạn
                 itemToPickUp.GetComponent<Collider>().enabled = false;
+                worldItem.TriggerPickedUp();
                 Destroy(itemToPickUp);
 
                 if (NotificationUI.Instance != null)
