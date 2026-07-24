@@ -536,6 +536,7 @@ MonoBehaviour:
   screamDuration: 2
   turnSpeed: 10
   turnThreshold: 0.95
+  lootTable: []
 --- !u!195 &7436979287463038652
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -576,7 +577,7 @@ MonoBehaviour:
   _soOnHealed: {fileID: 0}
   _soOnDied: {fileID: 0}
   _destroyDelay: 3
-  _destroyOnDeath: 0
+  _destroyOnDeath: 1
 --- !u!136 &5251288873795775782
 CapsuleCollider:
   m_ObjectHideFlags: 0
