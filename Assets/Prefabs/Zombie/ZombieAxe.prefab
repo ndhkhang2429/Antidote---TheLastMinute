@@ -414,6 +414,10 @@ PrefabInstance:
       value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 6046854574889894245, guid: 6a57508ea9f1a2e4ba69675cdd7361e3, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: cc57a95f956c63546825f75a4c0ad1e6, type: 2}
+    - target: {fileID: 6046854574889894245, guid: 6a57508ea9f1a2e4ba69675cdd7361e3, type: 3}
       propertyPath: m_ApplyRootMotion
       value: 0
       objectReference: {fileID: 0}
@@ -663,6 +667,7 @@ MonoBehaviour:
   screamDuration: 2
   turnSpeed: 10
   turnThreshold: 0.95
+  lootTable: []
   axeSwingRange: 2.2
   knockbackForce: 4
   rageDashSpeed: 8
