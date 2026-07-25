@@ -59,6 +59,28 @@ public class ZombieBase : MonoBehaviour
     public float turnSpeed = 10f;
     public float turnThreshold = 0.95f;
 
+    // ===========================================
+    // MỚI THÊM: Line of Sight — chống zombie "thấy xuyên tường"
+    // ===========================================
+    [Header("Line of Sight")]
+    [Tooltip("Chiều cao 'mắt' zombie tính từ chân, dùng làm gốc raycast")]
+    public float eyeHeight = 1.6f;
+    [Tooltip("Layer của Player + layer vật cản (tường, cửa...). PHẢI bao gồm cả 2 để raycast phân biệt được trúng player hay trúng tường")]
+    public LayerMask sightMask;
+    [Tooltip("Góc nhìn (độ), 360 = không giới hạn góc, chỉ dựa vào raycast")]
+    public float fieldOfViewAngle = 360f;
+    [Tooltip("Sau khi mất Line of Sight, zombie vẫn 'nhớ' vị trí cuối và đuổi tới đó trong bao lâu trước khi bỏ cuộc")]
+    public float loseSightDuration = 4f;
+
+    // Runtime LOS state
+    private bool _hasLineOfSightNow = false;
+    private float _lastSeenTime = -999f;
+    private Vector3 _lastKnownPlayerPosition;
+
+    protected bool HasLineOfSightNow => _hasLineOfSightNow;
+    protected Vector3 LastKnownPlayerPosition => _lastKnownPlayerPosition;
+    protected Vector3 EyePosition => transform.position + Vector3.up * eyeHeight;
+
     [System.Serializable]
     public class LootEntry
     {
@@ -103,18 +125,12 @@ public class ZombieBase : MonoBehaviour
     private float _idleDuration = 0f;
     private bool _wanderDestinationSet = false;
 
-    // ===========================================
-    // MỚI THÊM: cờ "buộc đuổi player bất kể khoảng cách"
-    // Dùng cho zombie vừa được AlarmSystem spawn ra, cần lao thẳng tới player
-    // dù đang ở xa hơn detectionRange * 1.5 (điều kiện ShouldChase bình thường).
-    // Tự tắt khi zombie đã thực sự phát hiện player theo cách thông thường (CanDetectPlayer).
-    // ===========================================
+    // Cờ "buộc đuổi player bất kể khoảng cách" (dùng bởi AlarmSystem)
     private bool _forcedByAlarm = false;
 
     // Public read-only
     public bool IsDead => _isDead;
     public bool ScreamDone => _screamDone;
-
     public bool IsInCombat => _mode == ZombieMode.Combat;
 
     // ── Unity Lifecycle ──────────────────────────────────────────────────────
@@ -156,6 +172,10 @@ public class ZombieBase : MonoBehaviour
             return;
         }
 
+        // MỚI THÊM: cập nhật LOS mỗi frame TRƯỚC khi BT evaluate,
+        // vì CanDetectPlayer/ShouldChase đều phụ thuộc vào giá trị này
+        UpdateSightTracking();
+
         // BT chỉ làm 1 việc: set _mode
         _btRoot.Evaluate();
 
@@ -183,6 +203,65 @@ public class ZombieBase : MonoBehaviour
         }
     }
 
+    // ── Line of Sight (MỚI THÊM) ──────────────────────────────────────────────
+
+    /// <summary>
+    /// Raycast từ mắt zombie tới player để xác nhận không có tường/vật cản chắn giữa.
+    /// sightMask PHẢI chứa cả layer Player lẫn layer vật cản, để phân biệt
+    /// "raycast trúng player" (thấy được) với "raycast trúng tường" (bị chắn).
+    /// </summary>
+    protected bool HasLineOfSightToPlayer(float distance)
+    {
+        if (player == null) return false;
+        if (distance > detectionRange) return false;
+
+        Vector3 eyePos = EyePosition;
+        Vector3 targetPos = player.position + Vector3.up * 1.5f;
+        Vector3 toTarget = targetPos - eyePos;
+        float fullDistance = toTarget.magnitude;
+        if (fullDistance <= 0.01f) return true;
+
+        Vector3 dir = toTarget / fullDistance;
+
+        // Kiểm tra góc nhìn (bỏ qua nếu fieldOfViewAngle = 360)
+        if (fieldOfViewAngle < 359f)
+        {
+            float angle = Vector3.Angle(transform.forward, dir);
+            if (angle > fieldOfViewAngle * 0.5f) return false;
+        }
+
+        if (Physics.Raycast(eyePos, dir, out RaycastHit hit, fullDistance, sightMask, QueryTriggerInteraction.Ignore))
+        {
+            // Trúng player trước → thấy được. Trúng bất kỳ thứ gì khác (tường, cửa) → bị chắn.
+            return hit.collider.CompareTag("Player") || hit.transform.root == player;
+        }
+
+        // Không trúng gì cả trong tầm fullDistance -> không có vật cản -> thấy được
+        return true;
+    }
+
+    /// <summary>
+    /// Cập nhật trạng thái LOS + vị trí cuối cùng thấy player mỗi frame.
+    /// Dùng detectionRange * 1.5 (giống ngưỡng ShouldChase) để vẫn theo dõi
+    /// được player khi đang trong Chase (xa hơn detectionRange gốc một chút).
+    /// </summary>
+    private void UpdateSightTracking()
+    {
+        float dist = Vector3.Distance(transform.position, player.position);
+        float trackingRange = Mathf.Max(detectionRange * 1.5f, attackRange + 2f);
+
+        if (dist <= trackingRange && HasLineOfSightToPlayer(dist))
+        {
+            _hasLineOfSightNow = true;
+            _lastSeenTime = Time.time;
+            _lastKnownPlayerPosition = player.position;
+        }
+        else
+        {
+            _hasLineOfSightNow = false;
+        }
+    }
+
     // ── Behaviour Tree ───────────────────────────────────────────────────────
     private Node BuildBehaviourTree()
     {
@@ -195,7 +274,7 @@ public class ZombieBase : MonoBehaviour
                 new ActionNode(SetCombatMode),
             }),
 
-            // Nếu player trong tầm chase (đã từng thấy) → Chase
+            // Nếu player trong tầm chase (đã từng thấy, hoặc vẫn còn "nhớ" vị trí gần đây) → Chase
             new Sequence(new List<Node>
             {
                 new ConditionNode(ShouldChase),
@@ -211,16 +290,29 @@ public class ZombieBase : MonoBehaviour
     private bool CanDetectPlayer()
     {
         if (player == null) return false;
-        return Vector3.Distance(transform.position, player.position) <= detectionRange;
+        float dist = Vector3.Distance(transform.position, player.position);
+        if (dist > detectionRange) return false;
+
+        // MỚI THÊM: bắt buộc phải có Line of Sight thật sự, không chỉ khoảng cách
+        return HasLineOfSightToPlayer(dist);
     }
 
     private bool ShouldChase()
     {
-        // MỚI THÊM: nếu đang bị buộc đuổi bởi AlarmSystem, luôn chase bất kể khoảng cách
+        // Nếu đang bị buộc đuổi bởi AlarmSystem, luôn chase bất kể khoảng cách/LOS
         if (_forcedByAlarm) return true;
 
         if (!_hasDetectedPlayer || player == null) return false;
-        return Vector3.Distance(transform.position, player.position) <= detectionRange * 1.5f;
+
+        // MỚI THÊM: nếu đang thấy player ngay lúc này -> chắc chắn tiếp tục chase
+        if (_hasLineOfSightNow) return true;
+
+        // MỚI THÊM: mất LOS nhưng vẫn còn trong "thời gian nhớ" -> vẫn chase
+        // tới vị trí cuối cùng thấy player (ExecuteChase sẽ dùng LastKnownPlayerPosition)
+        if (Time.time - _lastSeenTime <= loseSightDuration) return true;
+
+        // Hết thời gian nhớ mà vẫn không thấy lại -> bỏ cuộc, về Patrol
+        return false;
     }
 
     // ── BT Actions (chỉ set _mode) ────────────────────────────────────────────
@@ -235,8 +327,7 @@ public class ZombieBase : MonoBehaviour
             agent.velocity = Vector3.zero;
         }
 
-        // MỚI THÊM: đã thực sự phát hiện player theo cách bình thường,
-        // không cần cờ "buộc đuổi" nữa từ giờ trở đi
+        // Đã thực sự phát hiện player theo cách bình thường, không cần cờ "buộc đuổi" nữa
         _forcedByAlarm = false;
 
         _mode = ZombieMode.Combat;
@@ -268,7 +359,7 @@ public class ZombieBase : MonoBehaviour
             SetNewWanderDestination();
         }
 
-        // MỚI THÊM: an toàn - đảm bảo cờ buộc đuổi không bị kẹt mãi nếu rơi vào Patrol
+        // An toàn - đảm bảo cờ buộc đuổi không bị kẹt mãi nếu rơi vào Patrol
         _forcedByAlarm = false;
 
         _mode = ZombieMode.Patrol;
@@ -325,7 +416,11 @@ public class ZombieBase : MonoBehaviour
         agent.stoppingDistance = attackRange;
         agent.updateRotation = true;
         agent.updatePosition = true;
-        agent.SetDestination(player.position);
+
+        // MỚI THÊM: nếu đang thấy player thật sự thì đuổi tới vị trí hiện tại của player,
+        // nếu không (đang chạy theo trí nhớ vì vừa mất LOS) thì đuổi tới vị trí cuối cùng thấy được
+        Vector3 target = _hasLineOfSightNow || _forcedByAlarm ? player.position : LastKnownPlayerPosition;
+        agent.SetDestination(target);
 
         anim.SetFloat("Speed", 2f, 0.1f, Time.deltaTime);
     }
@@ -424,7 +519,7 @@ public class ZombieBase : MonoBehaviour
             {
                 if (Vector3.Distance(hit.position, transform.position) > minMoveDistance)
                 {
-                    // THÊM: kiểm tra đường đi thực tế có đi được không
+                    // Kiểm tra đường đi thực tế có đi được không
                     // và path length không quá dài so với straight-line distance
                     NavMeshPath path = new NavMeshPath();
                     if (agent.CalculatePath(hit.position, path)
@@ -485,7 +580,8 @@ public class ZombieBase : MonoBehaviour
             agent.stoppingDistance = attackRange;
             agent.updateRotation = true;
             agent.updatePosition = true;
-            agent.SetDestination(player.position);
+            // MỚI THÊM: đuổi theo vị trí hiện tại nếu còn LOS, nếu không thì theo trí nhớ
+            agent.SetDestination(_hasLineOfSightNow ? player.position : LastKnownPlayerPosition);
             anim.SetFloat("Speed", 2f, 0.1f, Time.deltaTime);
         }
     }
@@ -546,12 +642,10 @@ public class ZombieBase : MonoBehaviour
         _screamPhase = ScreamPhase.None;
     }
 
-    // ===========================================
-    // MỚI THÊM: gọi từ AlarmSystem ngay sau khi Instantiate zombie mới.
-    // Buộc zombie lao thẳng tới player bất kể khoảng cách ban đầu bao xa,
+    // Gọi từ AlarmSystem ngay sau khi Instantiate zombie mới.
+    // Buộc zombie lao thẳng tới player bất kể khoảng cách/LOS ban đầu,
     // cho tới khi thực sự phát hiện player theo cách bình thường (CanDetectPlayer),
     // lúc đó cơ chế scream/combat gốc sẽ tự tiếp quản.
-    // ===========================================
     public void ForceChasePlayer()
     {
         if (_isDead) return;
@@ -571,6 +665,10 @@ public class ZombieBase : MonoBehaviour
         _hasDetectedPlayer = true;
         _screamDone = true;
         _screamPhase = ScreamPhase.None;
+        // MỚI THÊM: bị đánh trúng thì coi như biết chính xác vị trí player ngay lúc đó,
+        // kể cả nếu raycast LOS chưa kịp cập nhật frame này
+        _lastSeenTime = Time.time;
+        _lastKnownPlayerPosition = player.position;
     }
 
     /// <summary>Gọi từ Animation Event của clip Attack.</summary>
@@ -596,7 +694,7 @@ public class ZombieBase : MonoBehaviour
         Collider col = GetComponent<Collider>();
         if (col != null) col.enabled = false;
 
-        DropLoot(); 
+        DropLoot();
     }
 
     public virtual void ResetToNormalCombatState()
@@ -616,31 +714,21 @@ public class ZombieBase : MonoBehaviour
             {
                 int amountToDrop = Random.Range(loot.minAmount, loot.maxAmount + 1);
 
-                for (int i = 0; i < amountToDrop; i++) // Thay đổi nhỏ: lặp nếu rớt nhiều món riêng lẻ
+                for (int i = 0; i < amountToDrop; i++)
                 {
-                    // Random một hướng văng ra xung quanh (trục X và Z), và hơi hất lên trên (trục Y)
                     Vector3 randomDirection = new Vector3(
                         Random.Range(-1f, 1f),
-                        Random.Range(0.5f, 1.5f), // Hất tung lên một chút
+                        Random.Range(0.5f, 1.5f),
                         Random.Range(-1f, 1f)
                     ).normalized;
 
                     GameObject droppedObject = Instantiate(loot.itemPrefab, spawnPos, Quaternion.identity);
 
-                    // Thiết lập số lượng (tuỳ logic hệ thống Inventory của bạn)
-                    // WorldItem worldItem = droppedObject.GetComponent<WorldItem>();
-                    // if (worldItem != null) worldItem.amount = 1;
-
-                    // Thêm lực đẩy vật lý (Force) để item văng ra
                     Rigidbody rb = droppedObject.GetComponent<Rigidbody>();
                     if (rb != null)
                     {
-                        // Lực văng ngẫu nhiên từ 2 đến 4
                         float dropForce = Random.Range(2f, 4f);
-                        // Hất văng đi (ForceMode.Impulse là tác dụng lực ngay lập tức giống như bị đá/bắn)
                         rb.AddForce(randomDirection * dropForce, ForceMode.Impulse);
-
-                        // Xoay bừa một chút cho tự nhiên
                         rb.AddTorque(Random.insideUnitSphere * Random.Range(1f, 3f), ForceMode.Impulse);
                     }
                 }
@@ -661,5 +749,9 @@ public class ZombieBase : MonoBehaviour
         Gizmos.color = new Color(0f, 1f, 0f, 0.3f);
         Vector3 origin = Application.isPlaying ? _wanderOrigin : transform.position;
         Gizmos.DrawWireSphere(origin, wanderRadius);
+
+        // MỚI THÊM: vẽ tia mắt zombie để dễ debug LOS trong Scene view
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawSphere(transform.position + Vector3.up * eyeHeight, 0.05f);
     }
 }

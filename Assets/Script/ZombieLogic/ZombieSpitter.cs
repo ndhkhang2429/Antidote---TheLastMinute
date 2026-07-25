@@ -10,7 +10,8 @@
 ///          → Cooldown  (đứng yên chờ, KHÔNG strafe)
 ///          → Aiming → ...
 ///
-/// Nếu player ra khỏi attackRange ở bất kỳ pha nào → tự động chase lại gần.
+/// Nếu player ra khỏi attackRange, hoặc bị tường che (mất Line of Sight),
+/// ở bất kỳ pha nào → tự động huỷ ngắm/bắn và chase lại gần / tìm góc bắn mới.
 /// </summary>
 public class ZombieSpitter : ZombieBase
 {
@@ -65,18 +66,24 @@ public class ZombieSpitter : ZombieBase
     // ── Combat State Machine (gọi mỗi frame bởi ZombieBase.ExecuteCombat) ───
     protected override void UpdateCombatBehaviour()
     {
-        // Player ra ngoài attackRange (dù đang ở pha nào) → chase lại gần
         float dist = Vector3.Distance(transform.position, player.position);
-        if (dist > attackRange)
-        {
-            ResumeAgent(runSpeed);
-            agent.SetDestination(player.position);
-            agent.stoppingDistance = attackRange;
-            anim.SetFloat("Speed", 2f, 0.1f, Time.deltaTime);
 
-            // Nếu đang giữa chừng ngắm/chờ mà player chạy ra xa, reset về Aiming
-            // để khi vào lại tầm sẽ ngắm lại đàng hoàng thay vì bắn ngay lập tức
+        // MỚI THÊM: điều kiện để được đứng yên bắn giờ là "trong tầm VÀ có Line of Sight",
+        // không chỉ dựa vào khoảng cách như trước (đó là lý do spitter từng ném xuyên tường)
+        bool canAttackFromHere = dist <= attackRange && HasLineOfSightNow;
+
+        if (!canAttackFromHere)
+        {
+            // Nếu đang giữa chừng ngắm/chờ mà mất điều kiện bắn, huỷ về Aiming
+            // để khi đủ điều kiện trở lại sẽ ngắm lại đàng hoàng thay vì bắn ngay lập tức
             if (_state != SpitterState.Attacking) _state = SpitterState.Aiming;
+
+            ResumeAgent(runSpeed);
+            agent.stoppingDistance = attackRange;
+            // Đuổi tới vị trí đang thấy player, hoặc vị trí cuối cùng nhớ được nếu vừa mất LOS
+            // (giúp spitter tự đi vòng ra góc khác thay vì đứng yên ném xuyên tường)
+            agent.SetDestination(HasLineOfSightNow ? player.position : LastKnownPlayerPosition);
+            anim.SetFloat("Speed", 2f, 0.1f, Time.deltaTime);
             return;
         }
 
@@ -103,8 +110,10 @@ public class ZombieSpitter : ZombieBase
             Quaternion.LookRotation(dir),
             Time.deltaTime * aimTurnSpeed);
 
-        // Ngắm xong → chuyển sang Attack
-        if (Vector3.Dot(transform.forward, dir) >= aimThreshold)
+        // Ngắm xong VÀ vẫn còn Line of Sight lúc chuyển pha → chuyển sang Attack
+        // (MỚI THÊM: check lại HasLineOfSightNow ở đây, vì player có thể vừa
+        // núp sau tường ngay trong lúc zombie đang xoay người ngắm)
+        if (Vector3.Dot(transform.forward, dir) >= aimThreshold && HasLineOfSightNow)
             EnterAttacking();
     }
 
@@ -125,6 +134,14 @@ public class ZombieSpitter : ZombieBase
         StopAgentCompletely();
         anim.SetFloat("Speed", 0f, 0.15f, Time.deltaTime);
         FacePlayer(instant: true);  // nhìn theo player instant, không lag
+
+        // MỚI THÊM: nếu player núp mất giữa lúc animation đang chạy (trước khi
+        // Animation Event bắn ra), huỷ luôn phát bắn thay vì bắn xuyên tường theo quán tính
+        if (!HasLineOfSightNow)
+        {
+            _state = SpitterState.Aiming;
+            return;
+        }
 
         // Chờ AnimEvent hoặc fallback timer
         if (_shotFired || Time.time >= _attackEndTime)
@@ -158,6 +175,14 @@ public class ZombieSpitter : ZombieBase
     {
         if (IsDead || player == null) return;
         if (acidProjectilePrefab == null || firePoint == null) return;
+
+        // MỚI THÊM: chốt chặn cuối cùng — nếu vì lý do gì đó (animation event
+        // bắn ra đúng frame player vừa núp) mà mất LOS, huỷ phát bắn hoàn toàn
+        if (!HasLineOfSightNow)
+        {
+            _shotFired = true; // vẫn coi như đã "dùng" lượt animation này để không kẹt state
+            return;
+        }
 
         _shotFired = true;  // báo HandleAttacking kết thúc
 

@@ -408,6 +408,21 @@ MonoBehaviour:
   screamDuration: 2
   turnSpeed: 10
   turnThreshold: 0.95
+  eyeHeight: 1.6
+  sightMask:
+    serializedVersion: 2
+    m_Bits: 1088
+  fieldOfViewAngle: 360
+  loseSightDuration: 4
+  lootTable:
+  - itemPrefab: {fileID: 183502, guid: 4656138d9606a80408030bdc231b1233, type: 3}
+    dropChance: 0.3
+    minAmount: 1
+    maxAmount: 2
+  - itemPrefab: {fileID: 1987713744733760, guid: b55df95fa6211964e8ad561501250fac, type: 3}
+    dropChance: 0.34
+    minAmount: 1
+    maxAmount: 2
   explosionRadius: 5
   explosionDamageMax: 80
   explosionDamageMin: 10
@@ -416,13 +431,17 @@ MonoBehaviour:
   maxScaleMultiplier: 1.4
   explosionVFX: {fileID: 7947533759390168906, guid: b172f4091eaf13d429dd782a24e949f0, type: 3}
   preExplodeSource: {fileID: 5875108790761824943}
-  preExplodeChargeClip: {fileID: 0}
+  preExplodeChargeClip: {fileID: 8300000, guid: 334c0ebcbce794048aaa541169c5baa6, type: 3}
   preExplodeVolumeStart: 0.25
   preExplodeVolumeEnd: 1
   preExplodePitchStart: 0.8
   preExplodePitchEnd: 1.4
-  explosionSfx: []
-  explosionSplatterSfx: []
+  explosionSfx:
+  - {fileID: 8300000, guid: bdb8a70ccfde00e42a67eb8eb36d8cc7, type: 3}
+  - {fileID: 8300000, guid: e6802cb674f50a444b0e8f34e80ce509, type: 3}
+  explosionSplatterSfx:
+  - {fileID: 8300000, guid: 695e9b1ba3b3da1489e901e23d6398aa, type: 3}
+  - {fileID: 8300000, guid: be993f8c9164fe44dbae4230f8d9f96c, type: 3}
   explosionVolume: 1
 --- !u!114 &7840444050607014749
 MonoBehaviour:

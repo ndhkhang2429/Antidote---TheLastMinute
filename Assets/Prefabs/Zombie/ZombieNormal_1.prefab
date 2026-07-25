@@ -536,7 +536,21 @@ MonoBehaviour:
   screamDuration: 2
   turnSpeed: 10
   turnThreshold: 0.95
-  lootTable: []
+  eyeHeight: 1.6
+  sightMask:
+    serializedVersion: 2
+    m_Bits: 1088
+  fieldOfViewAngle: 360
+  loseSightDuration: 4
+  lootTable:
+  - itemPrefab: {fileID: 1987713744733760, guid: b55df95fa6211964e8ad561501250fac, type: 3}
+    dropChance: 1
+    minAmount: 1
+    maxAmount: 2
+  - itemPrefab: {fileID: 183502, guid: 4656138d9606a80408030bdc231b1233, type: 3}
+    dropChance: 1
+    minAmount: 1
+    maxAmount: 2
 --- !u!195 &7436979287463038652
 NavMeshAgent:
   m_ObjectHideFlags: 0

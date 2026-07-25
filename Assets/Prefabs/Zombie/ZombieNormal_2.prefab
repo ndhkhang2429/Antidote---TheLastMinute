@@ -566,6 +566,13 @@ MonoBehaviour:
   screamDuration: 2
   turnSpeed: 10
   turnThreshold: 0.95
+  eyeHeight: 1.6
+  sightMask:
+    serializedVersion: 2
+    m_Bits: 1088
+  fieldOfViewAngle: 360
+  loseSightDuration: 4
+  lootTable: []
 --- !u!114 &7178251638453165942
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -321,6 +321,13 @@ MonoBehaviour:
   screamDuration: 2
   turnSpeed: 10
   turnThreshold: 0.95
+  eyeHeight: 1.6
+  sightMask:
+    serializedVersion: 2
+    m_Bits: 1088
+  fieldOfViewAngle: 360
+  loseSightDuration: 4
+  lootTable: []
   acidProjectilePrefab: {fileID: 24289239765069648, guid: b987e5ce209d4ab468cc4a59ec853f73, type: 3}
   firePoint: {fileID: 5240091793004784225}
   projectileSpeed: 15

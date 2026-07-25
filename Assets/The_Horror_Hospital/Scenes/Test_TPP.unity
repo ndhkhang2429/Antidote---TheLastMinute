@@ -34783,6 +34783,12 @@ MonoBehaviour:
   screamDuration: 2
   turnSpeed: 10
   turnThreshold: 0.95
+  eyeHeight: 1.6
+  sightMask:
+    serializedVersion: 2
+    m_Bits: 0
+  fieldOfViewAngle: 360
+  loseSightDuration: 4
   lootTable: []
   phase2Threshold: 0.5
   phase1Cooldown: 2.5
@@ -75939,6 +75945,12 @@ MonoBehaviour:
   screamDuration: 2
   turnSpeed: 10
   turnThreshold: 0.95
+  eyeHeight: 1.6
+  sightMask:
+    serializedVersion: 2
+    m_Bits: 0
+  fieldOfViewAngle: 360
+  loseSightDuration: 4
   lootTable: []
   materialV2: {fileID: 2100000, guid: 20a5e8d2158ec6e49a5f8f3260d12e60, type: 2}
   materialV3: {fileID: 2100000, guid: 1234d42b3f3f9bb41b7c486cf6882ea1, type: 2}
@@ -82711,19 +82723,7 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -25155430239884277, guid: 0f713ce5008c93f4caef6f27f04a2759, type: 2}
     - target: {fileID: 4259677474990629596, guid: 20852c22a8981a04baba7018ac5c0a5c, type: 3}
-      propertyPath: lootTable.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4259677474990629596, guid: 20852c22a8981a04baba7018ac5c0a5c, type: 3}
-      propertyPath: preExplodeChargeClip
-      value: 
-      objectReference: {fileID: 8300000, guid: 334c0ebcbce794048aaa541169c5baa6, type: 3}
-    - target: {fileID: 4259677474990629596, guid: 20852c22a8981a04baba7018ac5c0a5c, type: 3}
       propertyPath: waypoints.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4259677474990629596, guid: 20852c22a8981a04baba7018ac5c0a5c, type: 3}
-      propertyPath: explosionSfx.Array.size
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4259677474990629596, guid: 20852c22a8981a04baba7018ac5c0a5c, type: 3}
@@ -82734,58 +82734,6 @@ PrefabInstance:
       propertyPath: waypoints.Array.data[1]
       value: 
       objectReference: {fileID: 1997043175}
-    - target: {fileID: 4259677474990629596, guid: 20852c22a8981a04baba7018ac5c0a5c, type: 3}
-      propertyPath: explosionSfx.Array.data[0]
-      value: 
-      objectReference: {fileID: 8300000, guid: bdb8a70ccfde00e42a67eb8eb36d8cc7, type: 3}
-    - target: {fileID: 4259677474990629596, guid: 20852c22a8981a04baba7018ac5c0a5c, type: 3}
-      propertyPath: explosionSfx.Array.data[1]
-      value: 
-      objectReference: {fileID: 8300000, guid: e6802cb674f50a444b0e8f34e80ce509, type: 3}
-    - target: {fileID: 4259677474990629596, guid: 20852c22a8981a04baba7018ac5c0a5c, type: 3}
-      propertyPath: explosionSplatterSfx.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4259677474990629596, guid: 20852c22a8981a04baba7018ac5c0a5c, type: 3}
-      propertyPath: lootTable.Array.data[0].maxAmount
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4259677474990629596, guid: 20852c22a8981a04baba7018ac5c0a5c, type: 3}
-      propertyPath: lootTable.Array.data[0].minAmount
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4259677474990629596, guid: 20852c22a8981a04baba7018ac5c0a5c, type: 3}
-      propertyPath: lootTable.Array.data[1].maxAmount
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4259677474990629596, guid: 20852c22a8981a04baba7018ac5c0a5c, type: 3}
-      propertyPath: lootTable.Array.data[1].minAmount
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4259677474990629596, guid: 20852c22a8981a04baba7018ac5c0a5c, type: 3}
-      propertyPath: explosionSplatterSfx.Array.data[0]
-      value: 
-      objectReference: {fileID: 8300000, guid: 695e9b1ba3b3da1489e901e23d6398aa, type: 3}
-    - target: {fileID: 4259677474990629596, guid: 20852c22a8981a04baba7018ac5c0a5c, type: 3}
-      propertyPath: explosionSplatterSfx.Array.data[1]
-      value: 
-      objectReference: {fileID: 8300000, guid: be993f8c9164fe44dbae4230f8d9f96c, type: 3}
-    - target: {fileID: 4259677474990629596, guid: 20852c22a8981a04baba7018ac5c0a5c, type: 3}
-      propertyPath: lootTable.Array.data[0].dropChance
-      value: 0.3
-      objectReference: {fileID: 0}
-    - target: {fileID: 4259677474990629596, guid: 20852c22a8981a04baba7018ac5c0a5c, type: 3}
-      propertyPath: lootTable.Array.data[0].itemPrefab
-      value: 
-      objectReference: {fileID: 183502, guid: 4656138d9606a80408030bdc231b1233, type: 3}
-    - target: {fileID: 4259677474990629596, guid: 20852c22a8981a04baba7018ac5c0a5c, type: 3}
-      propertyPath: lootTable.Array.data[1].dropChance
-      value: 0.34
-      objectReference: {fileID: 0}
-    - target: {fileID: 4259677474990629596, guid: 20852c22a8981a04baba7018ac5c0a5c, type: 3}
-      propertyPath: lootTable.Array.data[1].itemPrefab
-      value: 
-      objectReference: {fileID: 1987713744733760, guid: b55df95fa6211964e8ad561501250fac, type: 3}
     - target: {fileID: 5516948585073297190, guid: 20852c22a8981a04baba7018ac5c0a5c, type: 3}
       propertyPath: m_ApplyRootMotion
       value: 0
@@ -112175,6 +112123,12 @@ MonoBehaviour:
   screamDuration: 2
   turnSpeed: 10
   turnThreshold: 0.95
+  eyeHeight: 1.6
+  sightMask:
+    serializedVersion: 2
+    m_Bits: 0
+  fieldOfViewAngle: 360
+  loseSightDuration: 4
   lootTable: []
   farRange: 8
   closeRange: 3
@@ -113641,10 +113595,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 581920528617976261, guid: d85c6093db19f354d848fe6d4fcf103f, type: 3}
-      propertyPath: m_Controller
-      value: 
-      objectReference: {fileID: 9100000, guid: cc57a95f956c63546825f75a4c0ad1e6, type: 2}
     - target: {fileID: 3687362893146643922, guid: d85c6093db19f354d848fe6d4fcf103f, type: 3}
       propertyPath: hurtClips.Array.size
       value: 2
@@ -132641,6 +132591,12 @@ MonoBehaviour:
   screamDuration: 2
   turnSpeed: 10
   turnThreshold: 0.95
+  eyeHeight: 1.6
+  sightMask:
+    serializedVersion: 2
+    m_Bits: 0
+  fieldOfViewAngle: 360
+  loseSightDuration: 4
   lootTable: []
   comboStartRange: 2.5
   enrageThreshold: 0.5
@@ -136336,10 +136292,6 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 8
       objectReference: {fileID: 0}
-    - target: {fileID: 7082827586596560517, guid: c2a05e90e05a77a48bc5db3cfa6fe731, type: 3}
-      propertyPath: m_Controller
-      value: 
-      objectReference: {fileID: 9100000, guid: 427966c736d4a6b448696c2b10114e6e, type: 2}
     - target: {fileID: 7123552861072470621, guid: c2a05e90e05a77a48bc5db3cfa6fe731, type: 3}
       propertyPath: m_Layer
       value: 8
@@ -158345,42 +158297,6 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: 16.954
       objectReference: {fileID: 0}
-    - target: {fileID: 5448603726122869633, guid: a7d09a8327dd0f145b76dd3aff8af79b, type: 3}
-      propertyPath: lootTable.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 5448603726122869633, guid: a7d09a8327dd0f145b76dd3aff8af79b, type: 3}
-      propertyPath: lootTable.Array.data[0].maxAmount
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 5448603726122869633, guid: a7d09a8327dd0f145b76dd3aff8af79b, type: 3}
-      propertyPath: lootTable.Array.data[0].minAmount
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5448603726122869633, guid: a7d09a8327dd0f145b76dd3aff8af79b, type: 3}
-      propertyPath: lootTable.Array.data[1].maxAmount
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 5448603726122869633, guid: a7d09a8327dd0f145b76dd3aff8af79b, type: 3}
-      propertyPath: lootTable.Array.data[1].minAmount
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5448603726122869633, guid: a7d09a8327dd0f145b76dd3aff8af79b, type: 3}
-      propertyPath: lootTable.Array.data[0].dropChance
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5448603726122869633, guid: a7d09a8327dd0f145b76dd3aff8af79b, type: 3}
-      propertyPath: lootTable.Array.data[0].itemPrefab
-      value: 
-      objectReference: {fileID: 1987713744733760, guid: b55df95fa6211964e8ad561501250fac, type: 3}
-    - target: {fileID: 5448603726122869633, guid: a7d09a8327dd0f145b76dd3aff8af79b, type: 3}
-      propertyPath: lootTable.Array.data[1].dropChance
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5448603726122869633, guid: a7d09a8327dd0f145b76dd3aff8af79b, type: 3}
-      propertyPath: lootTable.Array.data[1].itemPrefab
-      value: 
-      objectReference: {fileID: 183502, guid: 4656138d9606a80408030bdc231b1233, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
