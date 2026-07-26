@@ -75,6 +75,13 @@ public class HealthSystem : MonoBehaviour
         _soOnHealed?.Raise(HPPercent);
     }
 
+    // ── Public API ─────────────────────────────────────────
+    public void ResetHealth()
+    {
+        _isDead = false;
+        _currentHP = MaxHP;
+    }
+
     // ── Internal ───────────────────────────────────────────
 
     private void Die()

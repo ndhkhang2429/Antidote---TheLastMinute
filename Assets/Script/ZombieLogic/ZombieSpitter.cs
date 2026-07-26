@@ -198,4 +198,15 @@ public class ZombieSpitter : ZombieBase
 
         audioController?.PlayAttack();
     }
+
+    public override void ResetForPool()
+    {
+        base.ResetForPool();
+
+        // Reset state machine riêng của Spitter về trạng thái ban đầu
+        _state = SpitterState.Aiming;
+        _shotFired = false;
+        _attackEndTime = 0f;
+        _cooldownEndTime = 0f;
+    }
 }

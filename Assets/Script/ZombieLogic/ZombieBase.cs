@@ -635,6 +635,56 @@ public class ZombieBase : MonoBehaviour
     }
 
     // ── Public API ───────────────────────────────────────────────────────────
+    /// <summary>
+    /// Gọi bởi ZombiePool ngay sau khi Warp() agent tới vị trí spawn mới.
+    /// QUAN TRỌNG: phải gọi SAU khi agent đã được enable + warp, vì hàm này
+    /// lấy transform.position hiện tại làm tâm wander mới (_wanderOrigin).
+    /// Subclass có state riêng (Rage Mode, Frenzy, đã drop item...) PHẢI override
+    /// và gọi base.ResetForPool() trước, rồi reset thêm biến riêng của nó.
+    /// </summary>
+    public virtual void ResetForPool()
+    {
+        // 1. Hồi máu + huỷ cờ chết
+        if (healthSystem != null)
+            healthSystem.ResetHealth();
+        _isDead = false;
+
+        // 2. Bật lại Collider (Die() đã tắt khi chết)
+        var col = GetComponent<Collider>();
+        if (col != null) col.enabled = true;
+
+        // 3. Bật lại NavMeshAgent (Die() đã disable) - Pool phải gọi Warp() SAU dòng này
+        if (agent != null)
+        {
+            agent.enabled = true;
+            agent.isStopped = false;
+            agent.updatePosition = true;
+            agent.updateRotation = true;
+            if (agent.hasPath) agent.ResetPath();
+        }
+
+        // 4. Xoá sạch trigger Animator còn treo lại (IsDead, Attack, Scream...)
+        if (anim != null)
+        {
+            anim.Rebind();
+            anim.Update(0f);
+        }
+
+        // 5. Reset toàn bộ state AI về như lúc mới spawn lần đầu
+        _mode = ZombieMode.Patrol;
+        _hasDetectedPlayer = false;
+        _screamDone = false;
+        _screamPhase = ScreamPhase.None;
+        _inCombat = false;
+        _forcedByAlarm = false;
+
+        // 6. Reset wander quanh vị trí spawn MỚI (đã được ZombiePool warp tới ở bước 3)
+        _wanderOrigin = transform.position;
+        _isWanderIdle = false;
+        _wanderDestinationSet = false;
+        SetNewWanderDestination();
+    }
+
     public void ForceAlert()
     {
         _hasDetectedPlayer = true;

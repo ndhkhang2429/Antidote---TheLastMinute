@@ -84,6 +84,7 @@ public class ZombieAxe : ZombieBase
     // Cache
     private HealthSystem _playerHealth;
     private GameObject _equippedAxe;   // instance rìu đang cầm tay
+    private float _baseAttackCooldown;
 
     // ── Override Start ───────────────────────────────────────────────────────
     protected override void Start()
@@ -97,6 +98,7 @@ public class ZombieAxe : ZombieBase
             _playerHealth = player.GetComponent<HealthSystem>();
 
         EquipAxe();
+        _baseAttackCooldown = attackCooldown;
     }
 
     // ── OnEnterCombat / OnExitCombat ─────────────────────────────────────────
@@ -448,6 +450,26 @@ public class ZombieAxe : ZombieBase
         }
 
         Debug.Log($"[ZombieAxe] {gameObject.name} dropped axe at {spawnPos}");
+    }
+
+    public override void ResetForPool()
+    {
+        base.ResetForPool();
+
+        // Reset combat state machine riêng của Axe
+        _combatState = AxeCombatState.Approach;
+        _recoverTimer = 0f;
+        _isRaging = false;
+        _rageDashDone = false;
+        _rageSlamHit = false;
+        _damageApplied = false;
+
+        // Trả cooldown về giá trị gốc (CheckRageMode có thể đã nhân 0.6f ở vòng đời trước)
+        attackCooldown = _baseAttackCooldown;
+
+        // Rìu đã bị Destroy trong DropAxe() lúc chết -> gắn lại rìu mới
+        if (_equippedAxe == null)
+            EquipAxe();
     }
 
     // ── Gizmos mở rộng ───────────────────────────────────────────────────────
