@@ -345,7 +345,7 @@ MonoBehaviour:
   _soOnHealed: {fileID: 0}
   _soOnDied: {fileID: 0}
   _destroyDelay: 3
-  _destroyOnDeath: 1
+  _destroyOnDeath: 0
 --- !u!114 &7945397571481000053
 MonoBehaviour:
   m_ObjectHideFlags: 0

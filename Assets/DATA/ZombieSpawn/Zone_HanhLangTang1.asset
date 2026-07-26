@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9817d42a7d2804c4cbc378c5d7ae4e37, type: 3}
+  m_Name: Zone_HanhLangTang1
+  m_EditorClassIdentifier: 
+  zoneName: "H\xE0nh lang t\u1EA7ng 1"
+  allowedZombiePrefabs:
+  - {fileID: 1075863169306009699, guid: a7d09a8327dd0f145b76dd3aff8af79b, type: 3}
+  - {fileID: 6178577023303151387, guid: 0433f766ad92df24086f5e496c1eff54, type: 3}
+  - {fileID: 4982165776056593501, guid: c2a05e90e05a77a48bc5db3cfa6fe731, type: 3}
+  minConcurrent: 5
+  maxConcurrent: 8
+  tankPrefab: {fileID: 0}
+  tankSpawnChance: 0.15
+  maxTankConcurrent: 1
+  respawnCooldown: 20
+  despawnDelay: 5

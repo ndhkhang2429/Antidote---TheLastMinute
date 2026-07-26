@@ -133,8 +133,10 @@ public class ZombieBase : MonoBehaviour
     public bool ScreamDone => _screamDone;
     public bool IsInCombat => _mode == ZombieMode.Combat;
 
+    public bool IsPatrolling => _mode == ZombieMode.Patrol;
+
     // ── Unity Lifecycle ──────────────────────────────────────────────────────
-    protected virtual void Start()
+    protected virtual void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         anim = GetComponent<Animator>();
@@ -145,7 +147,9 @@ public class ZombieBase : MonoBehaviour
             Debug.LogError($"[ZombieBase] {gameObject.name} thiếu HealthSystem!");
         else
             healthSystem.OnDeath += Die;
-
+    }
+    protected virtual void Start()
+    {
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null) player = playerObj.transform;
 

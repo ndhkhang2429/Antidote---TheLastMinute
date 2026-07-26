@@ -111,6 +111,10 @@ PrefabInstance:
       value: 1.2
       objectReference: {fileID: 0}
     - target: {fileID: 7317118214247011565, guid: 16f88bac483bd004aa718dd62225897d, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7317118214247011565, guid: 16f88bac483bd004aa718dd62225897d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.3253871
       objectReference: {fileID: 0}
@@ -468,6 +472,9 @@ PrefabInstance:
       addedObject: {fileID: 8217191942250499132}
     - targetCorrespondingSourceObject: {fileID: 7317118214247041293, guid: 16f88bac483bd004aa718dd62225897d, type: 3}
       insertIndex: -1
+      addedObject: {fileID: -5252261382111550933}
+    - targetCorrespondingSourceObject: {fileID: 7317118214247041293, guid: 16f88bac483bd004aa718dd62225897d, type: 3}
+      insertIndex: -1
       addedObject: {fileID: 8189480396275836712}
     - targetCorrespondingSourceObject: {fileID: 7317118214247041293, guid: 16f88bac483bd004aa718dd62225897d, type: 3}
       insertIndex: -1
@@ -512,9 +519,9 @@ CapsuleCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.17635782
-  m_Height: 1.8293321
+  m_Height: 1.7883886
   m_Direction: 1
-  m_Center: {x: -0.016465336, y: 0.8785941, z: 0.009305477}
+  m_Center: {x: -0.016465336, y: 0.8581224, z: 0.009305477}
 --- !u!195 &8217191942250499132
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -537,6 +544,41 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &-5252261382111550933
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6178577023303151387}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7d0f8481ff4861479cd280e0f77f3e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  BloodFXPrefabs:
+  - {fileID: 2656253210798625995, guid: a78e9ef18b366424b84e0c7410d2fe72, type: 3}
+  - {fileID: 5865290276592450837, guid: 42a28376f729c864a81abf66add7a418, type: 3}
+  - {fileID: 764304066602274965, guid: 4a322f29a9e1fa54f90223de8bcf3a28, type: 3}
+  - {fileID: 7935733108997359171, guid: e822d59151d3597428b0b63bf25355e7, type: 3}
+  - {fileID: 4288107571095694937, guid: c3f8938673a07704e93ac52eee18f410, type: 3}
+  - {fileID: 1165703760847671896, guid: bb596cd440832554089a7125852e836f, type: 3}
+  - {fileID: 4152240900433254336, guid: 6d3629f845b40e24fb51d381e84bbc77, type: 3}
+  - {fileID: 6463355840203370170, guid: 70ead61ff20b23b4e97b90d8e8997ecd, type: 3}
+  - {fileID: 5170585893340993107, guid: 7b88f11816abaa34c9e02cbaa8485321, type: 3}
+  - {fileID: 2629016494315086251, guid: 5776aed3bb070e54cb09a11c8a6a5831, type: 3}
+  - {fileID: 3034872428933141512, guid: 52d94bfe44b09ff4b9e9788e9a86a778, type: 3}
+  - {fileID: 2360933683143488451, guid: 730678b8a5330c449ada55bde83402ce, type: 3}
+  - {fileID: 5016170632959171363, guid: c3ed06559a66b724b91c3124e75ddec9, type: 3}
+  - {fileID: 8859926575668995837, guid: 097a30048e9007141899f834041a5ac7, type: 3}
+  - {fileID: 5936082179827903908, guid: cb58ece77d11ef945aecd072f2e46a8d, type: 3}
+  - {fileID: 5494213943435191861, guid: db51fe09adf27d640b4e10018c2d76ba, type: 3}
+  - {fileID: 5371219466416337994, guid: f9e099178c81bee439a79eecec91dacb, type: 3}
+  AttachedBloodDecal: {fileID: 3136605153214515430, guid: 45eef0a861a8a8946b4c23fb9f4f779a, type: 3}
+  DirectionalLight: {fileID: 0}
+  UpDirection: {x: 0, y: 1, z: 0}
+  DecalScaleMin: 0.75
+  DecalScaleMax: 1.2
 --- !u!114 &8189480396275836712
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -702,17 +744,32 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   oneShotSource: {fileID: 4679069742631515429}
   idleSource: {fileID: -5466733915498535907}
-  idleGroanClips: []
+  idleGroanClips:
+  - {fileID: 8300000, guid: 0ccec5d749b44e64ab64dc06eeb601f2, type: 3}
+  - {fileID: 8300000, guid: 6485c998ec9a509418b8c282cb323bec, type: 3}
+  - {fileID: 8300000, guid: 2d7bdc8a873e8c64cbe0899f00cd561d, type: 3}
+  - {fileID: 8300000, guid: b859a0b81b1405649a23ff8b627364d7, type: 3}
   idleGroanIntervalMin: 4
   idleGroanIntervalMax: 9
   idleGroanVolume: 0.5
-  alertClips: []
+  alertClips:
+  - {fileID: 8300000, guid: 0f9f4ea19c264e44ba1f249d832b5e7e, type: 3}
+  - {fileID: 8300000, guid: 8972973a0f63fc94da480433ae2ace78, type: 3}
+  - {fileID: 8300000, guid: abb28281981e23a4da41d68083c63c9a, type: 3}
   alertVolume: 1
-  attackClips: []
+  attackClips:
+  - {fileID: 8300000, guid: aca447a559e490b4eb8cf4d673f3c31f, type: 3}
+  - {fileID: 8300000, guid: a67058b2c28f173409bb3c74ae9c3ecd, type: 3}
+  - {fileID: 8300000, guid: bf927f95370a6ce49bb484bdebef3396, type: 3}
+  - {fileID: 8300000, guid: f8e5e8841fd1f7740a239daecfe1132a, type: 3}
+  - {fileID: 8300000, guid: 319bb74d56d2e024db48d1a786497b60, type: 3}
   attackVolume: 0.9
-  hurtClips: []
+  hurtClips:
+  - {fileID: 8300000, guid: 833fa49a7a3167a4785a16a244036243, type: 3}
+  - {fileID: 8300000, guid: 9579afdb9d2116748857f44d62517975, type: 3}
   hurtVolume: 0.8
-  deathClips: []
+  deathClips:
+  - {fileID: 8300000, guid: a4c974b535cd47d4d9d8248e4931eadd, type: 3}
   deathVolume: 1
   pitchMin: 0.92
   pitchMax: 1.08

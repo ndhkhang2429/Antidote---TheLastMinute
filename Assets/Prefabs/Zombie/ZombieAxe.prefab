@@ -637,7 +637,7 @@ MonoBehaviour:
   _soOnHealed: {fileID: 0}
   _soOnDied: {fileID: 0}
   _destroyDelay: 3
-  _destroyOnDeath: 1
+  _destroyOnDeath: 0
 --- !u!114 &502914879976162392
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -667,6 +667,12 @@ MonoBehaviour:
   screamDuration: 2
   turnSpeed: 10
   turnThreshold: 0.95
+  eyeHeight: 1.6
+  sightMask:
+    serializedVersion: 2
+    m_Bits: 0
+  fieldOfViewAngle: 360
+  loseSightDuration: 4
   lootTable: []
   axeSwingRange: 2.2
   knockbackForce: 4
