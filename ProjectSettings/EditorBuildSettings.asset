@@ -8,9 +8,15 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/MainMenu.unity
     guid: e9bfc0d2636503b4bbe04acf7e1c3057
-  - enabled: 1
+  - enabled: 0
     path: Assets/The_Horror_Hospital/Scenes/HH_Demo.unity
     guid: 33091c10cdd3b8041a57d911feed5b69
+  - enabled: 1
+    path: Assets/The_Horror_Hospital/Scenes/Test_TPP.unity
+    guid: 1cf1ed5c032fd314ab6c88f6d8c3af1f
+  - enabled: 1
+    path: Assets/Scenes/GameOver.unity
+    guid: a922954736180974dad197c550274cbb
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 9e7be553448fa2546aea5752021cbcf7, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 4419d82f33d36e848b3ed5af4c8da37e, type: 3}

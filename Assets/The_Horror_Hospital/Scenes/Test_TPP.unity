@@ -215227,6 +215227,7 @@ GameObject:
   - component: {fileID: 9117289951091646796}
   - component: {fileID: 9117289951091646794}
   - component: {fileID: 9117289951091646797}
+  - component: {fileID: 9117289951091646798}
   m_Layer: 6
   m_Name: PlayerArmature
   m_TagString: Player
@@ -225100,6 +225101,24 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &9117289951091646798
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5653107526240671144}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 563f4525ed69c904bad6b2aaddfbebd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  healthSystem: {fileID: 6075764520036708444}
+  fpsController: {fileID: 1640502386}
+  equipmentManager: {fileID: 9117289951091646793}
+  fadeCanvasGroup: {fileID: 1808984506}
+  fadeDuration: 2
+  gameOverSceneName: GameOver
 --- !u!4 &9123165429490526614 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5464532883507148056, guid: 353235e4751aba9429e1c429badfec7c, type: 3}

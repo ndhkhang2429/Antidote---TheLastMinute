@@ -28,7 +28,7 @@ public class MainMenuManager : MonoBehaviour
     public void PlayNewGame()
     {
         // Chuyển scene vào game
-        SceneManager.LoadScene("HH_Demo"); // Nhớ đổi đúng tên Scene game của bạn
+        SceneManager.LoadScene("Test_TPP"); // Nhớ đổi đúng tên Scene game của bạn
     }
 
     public void OpenOptions()
