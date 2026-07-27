@@ -11,6 +11,13 @@
 /// Ngoài ra có:
 ///   - Rage Dash+Slam : khi vào Rage, lao đến player 1 lần rồi chém mạnh
 ///   - Rage Mode    : sau khi mất X% HP, tăng tốc + giảm cooldown
+///
+/// MỚI THÊM (attack-while-moving): đòn chém thường (Swing/Recover) không còn
+/// dừng agent lại nữa — zombie tiếp tục đuổi theo player trong lúc chém, vì
+/// animation AxeSwing giờ chạy trên layer riêng (UpperBody_Attack, Avatar Mask
+/// chỉ ảnh hưởng thân trên) trong Animator Controller. Rage Dash/Slam vẫn giữ
+/// nguyên cơ chế dừng lại (đây là animation full-body lunge riêng, không dùng
+/// layer trên).
 /// </summary>
 public class ZombieAxe : ZombieBase
 {
@@ -133,23 +140,34 @@ public class ZombieAxe : ZombieBase
         }
     }
 
-    // ── State Handlers ───────────────────────────────────────────────────────
-
-    /// <summary>Áp sát player. Nếu đủ gần + cooldown xong → Swing.</summary>
-    private void HandleApproach(float dist)
+    // ── Movement helper (MỚI THÊM) ───────────────────────────────────────────
+    /// <summary>
+    /// Giữ agent tiếp tục đuổi theo player + cập nhật Speed animator theo vận tốc
+    /// thực tế. Dùng chung cho Approach/Swing/Recover — 3 phase giờ đều cho phép
+    /// chân tiếp tục di chuyển trong khi animation chém chạy trên layer riêng.
+    /// </summary>
+    private void ContinueApproachMovement(float speed)
     {
-        // Di chuyển về phía player
         if (!agent.isActiveAndEnabled || !agent.isOnNavMesh) return;
 
-        float speed = _isRaging ? runSpeed * rageSpeedMultiplier : runSpeed;
         agent.isStopped = false;
         agent.speed = speed;
         agent.stoppingDistance = axeSwingRange * 0.85f;
         agent.updateRotation = true;
         agent.updatePosition = true;
-        agent.SetDestination(player.position);
+        if (player != null) agent.SetDestination(player.position);
 
-        anim.SetFloat("Speed", 2f, 0.1f, Time.deltaTime);
+        float normalizedSpeed = speed > 0f ? agent.velocity.magnitude / speed : 0f;
+        anim.SetFloat("Speed", normalizedSpeed * 2f, 0.1f, Time.deltaTime);
+    }
+
+    // ── State Handlers ───────────────────────────────────────────────────────
+
+    /// <summary>Áp sát player. Nếu đủ gần + cooldown xong → Swing.</summary>
+    private void HandleApproach(float dist)
+    {
+        float speed = _isRaging ? runSpeed * rageSpeedMultiplier : runSpeed;
+        ContinueApproachMovement(speed);
 
         // Đủ tầm + cooldown xong → Swing thẳng
         if (dist <= axeSwingRange && Time.time >= _nextAttackTime)
@@ -158,12 +176,15 @@ public class ZombieAxe : ZombieBase
         }
     }
 
-    /// <summary>Đang trong animation chém. Sát thương được gây qua Animation Event.</summary>
+    /// <summary>
+    /// Đang trong animation chém (chạy trên layer UpperBody_Attack).
+    /// Không dừng agent nữa — chân tiếp tục đuổi theo player bình thường.
+    /// Sát thương được gây qua Animation Event.
+    /// </summary>
     private void HandleSwing(float dist)
     {
-        StopAgentCompletely();
-        FacePlayer();
-        anim.SetFloat("Speed", 0f, 0.1f, Time.deltaTime);
+        float speed = _isRaging ? runSpeed * rageSpeedMultiplier : runSpeed;
+        ContinueApproachMovement(speed);
 
         // Chờ animation event DealDamageToPlayer() gọi
         // Sau khoảng attackCooldown * 0.4f → sang Recover
@@ -175,11 +196,11 @@ public class ZombieAxe : ZombieBase
         }
     }
 
-    /// <summary>Hồi phục ngắn sau đòn đánh → quay về Approach.</summary>
+    /// <summary>Hồi phục ngắn sau đòn đánh → quay về Approach. Vẫn tiếp tục di chuyển.</summary>
     private void HandleRecover()
     {
-        StopAgentCompletely();
-        anim.SetFloat("Speed", 0f, 0.1f, Time.deltaTime);
+        float speed = _isRaging ? runSpeed * rageSpeedMultiplier : runSpeed;
+        ContinueApproachMovement(speed);
 
         _recoverTimer += Time.deltaTime;
         if (_recoverTimer >= _recoverDuration)
@@ -219,11 +240,14 @@ public class ZombieAxe : ZombieBase
             StopAgentCompletely();
             _rageSlamHit = false;
             _combatState = AxeCombatState.RageSlam;
-            anim.SetTrigger("AxeLunge");   // clip chém mạnh
+            anim.SetTrigger("AxeLunge");   // clip chém mạnh — full-body, KHÔNG dùng layer trên
         }
     }
 
-    /// <summary>Rage Slam — nhát chém mạnh sau Dash, damage cao + knockback lớn.</summary>
+    /// <summary>
+    /// Rage Slam — nhát chém mạnh sau Dash, damage cao + knockback lớn.
+    /// Giữ nguyên: dừng lại hoàn toàn, vì đây là animation full-body lunge riêng biệt.
+    /// </summary>
     private void HandleRageSlam(float dist)
     {
         StopAgentCompletely();
@@ -276,7 +300,7 @@ public class ZombieAxe : ZombieBase
     {
         _combatState = AxeCombatState.Swing;
         _damageApplied = false;
-        anim.SetTrigger("AxeSwing");
+        anim.SetTrigger("AxeSwing"); // Trigger này giờ chạy trên layer UpperBody_Attack
     }
 
     private void EnterRageDash()
