@@ -222032,7 +222032,15 @@ MonoBehaviour:
   healthSystem: {fileID: 6075764520036708444}
   fpsController: {fileID: 1640502386}
   equipmentManager: {fileID: 9117289951091646793}
+  cameraTransform: {fileID: 130927840}
   fadeCanvasGroup: {fileID: 1808984506}
+  deathAudioSource: {fileID: 0}
+  deathGruntSound: {fileID: 0}
+  fallThudSound: {fileID: 0}
+  fallDuration: 0.6
+  fallCameraDropHeight: 0.9
+  fallTiltAngle: 75
+  holdAfterFall: 1
   fadeDuration: 2
   gameOverSceneName: GameOver
 --- !u!4 &9123165429490526614 stripped
