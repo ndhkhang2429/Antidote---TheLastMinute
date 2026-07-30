@@ -2,102 +2,148 @@
 
 public class PlayerEquipmentManager : MonoBehaviour
 {
-    [Header("FPS Layer")]
-    [SerializeField] private string _fpsLayerName = "FPSArms";
+    [Header("FPS Weapon Setup")]
+    [Tooltip("Kéo FPSWeaponSocket nằm bên trong FPS_HANDS vào đây.")]
+    [SerializeField] private Transform _fpsWeaponSocket;
+
+    [Tooltip("Layer dùng riêng cho tay và súng góc nhìn thứ nhất.")]
+    [SerializeField] private string _fpsLayerName = "FPS_Arms";
 
     public event System.Action<WeaponInstance> OnWeaponEquipped;
 
-    private Animator _animator;
-    private Transform _rightHandBone;
     private GameObject _currentEquippedModel;
-    private Vector3 _gripOffset;
-    private Vector3 _gripRotation;
+    private WeaponInstance _currentWeaponInstance;
 
-    void Start()
+    private void Start()
     {
-        _animator = GetComponentInChildren<Animator>();
-
-        // Ưu tiên Weapon_Root, fallback RightHand, fallback hand_r
-        _rightHandBone = FindDeepChild(transform, "Weapon_Root");
-        if (_rightHandBone == null)
-            _rightHandBone = FindDeepChild(transform, "RightHand");
-        if (_rightHandBone == null)
-            _rightHandBone = FindDeepChild(transform, "hand_r");
-        if (_rightHandBone == null)
-            Debug.LogError("[PlayerEquipmentManager] Không tìm thấy bone gắn vũ khí!");
-
-        if (InventorySystem.Instance != null)
-            InventorySystem.Instance.OnHeldItemChanged += HandleItemChange;
-    }
-
-    void OnDestroy()
-    {
-        if (InventorySystem.Instance != null)
-            InventorySystem.Instance.OnHeldItemChanged -= HandleItemChange;
-    }
-
-
-    void HandleItemChange(ItemDataSO heldItem)
-    {
-        if (_currentEquippedModel != null)
+        if (_fpsWeaponSocket == null)
         {
-            _currentEquippedModel.GetComponent<IEquippable>()?.OnUnequip();
-            Destroy(_currentEquippedModel);
-            _currentEquippedModel = null;
+            Debug.LogError(
+                "[PlayerEquipmentManager] Chưa gán FPSWeaponSocket trong Inspector!",
+                this
+            );
         }
 
-        // Notify weapon removed
-        OnWeaponEquipped?.Invoke(null);
+        if (InventorySystem.Instance != null)
+        {
+            InventorySystem.Instance.OnHeldItemChanged += HandleItemChange;
+        }
+        else
+        {
+            Debug.LogWarning(
+                "[PlayerEquipmentManager] Không tìm thấy InventorySystem.Instance.",
+                this
+            );
+        }
+    }
 
-        _gripOffset = Vector3.zero;
-        _gripRotation = Vector3.zero;
+    private void OnDestroy()
+    {
+        if (InventorySystem.Instance != null)
+        {
+            InventorySystem.Instance.OnHeldItemChanged -= HandleItemChange;
+        }
+    }
 
-        if (heldItem == null || heldItem.equipPrefab == null) return;
-        if (_rightHandBone == null) return;
+    private void HandleItemChange(ItemDataSO heldItem)
+    {
+        UnequipCurrentItem();
+
+        if (heldItem == null || heldItem.equipPrefab == null)
+        {
+            OnWeaponEquipped?.Invoke(null);
+            return;
+        }
+
+        if (_fpsWeaponSocket == null)
+        {
+            Debug.LogError(
+                "[PlayerEquipmentManager] Không thể trang bị vì FPSWeaponSocket chưa được gán.",
+                this
+            );
+
+            OnWeaponEquipped?.Invoke(null);
+            return;
+        }
+
+        Vector3 gripOffset = Vector3.zero;
+        Vector3 gripRotation = Vector3.zero;
 
         if (heldItem is WeaponDataSO weaponData)
         {
-            _gripOffset = weaponData.gripOffset;
-            _gripRotation = weaponData.gripRotation;
+            gripOffset = weaponData.gripOffset;
+            gripRotation = weaponData.gripRotation;
         }
 
         _currentEquippedModel = Instantiate(
             heldItem.equipPrefab,
-            _rightHandBone.position,
-            _rightHandBone.rotation,
-            _rightHandBone
+            _fpsWeaponSocket
         );
 
-        _currentEquippedModel.transform.localPosition = _gripOffset;
-        _currentEquippedModel.transform.localRotation = Quaternion.Euler(_gripRotation);
+        Transform equippedTransform = _currentEquippedModel.transform;
 
-        int layer = LayerMask.NameToLayer(_fpsLayerName);
-        if (layer >= 0)
-            SetLayerRecursively(_currentEquippedModel, layer);
+        equippedTransform.localPosition = gripOffset;
+        equippedTransform.localRotation = Quaternion.Euler(gripRotation);
+        equippedTransform.localScale = Vector3.one;
 
-        _currentEquippedModel.GetComponent<IEquippable>()?.OnEquip();
+        int fpsLayer = LayerMask.NameToLayer(_fpsLayerName);
 
-        // Notify weapon equipped
-        var weaponInstance = _currentEquippedModel.GetComponent<WeaponInstance>();
-        OnWeaponEquipped?.Invoke(weaponInstance);
-    }
-
-
-    Transform FindDeepChild(Transform parent, string childName)
-    {
-        foreach (Transform child in parent)
+        if (fpsLayer >= 0)
         {
-            if (child.name == childName) return child;
-            Transform found = FindDeepChild(child, childName);
-            if (found != null) return found;
+            SetLayerRecursively(_currentEquippedModel, fpsLayer);
         }
-        return null;
+        else
+        {
+            Debug.LogWarning(
+                $"[PlayerEquipmentManager] Không tìm thấy layer '{_fpsLayerName}'.",
+                this
+            );
+        }
+
+        IEquippable equippable =
+            _currentEquippedModel.GetComponent<IEquippable>();
+
+        equippable?.OnEquip();
+
+        _currentWeaponInstance =
+            _currentEquippedModel.GetComponent<WeaponInstance>();
+
+        OnWeaponEquipped?.Invoke(_currentWeaponInstance);
     }
 
-    void SetLayerRecursively(GameObject go, int layer)
+    private void UnequipCurrentItem()
     {
-        go.layer = layer;
-        foreach (Transform child in go.transform)
+        if (_currentEquippedModel == null)
+        {
+            _currentWeaponInstance = null;
+            return;
+        }
+
+        IEquippable equippable =
+            _currentEquippedModel.GetComponent<IEquippable>();
+
+        equippable?.OnUnequip();
+
+        Destroy(_currentEquippedModel);
+
+        _currentEquippedModel = null;
+        _currentWeaponInstance = null;
+
+        OnWeaponEquipped?.Invoke(null);
+    }
+
+    private static void SetLayerRecursively(GameObject target, int layer)
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        target.layer = layer;
+
+        foreach (Transform child in target.transform)
+        {
             SetLayerRecursively(child.gameObject, layer);
+        }
     }
 }

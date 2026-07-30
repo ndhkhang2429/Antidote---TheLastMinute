@@ -86782,9 +86782,9 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.01
+  near clip plane: 0.1
   far clip plane: 5000
-  field of view: 70
+  field of view: 60.000004
   orthographic: 0
   orthographic size: 10
   m_Depth: -1
@@ -86810,8 +86810,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.16676882, y: 0, z: 0, w: 0.98599607}
-  m_LocalPosition: {x: -5.113287, y: 1.7057182, z: 19.375433}
+  m_LocalRotation: {x: 0.033304356, y: -0.0009316257, z: -0.00018377602, w: 0.99944484}
+  m_LocalPosition: {x: -27.436296, y: 2.1426167, z: 21.082003}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -124055,6 +124055,37 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1635219712074309703, guid: 5c4d13d43b0b695469594b3def8f4282, type: 3}
   m_PrefabInstance: {fileID: 1385903110}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1386431003
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1386431004}
+  m_Layer: 11
+  m_Name: FPSWeaponSocket
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1386431004
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1386431003}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2882026058620769267}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1386734806
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -202237,6 +202268,7 @@ Transform:
   - {fileID: 2882026058843286205}
   - {fileID: 2882026058256537274}
   - {fileID: 20594071}
+  - {fileID: 1386431004}
   m_Father: {fileID: 5528495231915821861}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &2882026058620769268
@@ -202267,7 +202299,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2882026058620769264}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d5fae0021478d35478f8fbf92a6919f3, type: 3}
   m_Name: 
@@ -221682,6 +221714,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 007f6db46e416354c9dadb54e0183abe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _fpsWeaponSocket: {fileID: 1386431004}
   _fpsLayerName: FPS_Arms
 --- !u!114 &9117289951091646794
 MonoBehaviour:
