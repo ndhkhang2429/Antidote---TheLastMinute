@@ -6,6 +6,9 @@ public class PlayerGunAnimator : MonoBehaviour
     [Header("FPS Arms Animator (FPS_HANDS)")]
     [SerializeField] private Animator _fpsArmsAnimator;
 
+    [Header("FPS Weapon Motion")]
+    [SerializeField] private FPSWeaponMotion _weaponMotion;
+
     [Header("FPS Reference")]
     [SerializeField] private Transform _cameraRoot;
 
@@ -40,6 +43,9 @@ public class PlayerGunAnimator : MonoBehaviour
                 }
             }
         }
+
+        if (_weaponMotion == null)
+            _weaponMotion = GetComponentInChildren<FPSWeaponMotion>();
 
         // Lắng nghe event từ PlayerEquipmentManager
         var equipManager = GetComponent<PlayerEquipmentManager>();
@@ -194,6 +200,8 @@ public class PlayerGunAnimator : MonoBehaviour
         // Trigger shoot animation trên FPS Arms
         if (_fpsArmsAnimator != null)
             _fpsArmsAnimator.SetTrigger(_hashIsShooting);
+
+        _weaponMotion?.AddRecoil();
 
         // Tính hướng bắn từ camera
         Vector3 origin = _cameraRoot != null ? _cameraRoot.position : _mainCamera.transform.position;
