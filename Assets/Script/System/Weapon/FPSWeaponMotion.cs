@@ -90,7 +90,7 @@ public class FPSWeaponMotion : MonoBehaviour
         }
     }
 
-    private void LateUpdate()
+    private void Update()
     {
         UpdateSway();
         UpdateBob();
