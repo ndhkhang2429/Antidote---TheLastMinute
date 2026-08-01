@@ -12,24 +12,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04ce8e414680cba4aa1845a9e8740ae4, type: 3}
   m_Name: "S\xFAng l\u1EE5c"
   m_EditorClassIdentifier: 
-  itemName: 
+  itemName: Pistol
   icon: {fileID: 0}
-  worldPrefab: {fileID: 0}
+  worldPrefab: {fileID: 3763604498974455608, guid: 24293e33d3322f84bb98b6c032ce2dc9, type: 3}
+  equipPrefab: {fileID: 3763604498974455608, guid: 24293e33d3322f84bb98b6c032ce2dc9, type: 3}
   description: 
-  category: 0
-  weaponSlotType: 0
+  category: 1
+  weaponSlotType: 2
   maxStack: 1
   weightPerUnit: 0
   autoEquip: 0
-  damage: 0
-  fireRate: 0
-  magazineSize: 0
-  compatibleAmmo: {fileID: 0}
-  weaponPrefab: {fileID: 0}
+  combatType: 0
+  damage: 22
   attachPointName: 
-  comboResetTime: 1.2
-  comboSteps: 3
+  fireRate: 0.18
+  magazineSize: 12
+  reloadTime: 1.6
+  compatibleAmmo: {fileID: 11400000, guid: 051b4a174fe87da4e9ef04baa7b4d985, type: 2}
+  bulletPrefab: {fileID: 3894776062510045127, guid: 69c0b9bcb793d4547a4badbea77403a6, type: 3}
+  bulletSpeed: 50
+  muzzleFlashPrefab: {fileID: 199458, guid: 4aa4c63f0f9d6a84dbaeed6b9caeca80, type: 3}
+  gripOffset: {x: 0.098, y: -0.203, z: 0.221}
+  gripRotation: {x: 27.581, y: -208.551, z: -10.875}
+  isAutomatic: 0
   cooldown: 0.5
+  comboSteps: 3
+  comboResetTime: 1.2
   hitDistance: 1.2
   hitHeight: 0.8
   hitRadius: 0.6
