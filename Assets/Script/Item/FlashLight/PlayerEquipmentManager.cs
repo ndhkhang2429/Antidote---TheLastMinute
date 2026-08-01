@@ -183,8 +183,29 @@ public class PlayerEquipmentManager : MonoBehaviour
     {
         if (_currentEquippedModel != null)
         {
+            // Phải phát trước khi model súng bị Destroy.
+            WeaponAudioController weaponAudio =
+                _currentEquippedModel
+                    .GetComponent<WeaponAudioController>();
+
+            if (weaponAudio == null)
+            {
+                weaponAudio =
+                    _currentEquippedModel
+                        .GetComponentInChildren<WeaponAudioController>(true);
+            }
+
+            weaponAudio?.PlayHolsterDetached();
+
             IEquippable equippable =
                 _currentEquippedModel.GetComponent<IEquippable>();
+
+            if (equippable == null)
+            {
+                equippable =
+                    _currentEquippedModel
+                        .GetComponentInChildren<IEquippable>(true);
+            }
 
             equippable?.OnUnequip();
 

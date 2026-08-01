@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class PlayerGunAnimator : MonoBehaviour
 {
-    [Header("FPS Arms Animator (FPS_HANDS)")]
+    [Header("FPS Arms")]
     [SerializeField] private Animator _fpsArmsAnimator;
 
     [Header("FPS Weapon Motion")]
@@ -13,116 +13,216 @@ public class PlayerGunAnimator : MonoBehaviour
     [SerializeField] private Transform _cameraRoot;
 
     [Header("Shooting Setup")]
-    public LayerMask aimColliderLayerMask;
+    [SerializeField] private LayerMask _aimColliderLayerMask;
+
+    [Header("Optional Interaction")]
+    [SerializeField] private FPSInteractionVisualController _interactionController;
 
     private StarterAssetsInputs _input;
     private Camera _mainCamera;
-    public WeaponInstance _activeWeapon;
-    private bool _isReloading = false;
-    private float _nextFireTime = 0f;
+    private PlayerEquipmentManager _equipmentManager;
 
-    // Hash parameters
+    private WeaponInstance _activeWeapon;
+    private WeaponAudioController _weaponAudio;
+
+    private bool _isReloading;
+    private float _nextFireTime;
+
     private int _hashIsShooting;
     private int _hashReloading;
     private int _hashWalkSpeed;
 
-    void Start()
+    public WeaponInstance ActiveWeapon => _activeWeapon;
+    public bool IsReloading => _isReloading;
+
+    private void Awake()
     {
         _input = GetComponent<StarterAssetsInputs>();
         _mainCamera = Camera.main;
+        _equipmentManager = GetComponent<PlayerEquipmentManager>();
 
-        // Tìm FPS_HANDS Animator
+        _hashIsShooting = Animator.StringToHash("isShooting");
+        _hashReloading = Animator.StringToHash("reloading");
+        _hashWalkSpeed = Animator.StringToHash("walkSpeed");
+
+        ResolveReferences();
+    }
+
+    private void OnEnable()
+    {
+        if (_equipmentManager != null)
+        {
+            _equipmentManager.OnWeaponEquipped += OnWeaponEquipped;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (_equipmentManager != null)
+        {
+            _equipmentManager.OnWeaponEquipped -= OnWeaponEquipped;
+        }
+    }
+
+    private void ResolveReferences()
+    {
         if (_fpsArmsAnimator == null)
         {
-            foreach (Transform t in GetComponentsInChildren<Transform>())
+            Animator[] animators = GetComponentsInChildren<Animator>(true);
+
+            foreach (Animator animator in animators)
             {
-                if (t.name == "FPS_HANDS")
+                if (animator.gameObject.name == "FPSViewModel" ||
+                    animator.gameObject.name == "FPS_HANDS")
                 {
-                    _fpsArmsAnimator = t.GetComponent<Animator>();
+                    _fpsArmsAnimator = animator;
                     break;
                 }
             }
         }
 
         if (_weaponMotion == null)
-            _weaponMotion = GetComponentInChildren<FPSWeaponMotion>();
-
-        // Lắng nghe event từ PlayerEquipmentManager
-        var equipManager = GetComponent<PlayerEquipmentManager>();
-        if (equipManager != null)
-            equipManager.OnWeaponEquipped += OnWeaponEquipped;
-
-        _hashIsShooting = Animator.StringToHash("isShooting");
-        _hashReloading = Animator.StringToHash("reloading");
-        _hashWalkSpeed = Animator.StringToHash("walkSpeed");
-    }
-
-    void OnDestroy()
-    {
-        var equipManager = GetComponent<PlayerEquipmentManager>();
-        if (equipManager != null)
-            equipManager.OnWeaponEquipped -= OnWeaponEquipped;
-    }
-
-    void OnWeaponEquipped(WeaponInstance weapon)
-    {
-        _activeWeapon = weapon;
-        _isReloading = false;
-        _nextFireTime = 0f;
-        Debug.Log($"[PlayerGunAnimator] Weapon equipped: {weapon?.weaponData?.itemName ?? "None"}");
-    }
-
-    void Update()
-    {
-        // KHÔNG dùng GetComponentInChildren nữa
-        // _activeWeapon được set từ event
-
-        if (_fpsArmsAnimator != null)
         {
-            float speed = _input.move.magnitude;
-            _fpsArmsAnimator.SetFloat(_hashWalkSpeed, speed);
+            _weaponMotion = GetComponentInChildren<FPSWeaponMotion>(true);
         }
 
-        if (_isReloading || _activeWeapon == null) return;
+        if (_interactionController == null)
+        {
+            _interactionController =
+                GetComponent<FPSInteractionVisualController>();
+        }
+
+        if (_mainCamera == null)
+        {
+            _mainCamera = Camera.main;
+        }
+    }
+
+    private void Update()
+    {
+        UpdateWalkAnimation();
+
+        if (_activeWeapon == null)
+        {
+            return;
+        }
+
+        if (_interactionController != null &&
+            _interactionController.IsInteracting)
+        {
+            CancelCombatInput();
+            return;
+        }
+
+        if (_isReloading)
+        {
+            _input.shoot = false;
+            return;
+        }
+
         HandleReload();
         HandleShooting();
     }
 
-    // ── RELOAD ────────────────────────────────────────────
+    private void UpdateWalkAnimation()
+    {
+        if (_fpsArmsAnimator == null || _input == null)
+        {
+            return;
+        }
+
+        _fpsArmsAnimator.SetFloat(
+            _hashWalkSpeed,
+            _input.move.magnitude
+        );
+    }
+
+    private void OnWeaponEquipped(WeaponInstance weapon)
+    {
+        CancelReload();
+
+        _activeWeapon = weapon;
+        _weaponAudio = null;
+        _nextFireTime = 0f;
+
+        if (_activeWeapon != null)
+        {
+            _weaponAudio =
+                _activeWeapon.GetComponent<WeaponAudioController>();
+
+            if (_weaponAudio == null)
+            {
+                _weaponAudio =
+                    _activeWeapon
+                        .GetComponentInChildren<WeaponAudioController>(true);
+            }
+
+            _weaponAudio?.PlayDraw();
+        }
+
+        Debug.Log(
+            $"[PlayerGunAnimator] Weapon equipped: " +
+            $"{weapon?.weaponData?.itemName ?? "None"}"
+        );
+    }
 
     private void HandleReload()
     {
-        var data = _activeWeapon.weaponData;
+        if (_input == null || !_input.reload)
+        {
+            return;
+        }
 
-        if (_input.reload && _activeWeapon.currentAmmo < data.magazineSize)
-            StartReloadSequence(data);
-        else if (_input.reload)
-            _input.reload = false;
-    }
+        WeaponDataSO data = _activeWeapon.weaponData;
 
-    private void StartReloadSequence(WeaponDataSO data)
-    {
-        var inv = InventorySystem.Instance;
-        if (inv == null || data.compatibleAmmo == null)
+        if (data == null)
         {
             _input.reload = false;
             return;
         }
 
-        int totalAmmo = inv.CountItem(data.compatibleAmmo);
+        if (_activeWeapon.currentAmmo >= data.magazineSize)
+        {
+            _input.reload = false;
+            return;
+        }
+
+        StartReloadSequence(data);
+    }
+
+    private void StartReloadSequence(WeaponDataSO data)
+    {
+        InventorySystem inventory = InventorySystem.Instance;
+
+        if (inventory == null || data.compatibleAmmo == null)
+        {
+            _input.reload = false;
+            return;
+        }
+
+        int totalAmmo = inventory.CountItem(data.compatibleAmmo);
+
         if (totalAmmo <= 0)
         {
-            NotificationUI.Instance?.ShowNotification("Không có đạn dự trữ!");
+            _weaponAudio?.PlayEmpty();
+            NotificationUI.Instance?.ShowNotification(
+                "Không có đạn dự trữ!"
+            );
+
             _input.reload = false;
             return;
         }
 
         _isReloading = true;
         _input.reload = false;
+        _input.shoot = false;
 
-        // Trigger reload animation
+        _weaponAudio?.PlayReload();
+
         if (_fpsArmsAnimator != null)
+        {
             _fpsArmsAnimator.SetBool(_hashReloading, true);
+        }
 
         Debug.Log($"🔄 Đang nạp {data.itemName}...");
 
@@ -131,44 +231,110 @@ public class PlayerGunAnimator : MonoBehaviour
             ActionTimerManager.Instance.StartAction(
                 $"Nạp {data.itemName}...",
                 data.reloadTime,
-                () => FinishReload(data, totalAmmo, inv)
+                () => FinishReload(data, inventory)
             );
         }
         else
         {
-            // Fallback nếu không có ActionTimerManager
-            FinishReload(data, totalAmmo, inv);
+            Invoke(
+                nameof(FinishReloadFallback),
+                data.reloadTime
+            );
         }
     }
 
-    private void FinishReload(WeaponDataSO data, int totalAmmo, InventorySystem inv)
+    private WeaponDataSO _fallbackReloadData;
+    private InventorySystem _fallbackInventory;
+
+    private void FinishReloadFallback()
     {
-        if (_activeWeapon != null && _activeWeapon.weaponData == data)
+        if (_fallbackReloadData != null &&
+            _fallbackInventory != null)
         {
-            int needed = data.magazineSize - _activeWeapon.currentAmmo;
-            int toReload = Mathf.Min(needed, totalAmmo);
-            _activeWeapon.currentAmmo += toReload;
-            inv.RemoveItem(data.compatibleAmmo, toReload);
-            Debug.Log($"✅ Nạp xong! Đạn: {_activeWeapon.currentAmmo}/{data.magazineSize}");
+            FinishReload(
+                _fallbackReloadData,
+                _fallbackInventory
+            );
         }
 
-        // Kết thúc reload animation
+        _fallbackReloadData = null;
+        _fallbackInventory = null;
+    }
+
+    private void FinishReload(
+        WeaponDataSO data,
+        InventorySystem inventory)
+    {
+        if (_activeWeapon == null ||
+            _activeWeapon.weaponData != data)
+        {
+            CancelReload();
+            return;
+        }
+
+        int totalAmmo =
+            inventory.CountItem(data.compatibleAmmo);
+
+        int needed =
+            data.magazineSize - _activeWeapon.currentAmmo;
+
+        int amountToReload =
+            Mathf.Min(needed, totalAmmo);
+
+        if (amountToReload > 0)
+        {
+            _activeWeapon.currentAmmo += amountToReload;
+
+            inventory.RemoveItem(
+                data.compatibleAmmo,
+                amountToReload
+            );
+        }
+
+        Debug.Log(
+            $"✅ Nạp xong! Đạn: " +
+            $"{_activeWeapon.currentAmmo}/" +
+            $"{data.magazineSize}"
+        );
+
+        EndReloadState();
+    }
+
+    private void CancelReload()
+    {
+        if (!_isReloading)
+        {
+            return;
+        }
+
+        CancelInvoke(nameof(FinishReloadFallback));
+        EndReloadState();
+    }
+
+    private void EndReloadState()
+    {
         if (_fpsArmsAnimator != null)
-            _fpsArmsAnimator.SetBool(_hashReloading, false);
+        {
+            _fpsArmsAnimator.SetBool(
+                _hashReloading,
+                false
+            );
+        }
 
         _isReloading = false;
     }
 
-    // ── SHOOTING ──────────────────────────────────────────
-
     private void HandleShooting()
     {
-        if (!_input.shoot) return;
+        if (_input == null || !_input.shoot)
+        {
+            return;
+        }
 
-        var data = _activeWeapon.weaponData;
+        WeaponDataSO data = _activeWeapon.weaponData;
 
-        // Chỉ xử lý súng, không xử lý melee ở đây
-        if (data.combatType != CombatType.Firearm)
+        if (data == null ||
+            data.combatType != CombatType.Firearm)
         {
             _input.shoot = false;
             return;
@@ -176,72 +342,264 @@ public class PlayerGunAnimator : MonoBehaviour
 
         if (_activeWeapon.currentAmmo <= 0)
         {
-            NotificationUI.Instance?.ShowNotification("Súng hết đạn!");
+            _weaponAudio?.PlayEmpty();
+
+            NotificationUI.Instance?.ShowNotification(
+                "Súng hết đạn!"
+            );
+
             _input.shoot = false;
             return;
         }
 
-        if (Time.time >= _nextFireTime)
+        if (Time.time < _nextFireTime)
         {
-            _nextFireTime = Time.time + data.fireRate;
-            ExecuteShoot();
-            if (!data.isAutomatic) _input.shoot = false;
+            return;
+        }
+
+        _nextFireTime =
+            Time.time + Mathf.Max(0.01f, data.fireRate);
+
+        ExecuteShoot();
+
+        if (!data.isAutomatic)
+        {
+            _input.shoot = false;
         }
     }
 
     private void ExecuteShoot()
     {
-        var data = _activeWeapon.weaponData;
-        if (data.bulletPrefab == null || _activeWeapon.gunBarrel == null) return;
+        if (!ValidateShootReferences(out WeaponDataSO data))
+        {
+            return;
+        }
 
         _activeWeapon.currentAmmo--;
-        Debug.Log($"💥 Bắn! Còn {_activeWeapon.currentAmmo}/{data.magazineSize}");
 
-        // Trigger shoot animation trên FPS Arms
+        _weaponAudio?.PlayFire();
+
+        Debug.Log(
+            $"💥 Bắn! Còn " +
+            $"{_activeWeapon.currentAmmo}/" +
+            $"{data.magazineSize}"
+        );
+
         if (_fpsArmsAnimator != null)
-            _fpsArmsAnimator.SetTrigger(_hashIsShooting);
+        {
+            _fpsArmsAnimator.SetTrigger(
+                _hashIsShooting
+            );
+        }
 
         _weaponMotion?.AddRecoil();
 
-        // Tính hướng bắn từ camera
-        Vector3 origin = _cameraRoot != null ? _cameraRoot.position : _mainCamera.transform.position;
-        Vector3 forward = _cameraRoot != null ? _cameraRoot.forward : _mainCamera.transform.forward;
+        Ray aimRay = CreateAimRay();
 
-        Ray ray = new Ray(origin, forward);
-        Vector3 targetPoint = Physics.Raycast(ray, out RaycastHit hit, 999f, aimColliderLayerMask)
-                            ? hit.point
-                            : ray.GetPoint(100f);
+        Vector3 targetPoint =
+            GetTargetPoint(
+                aimRay,
+                999f
+            );
 
-        // Spawn đạn từ nòng súng
-        GameObject bulletObj = Instantiate(
+        Vector3 barrelPosition =
+            _activeWeapon.gunBarrel.position;
+
+        Vector3 shootDirection =
+            (targetPoint - barrelPosition).normalized;
+
+        shootDirection =
+            ApplySpread(
+                shootDirection,
+                _activeWeapon.bulletSpread
+            );
+
+        GameObject bulletObject = Instantiate(
             data.bulletPrefab,
-            _activeWeapon.gunBarrel.position,
-            Quaternion.identity
+            barrelPosition,
+            Quaternion.LookRotation(shootDirection)
         );
 
-        // Tính hướng bắn + spread
-        Vector3 shootDir = (targetPoint - _activeWeapon.gunBarrel.position).normalized;
-        float spread = _activeWeapon.bulletSpread;
-        shootDir = (shootDir + new Vector3(
+        SetupBullet(
+            bulletObject,
+            shootDirection,
+            data
+        );
+
+        SpawnMuzzleFlash(data);
+    }
+
+    private bool ValidateShootReferences(
+        out WeaponDataSO data)
+    {
+        data = null;
+
+        if (_activeWeapon == null)
+        {
+            Debug.LogError(
+                "[Shoot] Active Weapon đang null!"
+            );
+
+            return false;
+        }
+
+        data = _activeWeapon.weaponData;
+
+        if (data == null)
+        {
+            Debug.LogError(
+                "[Shoot] WeaponData đang null!",
+                _activeWeapon
+            );
+
+            return false;
+        }
+
+        if (data.bulletPrefab == null)
+        {
+            Debug.LogError(
+                $"[Shoot] {data.itemName} chưa gán Bullet Prefab!",
+                _activeWeapon
+            );
+
+            return false;
+        }
+
+        if (_activeWeapon.gunBarrel == null)
+        {
+            Debug.LogError(
+                $"[Shoot] {data.itemName} chưa gán Gun Barrel!",
+                _activeWeapon
+            );
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private Ray CreateAimRay()
+    {
+        if (_cameraRoot != null)
+        {
+            return new Ray(
+                _cameraRoot.position,
+                _cameraRoot.forward
+            );
+        }
+
+        if (_mainCamera == null)
+        {
+            _mainCamera = Camera.main;
+        }
+
+        if (_mainCamera != null)
+        {
+            return _mainCamera.ViewportPointToRay(
+                new Vector3(0.5f, 0.5f, 0f)
+            );
+        }
+
+        return new Ray(
+            transform.position,
+            transform.forward
+        );
+    }
+
+    private Vector3 GetTargetPoint(
+        Ray aimRay,
+        float distance)
+    {
+        if (Physics.Raycast(
+                aimRay,
+                out RaycastHit hit,
+                distance,
+                _aimColliderLayerMask,
+                QueryTriggerInteraction.Ignore))
+        {
+            return hit.point;
+        }
+
+        return aimRay.GetPoint(distance);
+    }
+
+    private static Vector3 ApplySpread(
+        Vector3 direction,
+        float spread)
+    {
+        if (spread <= 0f)
+        {
+            return direction;
+        }
+
+        Vector3 randomSpread = new Vector3(
             Random.Range(-spread, spread),
             Random.Range(-spread, spread),
             Random.Range(-spread, spread)
-        )).normalized;
+        );
 
-        bulletObj.transform.forward = shootDir;
+        return (direction + randomSpread).normalized;
+    }
 
-        if (bulletObj.TryGetComponent<BulletProjectile>(out var bulletScript))
+    private static void SetupBullet(
+        GameObject bulletObject,
+        Vector3 direction,
+        WeaponDataSO data)
+    {
+        if (bulletObject == null)
+        {
+            return;
+        }
+
+        if (bulletObject.TryGetComponent(
+                out BulletProjectile bulletScript))
+        {
             bulletScript.SetupBullet(data.damage);
+        }
 
-        if (bulletObj.TryGetComponent<Rigidbody>(out var rb))
-            rb.AddForce(shootDir * data.bulletSpeed, ForceMode.Impulse);
-
-        // Muzzle flash
-        if (data.muzzleFlashPrefab != null)
-            Instantiate(
-                data.muzzleFlashPrefab,
-                _activeWeapon.gunBarrel.position,
-                _activeWeapon.gunBarrel.rotation
+        if (bulletObject.TryGetComponent(
+                out Rigidbody rigidbody))
+        {
+            rigidbody.velocity =
+                direction * data.bulletSpeed;
+        }
+        else
+        {
+            Debug.LogError(
+                $"[Shoot] Bullet prefab " +
+                $"{bulletObject.name} không có Rigidbody trên root.",
+                bulletObject
             );
+        }
+    }
+
+    private void SpawnMuzzleFlash(
+        WeaponDataSO data)
+    {
+        if (data.muzzleFlashPrefab == null ||
+            _activeWeapon == null ||
+            _activeWeapon.gunBarrel == null)
+        {
+            return;
+        }
+
+        GameObject muzzleFlash = Instantiate(
+            data.muzzleFlashPrefab,
+            _activeWeapon.gunBarrel.position,
+            _activeWeapon.gunBarrel.rotation
+        );
+
+        Destroy(muzzleFlash, 2f);
+    }
+
+    private void CancelCombatInput()
+    {
+        if (_input == null)
+        {
+            return;
+        }
+
+        _input.shoot = false;
+        _input.reload = false;
     }
 }
