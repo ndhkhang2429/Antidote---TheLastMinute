@@ -9,9 +9,6 @@ public static class ItemUser
             case ItemCategory.Consumable:
                 UseConsumable(item, user);
                 break;
-            case ItemCategory.Grenade:
-                ThrowGrenade(item, user);
-                break;
         }
     }
 

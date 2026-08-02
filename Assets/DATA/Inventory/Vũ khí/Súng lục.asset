@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: "S\xFAng l\u1EE5c"
   m_EditorClassIdentifier: 
   itemName: Pistol
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 136d39cc2caed3240bc1efff765e57ca, type: 3}
   worldPrefab: {fileID: 3763604498974455608, guid: 24293e33d3322f84bb98b6c032ce2dc9, type: 3}
   equipPrefab: {fileID: 3763604498974455608, guid: 24293e33d3322f84bb98b6c032ce2dc9, type: 3}
   description: 

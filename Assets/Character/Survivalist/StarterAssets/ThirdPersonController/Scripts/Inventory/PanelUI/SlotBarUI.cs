@@ -13,140 +13,392 @@ public class SlotBarUI : MonoBehaviour
         public TextMeshProUGUI keyLabel;
     }
 
-    [Header("5 Slots")]
-    public SlotBarItem[] slots = new SlotBarItem[5];
+    [Header("4 Slots: Rifle, Pistol, Melee, Item")]
+    public SlotBarItem[] slots = new SlotBarItem[4];
 
-    [Header("Layout")]
-    public float slotHeight = 36f;
-    public float slotSpacing = 4f;
-    public float dividerGap = 8f; // khoảng cách thêm trước slot 5
+    [Header("Panel Layout")]
+    [SerializeField] private float panelWidth = 230f;
+    [SerializeField] private float slotHeight = 58f;
+    [SerializeField] private float slotSpacing = 5f;
+
+    [Header("Key Layout")]
+    [SerializeField] private float keyLeftPadding = 8f;
+    [SerializeField] private float keyWidth = 24f;
+
+    [Header("Icon Layout")]
+    [Tooltip("Chiều rộng tối đa của vùng icon")]
+    [SerializeField] private float iconAreaWidth = 170f;
+
+    [Tooltip("Chiều cao tối đa của vùng icon")]
+    [SerializeField] private float iconAreaHeight = 46f;
+
+    [Tooltip("Khoảng cách icon với cạnh phải")]
+    [SerializeField] private float iconRightPadding = 10f;
+
+    [Range(0.1f, 1f)]
+    [Tooltip("Mức độ icon lấp đầy vùng chứa")]
+    [SerializeField] private float iconFill = 0.92f;
 
     [Header("Colors")]
-    public Color colorActiveBg = new Color(1f, 1f, 1f, 0.08f);
-    public Color colorInactiveBg = new Color(1f, 1f, 1f, 0f);
-    public Color colorActiveIcon = Color.white;
-    public Color colorInactiveIcon = new Color(1f, 1f, 1f, 0.35f);
-    public Color colorActiveText = new Color(1f, 0.85f, 0.25f, 1f);
-    public Color colorInactiveText = new Color(1f, 1f, 1f, 0.25f);
-    public Color colorActiveItem = new Color(0.4f, 0.75f, 1f, 1f);
+    [SerializeField]
+    private Color colorActiveBg =
+        new Color(1f, 1f, 1f, 0.10f);
 
-    static readonly string[] KeyLabels = { "1", "2", "3", "4", "5" };
-    static readonly string[] SlotNames =
+    [SerializeField]
+    private Color colorInactiveBg =
+        new Color(0f, 0f, 0f, 0f);
+
+    [SerializeField]
+    private Color colorActiveIcon =
+        new Color(1f, 1f, 1f, 1f);
+
+    [SerializeField]
+    private Color colorInactiveIcon =
+        new Color(1f, 1f, 1f, 0.30f);
+
+    [SerializeField]
+    private Color colorActiveText =
+        new Color(1f, 0.85f, 0.25f, 1f);
+
+    [SerializeField]
+    private Color colorInactiveText =
+        new Color(1f, 1f, 1f, 0.28f);
+
+    private static readonly string[] KeyLabels =
     {
-        "Súng trường",
-        "Súng lục",
-        "Cận chiến",
-        "Lựu đạn",
-        "Item"
+        "1", "2", "3", "4"
     };
 
-    void Start()
+    private void Start()
     {
         InitLabels();
-        PositionSlots();
+        ApplyLayout();
 
         if (InventorySystem.Instance != null)
         {
-            InventorySystem.Instance.OnActiveSlotChanged += _ => RefreshAll();
-            InventorySystem.Instance.OnInventoryChanged += RefreshAll;
+            InventorySystem.Instance.OnActiveSlotChanged
+                += HandleActiveSlotChanged;
+
+            InventorySystem.Instance.OnInventoryChanged
+                += RefreshAll;
         }
+
         RefreshAll();
     }
 
-    void OnDestroy()
+    private void OnDestroy()
     {
-        if (InventorySystem.Instance == null) return;
-        InventorySystem.Instance.OnActiveSlotChanged -= _ => RefreshAll();
-        InventorySystem.Instance.OnInventoryChanged -= RefreshAll;
+        if (InventorySystem.Instance == null)
+            return;
+
+        InventorySystem.Instance.OnActiveSlotChanged
+            -= HandleActiveSlotChanged;
+
+        InventorySystem.Instance.OnInventoryChanged
+            -= RefreshAll;
     }
 
-    void InitLabels()
+    private void HandleActiveSlotChanged(int slotIndex)
     {
-        for (int i = 0; i < slots.Length; i++)
+        RefreshAll();
+    }
+
+    private void InitLabels()
+    {
+        if (slots == null)
+            return;
+
+        int count = Mathf.Min(slots.Length, KeyLabels.Length);
+
+        for (int i = 0; i < count; i++)
         {
-            if (slots[i].keyLabel != null) slots[i].keyLabel.text = KeyLabels[i];
+            SlotBarItem slot = slots[i];
+
+            if (slot != null && slot.keyLabel != null)
+                slot.keyLabel.text = KeyLabels[i];
         }
     }
 
-    // Tự đặt vị trí từng slot bằng code
-    void PositionSlots()
+    private void ApplyLayout()
     {
-        float y = 0f;
+        RectTransform panelRect = GetComponent<RectTransform>();
+
+        if (panelRect == null || slots == null)
+            return;
+
+        /*
+         * SlotBarUI bám vào giữa cạnh phải màn hình.
+         * Pos X và Pos Y vẫn có thể chỉnh trong Inspector.
+         */
+        panelRect.anchorMin = new Vector2(1f, 0.5f);
+        panelRect.anchorMax = new Vector2(1f, 0.5f);
+        panelRect.pivot = new Vector2(1f, 0.5f);
+
+        float currentY = 0f;
+
         for (int i = 0; i < slots.Length; i++)
         {
-            if (slots[i].root == null) continue;
+            SlotBarItem slot = slots[i];
 
-            // Thêm khoảng cách trước slot 5
-            if (i == 4) y -= dividerGap;
+            if (slot == null || slot.root == null)
+                continue;
 
-            var rt = slots[i].root.GetComponent<RectTransform>();
-            if (rt == null) continue;
+            RectTransform slotRect =
+                slot.root.GetComponent<RectTransform>();
 
-            rt.anchorMin = new Vector2(0, 1);
-            rt.anchorMax = new Vector2(1, 1);
-            rt.pivot = new Vector2(0.5f, 1f);
-            rt.offsetMin = new Vector2(0, -(y + slotHeight));
-            rt.offsetMax = new Vector2(0, -y);
+            if (slotRect == null)
+                continue;
 
-            y += slotHeight + slotSpacing;
+            // Slot kéo giãn theo chiều ngang của SlotBarUI.
+            slotRect.anchorMin = new Vector2(0f, 1f);
+            slotRect.anchorMax = new Vector2(1f, 1f);
+            slotRect.pivot = new Vector2(0.5f, 1f);
+
+            slotRect.offsetMin =
+                new Vector2(0f, -(currentY + slotHeight));
+
+            slotRect.offsetMax =
+                new Vector2(0f, -currentY);
+
+            LayoutKey(slot);
+            LayoutIconArea(slot);
+
+            currentY += slotHeight;
+
+            if (i < slots.Length - 1)
+                currentY += slotSpacing;
         }
 
-        // Set chiều cao SlotBarUI = tổng slot + divider
-        var selfRt = GetComponent<RectTransform>();
-        selfRt.sizeDelta = new Vector2(200, y + dividerGap);
+        panelRect.sizeDelta =
+            new Vector2(panelWidth, currentY);
+    }
+
+    private void LayoutKey(SlotBarItem slot)
+    {
+        if (slot.keyLabel == null)
+            return;
+
+        RectTransform keyRect = slot.keyLabel.rectTransform;
+
+        keyRect.anchorMin = new Vector2(0f, 0f);
+        keyRect.anchorMax = new Vector2(0f, 1f);
+        keyRect.pivot = new Vector2(0f, 0.5f);
+
+        keyRect.offsetMin =
+            new Vector2(keyLeftPadding, 0f);
+
+        keyRect.offsetMax =
+            new Vector2(keyLeftPadding + keyWidth, 0f);
+
+        slot.keyLabel.alignment = TextAlignmentOptions.Center;
+        slot.keyLabel.enableAutoSizing = true;
+        slot.keyLabel.fontSizeMin = 14f;
+        slot.keyLabel.fontSizeMax = 19f;
+        slot.keyLabel.raycastTarget = false;
+    }
+
+    private void LayoutIconArea(SlotBarItem slot)
+    {
+        if (slot.iconImage == null)
+            return;
+
+        RectTransform iconRect = slot.iconImage.rectTransform;
+
+        /*
+         * Icon sử dụng anchor Middle Right.
+         * Tất cả icon dùng chung một vùng hiển thị.
+         */
+        iconRect.anchorMin = new Vector2(1f, 0.5f);
+        iconRect.anchorMax = new Vector2(1f, 0.5f);
+        iconRect.pivot = new Vector2(1f, 0.5f);
+
+        iconRect.anchoredPosition =
+            new Vector2(-iconRightPadding, 0f);
+
+        iconRect.sizeDelta =
+            new Vector2(iconAreaWidth, iconAreaHeight);
+
+        slot.iconImage.type = Image.Type.Simple;
+        slot.iconImage.preserveAspect = true;
+        slot.iconImage.raycastTarget = false;
     }
 
     public void RefreshAll()
     {
-        var inv = InventorySystem.Instance;
-        if (inv == null) return;
-        int active = inv.activeSlot;
+        InventorySystem inventory = InventorySystem.Instance;
+
+        if (inventory == null || slots == null)
+            return;
+
+        int activeIndex = inventory.activeSlot;
+
         for (int i = 0; i < slots.Length; i++)
-            RefreshSlot(i, active, inv);
-    }
-
-    void RefreshSlot(int i, int activeIndex, InventorySystem inv)
-    {
-        var s = slots[i];
-        if (s == null || s.root == null) return;
-        bool isActive = (i == activeIndex);
-
-        if (s.background != null)
-            s.background.color = isActive ? colorActiveBg : colorInactiveBg;
-
-        if (s.iconImage != null)
-            s.iconImage.color = isActive ? colorActiveIcon : colorInactiveIcon;
-
-        if (s.keyLabel != null)
-            s.keyLabel.color = isActive
-                ? new Color(1f, 1f, 1f, 0.7f)
-                : new Color(1f, 1f, 1f, 0.25f);
-
-        if (i < 4) RefreshWeaponSlot(s, i, isActive, inv);
-        else RefreshItemSlot(s, isActive, inv);
-    }
-
-    void RefreshWeaponSlot(SlotBarItem s, int i, bool isActive, InventorySystem inv)
-    {
-        var weapSlot = inv.weaponSlots[i];
-
-        if (s.iconImage != null)
         {
-            bool hasIcon = !weapSlot.IsEmpty && weapSlot.item.icon != null;
-            s.iconImage.enabled = hasIcon;
-            if (hasIcon) s.iconImage.sprite = weapSlot.item.icon;
+            RefreshSlot(
+                i,
+                activeIndex,
+                inventory
+            );
         }
     }
 
-    void RefreshItemSlot(SlotBarItem s, bool isActive, InventorySystem inv)
+    private void RefreshSlot(
+        int index,
+        int activeIndex,
+        InventorySystem inventory)
     {
-        bool empty = inv.heldItemSlot.IsEmpty;
+        if (index < 0 || index >= slots.Length)
+            return;
 
-        if (s.iconImage != null)
+        SlotBarItem slot = slots[index];
+
+        if (slot == null || slot.root == null)
+            return;
+
+        bool isActive = index == activeIndex;
+
+        if (slot.background != null)
         {
-            bool hasIcon = !empty && inv.heldItemSlot.item.icon != null;
-            s.iconImage.enabled = hasIcon;
-            if (hasIcon) s.iconImage.sprite = inv.heldItemSlot.item.icon;
+            slot.background.color =
+                isActive
+                    ? colorActiveBg
+                    : colorInactiveBg;
+
+            slot.background.raycastTarget = false;
         }
+
+        if (slot.keyLabel != null)
+        {
+            slot.keyLabel.color =
+                isActive
+                    ? colorActiveText
+                    : colorInactiveText;
+        }
+
+        if (index < 3)
+        {
+            RefreshWeaponSlot(
+                slot,
+                index,
+                isActive,
+                inventory
+            );
+        }
+        else
+        {
+            RefreshItemSlot(
+                slot,
+                isActive,
+                inventory
+            );
+        }
+    }
+
+    private void RefreshWeaponSlot(
+        SlotBarItem slot,
+        int index,
+        bool isActive,
+        InventorySystem inventory)
+    {
+        if (inventory.weaponSlots == null ||
+            index < 0 ||
+            index >= inventory.weaponSlots.Length)
+        {
+            ApplyIcon(slot, null, isActive);
+            return;
+        }
+
+        var weaponSlot = inventory.weaponSlots[index];
+
+        bool hasIcon =
+            !weaponSlot.IsEmpty &&
+            weaponSlot.item != null &&
+            weaponSlot.item.icon != null;
+
+        ApplyIcon(
+            slot,
+            hasIcon ? weaponSlot.item.icon : null,
+            isActive
+        );
+    }
+
+    private void RefreshItemSlot(
+        SlotBarItem slot,
+        bool isActive,
+        InventorySystem inventory)
+    {
+        bool hasIcon =
+            !inventory.heldItemSlot.IsEmpty &&
+            inventory.heldItemSlot.item != null &&
+            inventory.heldItemSlot.item.icon != null;
+
+        ApplyIcon(
+            slot,
+            hasIcon
+                ? inventory.heldItemSlot.item.icon
+                : null,
+            isActive
+        );
+    }
+
+    private void ApplyIcon(
+        SlotBarItem slot,
+        Sprite sprite,
+        bool isActive)
+    {
+        if (slot.iconImage == null)
+            return;
+
+        bool hasIcon = sprite != null;
+
+        slot.iconImage.enabled = hasIcon;
+
+        if (!hasIcon)
+            return;
+
+        slot.iconImage.sprite = sprite;
+        slot.iconImage.color =
+            isActive
+                ? colorActiveIcon
+                : colorInactiveIcon;
+
+        FitIconToArea(slot.iconImage, sprite);
+    }
+
+    private void FitIconToArea(
+        Image image,
+        Sprite sprite)
+    {
+        if (image == null || sprite == null)
+            return;
+
+        RectTransform iconRect = image.rectTransform;
+
+        float spriteWidth = sprite.rect.width;
+        float spriteHeight = sprite.rect.height;
+
+        if (spriteWidth <= 0f || spriteHeight <= 0f)
+            return;
+
+        float spriteAspect = spriteWidth / spriteHeight;
+
+        float maxWidth = iconAreaWidth * iconFill;
+        float maxHeight = iconAreaHeight * iconFill;
+
+        float finalWidth = maxWidth;
+        float finalHeight = finalWidth / spriteAspect;
+
+        /*
+         * Nếu chiều cao vượt vùng chứa thì giới hạn theo chiều cao.
+         * Sprite vẫn giữ đúng tỷ lệ và không bị bóp méo.
+         */
+        if (finalHeight > maxHeight)
+        {
+            finalHeight = maxHeight;
+            finalWidth = finalHeight * spriteAspect;
+        }
+
+        iconRect.sizeDelta =
+            new Vector2(finalWidth, finalHeight);
     }
 }

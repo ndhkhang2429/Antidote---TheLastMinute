@@ -3,135 +3,379 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
 
-public class ItemSlot5UI : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
+/// <summary>
+/// UI for the held Quest Item slot.
+/// This is display slot 4 and activeSlot index 3.
+/// </summary>
+public class ItemSlot4UI :
+    MonoBehaviour,
+    IDropHandler,
+    IPointerEnterHandler,
+    IPointerExitHandler,
+    IBeginDragHandler,
+    IDragHandler,
+    IEndDragHandler
 {
-    [Header("UI Refs")]
-    public Image iconImage;
-    public TextMeshProUGUI nameLabel;
-    public TextMeshProUGUI hintLabel;
+    [Header("UI References")]
+    [SerializeField] private Image iconImage;
+    [SerializeField] private TextMeshProUGUI nameLabel;
+    [SerializeField] private TextMeshProUGUI hintLabel;
 
     [Header("Colors")]
-    public Color colorHasItem = new Color(0.4f, 0.75f, 1f, 1f);
-    public Color colorEmpty = new Color(1f, 1f, 1f, 0.25f);
+    [SerializeField]
+    private Color colorHasItem =
+        new Color(0.4f, 0.75f, 1f, 1f);
 
-    private GameObject dragIcon;
+    [SerializeField]
+    private Color colorEmpty =
+        new Color(1f, 1f, 1f, 0.25f);
 
-    void Start()
+    [Header("Drag Icon")]
+    [SerializeField]
+    private Vector2 dragIconSize =
+        new Vector2(70f, 70f);
+
+    private GameObject _dragIcon;
+    private bool _subscribed;
+
+    private void OnEnable()
     {
-        if (InventorySystem.Instance != null)
-            InventorySystem.Instance.OnInventoryChanged += Refresh;
+        TrySubscribe();
         Refresh();
     }
 
-    void OnDestroy()
+    private void Start()
     {
+        /*
+         * InventorySystem có thể được khởi tạo sau OnEnable,
+         * nên kiểm tra đăng ký lại trong Start.
+         */
+        TrySubscribe();
+        Refresh();
+    }
+
+    private void OnDisable()
+    {
+        Unsubscribe();
+        DestroyDragIcon();
+        TooltipUI.Hide();
+
+        ResetIconColor();
+    }
+
+    private void OnDestroy()
+    {
+        Unsubscribe();
+        DestroyDragIcon();
+    }
+
+    private void TrySubscribe()
+    {
+        if (_subscribed ||
+            InventorySystem.Instance == null)
+        {
+            return;
+        }
+
+        InventorySystem.Instance.OnInventoryChanged
+            += Refresh;
+
+        InventorySystem.Instance.OnActiveSlotChanged
+            += HandleActiveSlotChanged;
+
+        _subscribed = true;
+    }
+
+    private void Unsubscribe()
+    {
+        if (!_subscribed)
+            return;
+
         if (InventorySystem.Instance != null)
-            InventorySystem.Instance.OnInventoryChanged -= Refresh;
+        {
+            InventorySystem.Instance.OnInventoryChanged
+                -= Refresh;
+
+            InventorySystem.Instance.OnActiveSlotChanged
+                -= HandleActiveSlotChanged;
+        }
+
+        _subscribed = false;
+    }
+
+    private void HandleActiveSlotChanged(int slotIndex)
+    {
+        Refresh();
     }
 
     public void Refresh()
     {
-        var inv = InventorySystem.Instance;
-        if (inv == null) return;
+        InventorySystem inventory =
+            InventorySystem.Instance;
 
-        bool empty = inv.heldItemSlot.IsEmpty;
-
-        if (iconImage != null) iconImage.enabled = !empty;
-
-        if (!empty)
-        {
-            var item = inv.heldItemSlot.item;
-            if (iconImage != null && item.icon != null)
-                iconImage.sprite = item.icon;
-
-            if (nameLabel != null)
-            {
-                int qty = inv.heldItemSlot.quantity;
-                nameLabel.text = qty > 1 ? $"{item.itemName} x{qty}" : item.itemName;
-                nameLabel.color = colorHasItem;
-            }
-
-            if (hintLabel != null)
-            {
-                hintLabel.gameObject.SetActive(true);
-                hintLabel.text = "Nhấn [5] để cầm";
-            }
-        }
-        else
-        {
-            if (nameLabel != null)
-            {
-                nameLabel.text = "Trống";
-                nameLabel.color = colorEmpty;
-            }
-
-            if (hintLabel != null)
-            {
-                hintLabel.gameObject.SetActive(true);
-                hintLabel.text = "Kéo QuestItem vào đây";
-            }
-        }
-    }
-
-    // Nhận đồ từ balo kéo vào
-    public void OnDrop(PointerEventData e)
-    {
-        var source = e.pointerDrag?.GetComponent<ItemSlotUI>();
-        if (source == null || source.BoundSlot == null || source.BoundSlot.IsEmpty)
+        if (inventory == null)
             return;
 
-        var item = source.BoundSlot.item;
-        if (item.category != ItemCategory.QuestItem) return;
+        bool isEmpty =
+            inventory.heldItemSlot == null ||
+            inventory.heldItemSlot.IsEmpty ||
+            inventory.heldItemSlot.item == null;
 
-        InventorySystem.Instance.MoveQuestItemToSlot5(source.BoundSlot);
+        bool isActive =
+            inventory.activeSlot ==
+            InventorySystem.ItemSlotIndex;
+
+        if (isEmpty)
+        {
+            ShowEmptyState();
+            return;
+        }
+
+        ShowItemState(inventory, isActive);
     }
 
-    public void OnPointerEnter(PointerEventData e)
+    private void ShowItemState(
+        InventorySystem inventory,
+        bool isActive)
     {
-        var inv = InventorySystem.Instance;
-        if (inv != null && !inv.heldItemSlot.IsEmpty)
-            TooltipUI.Show(inv.heldItemSlot.item);
+        ItemDataSO item =
+            inventory.heldItemSlot.item;
+
+        if (iconImage != null)
+        {
+            iconImage.sprite = item.icon;
+            iconImage.enabled = item.icon != null;
+            iconImage.preserveAspect = true;
+
+            if (_dragIcon == null)
+            {
+                iconImage.color =
+                    isActive
+                        ? Color.white
+                        : new Color(1f, 1f, 1f, 0.65f);
+            }
+        }
+
+        if (nameLabel != null)
+        {
+            int quantity =
+                inventory.heldItemSlot.quantity;
+
+            nameLabel.text =
+                quantity > 1
+                    ? $"{item.itemName} x{quantity}"
+                    : item.itemName;
+
+            nameLabel.color = colorHasItem;
+        }
+
+        if (hintLabel != null)
+        {
+            hintLabel.gameObject.SetActive(true);
+
+            hintLabel.text =
+                isActive
+                    ? "CURRENTLY HELD"
+                    : "PRESS [4] TO HOLD";
+        }
     }
 
-    public void OnPointerExit(PointerEventData e)
+    private void ShowEmptyState()
+    {
+        if (iconImage != null)
+        {
+            iconImage.sprite = null;
+            iconImage.enabled = false;
+        }
+
+        if (nameLabel != null)
+        {
+            nameLabel.text = "EMPTY";
+            nameLabel.color = colorEmpty;
+        }
+
+        if (hintLabel != null)
+        {
+            hintLabel.gameObject.SetActive(true);
+            hintLabel.text = "DRAG A QUEST ITEM HERE";
+        }
+    }
+
+    public void OnDrop(PointerEventData eventData)
+    {
+        InventorySystem inventory =
+            InventorySystem.Instance;
+
+        if (inventory == null)
+            return;
+
+        ItemSlotUI source =
+            eventData.pointerDrag != null
+                ? eventData.pointerDrag
+                    .GetComponent<ItemSlotUI>()
+                : null;
+
+        if (source == null ||
+            source.BoundSlot == null ||
+            source.BoundSlot.IsEmpty ||
+            source.BoundSlot.item == null)
+        {
+            return;
+        }
+
+        ItemDataSO item =
+            source.BoundSlot.item;
+
+        if (item.category != ItemCategory.QuestItem)
+        {
+            NotificationUI.Instance?.ShowNotification(
+                "Only quest items can be placed here."
+            );
+
+            return;
+        }
+
+        bool moved =
+            inventory.MoveQuestItemToSlot4(
+                source.BoundSlot
+            );
+
+        if (!moved)
+        {
+            NotificationUI.Instance?.ShowNotification(
+                "Unable to assign this quest item."
+            );
+        }
+
+        Refresh();
+    }
+
+    public void OnPointerEnter(
+        PointerEventData eventData)
+    {
+        InventorySystem inventory =
+            InventorySystem.Instance;
+
+        if (inventory == null ||
+            inventory.heldItemSlot == null ||
+            inventory.heldItemSlot.IsEmpty ||
+            inventory.heldItemSlot.item == null)
+        {
+            return;
+        }
+
+        TooltipUI.Show(
+            inventory.heldItemSlot.item
+        );
+    }
+
+    public void OnPointerExit(
+        PointerEventData eventData)
     {
         TooltipUI.Hide();
     }
 
-    // ── XỬ LÝ KÉO ITEM ĐI ĐỂ CẤT ──────────────────────────────
-    public void OnBeginDrag(PointerEventData eventData)
+    public void OnBeginDrag(
+        PointerEventData eventData)
     {
-        var inv = InventorySystem.Instance;
-        if (inv == null || inv.heldItemSlot.IsEmpty) return;
+        InventorySystem inventory =
+            InventorySystem.Instance;
 
-        // Tạo icon ma bay theo chuột
-        dragIcon = new GameObject("DragGhost_Slot5");
-        Canvas canvas = GetComponentInParent<Canvas>();
-        dragIcon.transform.SetParent(canvas.transform, false);
-        dragIcon.transform.SetAsLastSibling();
-
-        Image img = dragIcon.AddComponent<Image>();
-        img.sprite = inv.heldItemSlot.item.icon;
-
-        // Tắt raycast để chuột xuyên qua hình này, bấm trúng ô lưới bên dưới
-        img.raycastTarget = false;
-        img.preserveAspect = true;
-        img.rectTransform.sizeDelta = new Vector2(70, 70);
-
-        if (iconImage != null) iconImage.color = new Color(1, 1, 1, 0.5f);
-    }
-
-    public void OnDrag(PointerEventData eventData)
-    {
-        if (dragIcon != null)
+        if (inventory == null ||
+            inventory.heldItemSlot == null ||
+            inventory.heldItemSlot.IsEmpty ||
+            inventory.heldItemSlot.item == null)
         {
-            dragIcon.transform.position = Input.mousePosition;
+            return;
+        }
+
+        Canvas canvas =
+            GetComponentInParent<Canvas>();
+
+        if (canvas == null)
+            return;
+
+        DestroyDragIcon();
+
+        _dragIcon =
+            new GameObject(
+                "DragGhost_ItemSlot4",
+                typeof(RectTransform),
+                typeof(CanvasGroup),
+                typeof(Image)
+            );
+
+        _dragIcon.transform.SetParent(
+            canvas.transform,
+            false
+        );
+
+        _dragIcon.transform.SetAsLastSibling();
+
+        Image dragImage =
+            _dragIcon.GetComponent<Image>();
+
+        dragImage.sprite =
+            inventory.heldItemSlot.item.icon;
+
+        dragImage.raycastTarget = false;
+        dragImage.preserveAspect = true;
+
+        dragImage.rectTransform.sizeDelta =
+            dragIconSize;
+
+        CanvasGroup canvasGroup =
+            _dragIcon.GetComponent<CanvasGroup>();
+
+        canvasGroup.blocksRaycasts = false;
+        canvasGroup.interactable = false;
+        canvasGroup.alpha = 0.9f;
+
+        MoveDragIcon(eventData);
+
+        if (iconImage != null)
+        {
+            iconImage.color =
+                new Color(1f, 1f, 1f, 0.35f);
         }
     }
 
-    public void OnEndDrag(PointerEventData eventData)
+    public void OnDrag(
+        PointerEventData eventData)
     {
-        if (dragIcon != null) Destroy(dragIcon);
-        if (iconImage != null) iconImage.color = new Color(1, 1, 1, 1f);
+        MoveDragIcon(eventData);
+    }
+
+    public void OnEndDrag(
+        PointerEventData eventData)
+    {
+        DestroyDragIcon();
+        ResetIconColor();
+        Refresh();
+    }
+
+    private void MoveDragIcon(
+        PointerEventData eventData)
+    {
+        if (_dragIcon == null)
+            return;
+
+        _dragIcon.transform.position =
+            eventData.position;
+    }
+
+    private void DestroyDragIcon()
+    {
+        if (_dragIcon == null)
+            return;
+
+        Destroy(_dragIcon);
+        _dragIcon = null;
+    }
+
+    private void ResetIconColor()
+    {
+        if (iconImage != null)
+            iconImage.color = Color.white;
     }
 }

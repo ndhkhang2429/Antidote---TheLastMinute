@@ -119,7 +119,7 @@ public class ItemSlotUI : MonoBehaviour,
         if (inv == null) return;
 
         // --- TRƯỜNG HỢP 1: Nhận đồ từ Slot 5 (tay nhân vật) kéo vào Balo ---
-        var slot5 = e.pointerDrag?.GetComponent<ItemSlot5UI>();
+        var slot5 = e.pointerDrag?.GetComponent<ItemSlot4UI>();
         if (slot5 != null)
         {
             if (!inv.heldItemSlot.IsEmpty)

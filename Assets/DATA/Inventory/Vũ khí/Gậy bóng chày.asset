@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04ce8e414680cba4aa1845a9e8740ae4, type: 3}
   m_Name: "G\u1EADy b\xF3ng ch\xE0y"
   m_EditorClassIdentifier: 
-  itemName: "G\u1EADy b\xF3ng ch\xE0y"
-  icon: {fileID: 21300000, guid: 40a33d9b86457f745b6842d08bcd48a3, type: 3}
+  itemName: BaseBall
+  icon: {fileID: -543699653, guid: cb92356bea9b9a3449e182505a74acf7, type: 3}
   worldPrefab: {fileID: 1602661717803204, guid: 903c43007ef77274bad19ed037b02892, type: 3}
   equipPrefab: {fileID: 1653613484792568894, guid: 69d24115426ad5d408e7eb764e3a267e, type: 3}
   description: 

@@ -4,18 +4,19 @@ using UnityEngine;
 public class PlayerEquipmentManager : MonoBehaviour
 {
     [Header("FPS Weapon Setup")]
-    [Tooltip("Kéo FPSWeaponSocket nằm dưới WeaponRecoilRoot vào đây.")]
+    [Tooltip("Assign FPSWeaponSocket under WeaponRecoilRoot.")]
     [SerializeField] private Transform _fpsWeaponSocket;
 
-    [Tooltip("Layer dành riêng cho tay và vũ khí góc nhìn thứ nhất.")]
+    [Tooltip("Layer used for first-person arms and weapons.")]
     [SerializeField] private string _fpsLayerName = "FPS_Arms";
 
     [Header("Debug")]
     [SerializeField] private bool _showDebugLogs;
 
     /// <summary>
-    /// Gửi WeaponInstance mới sau khi trang bị.
-    /// Gửi null khi tháo vũ khí hoặc item hiện tại không phải vũ khí.
+    /// Sends the newly equipped WeaponInstance.
+    /// Sends null when the weapon is unequipped or
+    /// the current item is not a weapon.
     /// </summary>
     public event Action<WeaponInstance> OnWeaponEquipped;
 
@@ -24,25 +25,61 @@ public class PlayerEquipmentManager : MonoBehaviour
     private Renderer[] _currentWeaponRenderers;
 
     private bool _weaponVisualVisible = true;
+    private bool _inventorySubscribed;
 
-    public GameObject CurrentEquippedModel => _currentEquippedModel;
-    public WeaponInstance CurrentWeaponInstance => _currentWeaponInstance;
-    public bool HasEquippedItem => _currentEquippedModel != null;
-    public bool HasEquippedWeapon => _currentWeaponInstance != null;
-    public bool IsWeaponVisualVisible => _weaponVisualVisible;
+    public GameObject CurrentEquippedModel =>
+        _currentEquippedModel;
+
+    public WeaponInstance CurrentWeaponInstance =>
+        _currentWeaponInstance;
+
+    public bool HasEquippedItem =>
+        _currentEquippedModel != null;
+
+    public bool HasEquippedWeapon =>
+        _currentWeaponInstance != null;
+
+    public bool IsWeaponVisualVisible =>
+        _weaponVisualVisible;
 
     private void Awake()
     {
         ValidateReferences();
     }
 
+    private void OnEnable()
+    {
+        TrySubscribeInventoryEvents();
+    }
+
     private void Start()
     {
-        SubscribeInventoryEvents();
+        TrySubscribeInventoryEvents();
+
+        /*
+         * Đồng bộ item hiện đang được chọn trong trường hợp
+         * InventorySystem đã phát event trước khi manager đăng ký.
+         */
+        InventorySystem inventory =
+            InventorySystem.Instance;
+
+        if (inventory != null)
+        {
+            HandleItemChange(
+                inventory.GetHeldItem()
+            );
+        }
+    }
+
+    private void OnDisable()
+    {
+        SaveCurrentWeaponAmmo();
+        UnsubscribeInventoryEvents();
     }
 
     private void OnDestroy()
     {
+        SaveCurrentWeaponAmmo();
         UnsubscribeInventoryEvents();
     }
 
@@ -51,7 +88,7 @@ public class PlayerEquipmentManager : MonoBehaviour
         if (_fpsWeaponSocket == null)
         {
             Debug.LogError(
-                "[PlayerEquipmentManager] Chưa gán FPSWeaponSocket trong Inspector.",
+                "[PlayerEquipmentManager] FPSWeaponSocket has not been assigned.",
                 this
             );
         }
@@ -59,47 +96,58 @@ public class PlayerEquipmentManager : MonoBehaviour
         if (string.IsNullOrWhiteSpace(_fpsLayerName))
         {
             Debug.LogWarning(
-                "[PlayerEquipmentManager] Tên FPS Layer đang để trống.",
+                "[PlayerEquipmentManager] FPS layer name is empty.",
                 this
             );
         }
         else if (LayerMask.NameToLayer(_fpsLayerName) < 0)
         {
             Debug.LogWarning(
-                $"[PlayerEquipmentManager] Không tìm thấy layer '{_fpsLayerName}'.",
+                $"[PlayerEquipmentManager] Layer '{_fpsLayerName}' was not found.",
                 this
             );
         }
     }
 
-    private void SubscribeInventoryEvents()
+    private void TrySubscribeInventoryEvents()
     {
-        if (InventorySystem.Instance == null)
+        if (_inventorySubscribed ||
+            InventorySystem.Instance == null)
         {
-            Debug.LogWarning(
-                "[PlayerEquipmentManager] Không tìm thấy InventorySystem.Instance.",
-                this
-            );
-
             return;
         }
 
-        InventorySystem.Instance.OnHeldItemChanged += HandleItemChange;
+        InventorySystem.Instance.OnHeldItemChanged
+            += HandleItemChange;
+
+        _inventorySubscribed = true;
     }
 
     private void UnsubscribeInventoryEvents()
     {
+        if (!_inventorySubscribed)
+            return;
+
         if (InventorySystem.Instance != null)
         {
-            InventorySystem.Instance.OnHeldItemChanged -= HandleItemChange;
+            InventorySystem.Instance.OnHeldItemChanged
+                -= HandleItemChange;
         }
+
+        _inventorySubscribed = false;
     }
 
-    private void HandleItemChange(ItemDataSO heldItem)
+    private void HandleItemChange(
+        ItemDataSO heldItem)
     {
+        /*
+         * UnequipCurrentItem sẽ lưu đạn trước khi
+         * prefab súng cũ bị Destroy.
+         */
         UnequipCurrentItem(false);
 
-        if (heldItem == null || heldItem.equipPrefab == null)
+        if (heldItem == null ||
+            heldItem.equipPrefab == null)
         {
             NotifyWeaponChanged(null);
             return;
@@ -108,7 +156,7 @@ public class PlayerEquipmentManager : MonoBehaviour
         if (_fpsWeaponSocket == null)
         {
             Debug.LogError(
-                "[PlayerEquipmentManager] Không thể trang bị vì FPSWeaponSocket chưa được gán.",
+                "[PlayerEquipmentManager] Cannot equip item because FPSWeaponSocket is missing.",
                 this
             );
 
@@ -119,15 +167,22 @@ public class PlayerEquipmentManager : MonoBehaviour
         SpawnEquippedItem(heldItem);
     }
 
-    private void SpawnEquippedItem(ItemDataSO heldItem)
+    private void SpawnEquippedItem(
+        ItemDataSO heldItem)
     {
-        Vector3 localPosition = Vector3.zero;
-        Vector3 localRotation = Vector3.zero;
+        Vector3 localPosition =
+            Vector3.zero;
+
+        Vector3 localRotation =
+            Vector3.zero;
 
         if (heldItem is WeaponDataSO weaponData)
         {
-            localPosition = weaponData.gripOffset;
-            localRotation = weaponData.gripRotation;
+            localPosition =
+                weaponData.gripOffset;
+
+            localRotation =
+                weaponData.gripRotation;
         }
 
         _currentEquippedModel = Instantiate(
@@ -141,26 +196,47 @@ public class PlayerEquipmentManager : MonoBehaviour
         Transform equippedTransform =
             _currentEquippedModel.transform;
 
-        equippedTransform.localPosition = localPosition;
+        equippedTransform.localPosition =
+            localPosition;
+
         equippedTransform.localRotation =
             Quaternion.Euler(localRotation);
-        equippedTransform.localScale = Vector3.one;
+
+        equippedTransform.localScale =
+            Vector3.one;
 
         ApplyFPSLayer(_currentEquippedModel);
 
         _currentWeaponRenderers =
-            _currentEquippedModel.GetComponentsInChildren<Renderer>(true);
+            _currentEquippedModel
+                .GetComponentsInChildren<Renderer>(true);
 
-        // Giữ đúng trạng thái ẩn/hiện hiện tại.
         ApplyWeaponVisualState();
 
         IEquippable equippable =
-            _currentEquippedModel.GetComponent<IEquippable>();
+            _currentEquippedModel
+                .GetComponent<IEquippable>();
+
+        if (equippable == null)
+        {
+            equippable =
+                _currentEquippedModel
+                    .GetComponentInChildren<IEquippable>(true);
+        }
 
         equippable?.OnEquip();
 
+        /*
+         * Dùng GetComponentInChildren để vẫn tìm thấy
+         * WeaponInstance nếu nó không nằm ở root prefab.
+         */
         _currentWeaponInstance =
-            _currentEquippedModel.GetComponent<WeaponInstance>();
+            _currentEquippedModel
+                .GetComponentInChildren<WeaponInstance>(true);
+
+        BindCurrentWeaponToInventorySlot(
+            heldItem
+        );
 
         if (_showDebugLogs)
         {
@@ -170,20 +246,111 @@ public class PlayerEquipmentManager : MonoBehaviour
                     : "Equippable item";
 
             Debug.Log(
-                $"[PlayerEquipmentManager] Đã trang bị {itemType}: " +
-                $"{heldItem.name}",
+                $"[PlayerEquipmentManager] Equipped {itemType}: {heldItem.name}",
                 _currentEquippedModel
             );
+
+            if (_currentWeaponInstance != null &&
+                _currentWeaponInstance.weaponData != null)
+            {
+                Debug.Log(
+                    $"[PlayerEquipmentManager] Magazine: " +
+                    $"{_currentWeaponInstance.currentAmmo}/" +
+                    $"{_currentWeaponInstance.weaponData.magazineSize}",
+                    _currentWeaponInstance
+                );
+            }
         }
 
-        NotifyWeaponChanged(_currentWeaponInstance);
+        /*
+         * Chỉ phát event sau khi WeaponInstance đã được
+         * bind vào InventorySlot và tải số đạn chính xác.
+         */
+        NotifyWeaponChanged(
+            _currentWeaponInstance
+        );
     }
 
-    private void UnequipCurrentItem(bool notify)
+    private void BindCurrentWeaponToInventorySlot(
+        ItemDataSO equippedItem)
     {
+        if (_currentWeaponInstance == null)
+            return;
+
+        InventorySystem inventory =
+            InventorySystem.Instance;
+
+        if (inventory == null ||
+            inventory.weaponSlots == null)
+        {
+            Debug.LogWarning(
+                "[PlayerEquipmentManager] Cannot bind weapon because InventorySystem is unavailable.",
+                this
+            );
+
+            return;
+        }
+
+        int slotIndex =
+            inventory.activeWeaponSlot;
+
+        if (slotIndex < 0 ||
+            slotIndex >= inventory.weaponSlots.Length)
+        {
+            /*
+             * Item ở slot 4 có thể không phải vũ khí,
+             * nên trường hợp activeWeaponSlot = -1 là hợp lệ.
+             */
+            return;
+        }
+
+        InventorySlot activeSlot =
+            inventory.weaponSlots[slotIndex];
+
+        if (activeSlot == null ||
+            activeSlot.IsEmpty)
+        {
+            Debug.LogWarning(
+                $"[PlayerEquipmentManager] Weapon slot {slotIndex} is empty.",
+                this
+            );
+
+            return;
+        }
+
+        if (activeSlot.item != equippedItem)
+        {
+            Debug.LogWarning(
+                "[PlayerEquipmentManager] Equipped item does not match the active weapon slot.",
+                this
+            );
+
+            return;
+        }
+
+        _currentWeaponInstance.BindToSlot(
+            activeSlot
+        );
+    }
+
+    private void SaveCurrentWeaponAmmo()
+    {
+        if (_currentWeaponInstance == null)
+            return;
+
+        _currentWeaponInstance.SaveAmmoToSlot();
+    }
+
+    private void UnequipCurrentItem(
+        bool notify)
+    {
+        /*
+         * Phải lưu trước khi gọi OnUnequip và Destroy.
+         */
+        SaveCurrentWeaponAmmo();
+
         if (_currentEquippedModel != null)
         {
-            // Phải phát trước khi model súng bị Destroy.
             WeaponAudioController weaponAudio =
                 _currentEquippedModel
                     .GetComponent<WeaponAudioController>();
@@ -192,19 +359,22 @@ public class PlayerEquipmentManager : MonoBehaviour
             {
                 weaponAudio =
                     _currentEquippedModel
-                        .GetComponentInChildren<WeaponAudioController>(true);
+                        .GetComponentInChildren
+                            <WeaponAudioController>(true);
             }
 
             weaponAudio?.PlayHolsterDetached();
 
             IEquippable equippable =
-                _currentEquippedModel.GetComponent<IEquippable>();
+                _currentEquippedModel
+                    .GetComponent<IEquippable>();
 
             if (equippable == null)
             {
                 equippable =
                     _currentEquippedModel
-                        .GetComponentInChildren<IEquippable>(true);
+                        .GetComponentInChildren
+                            <IEquippable>(true);
             }
 
             equippable?.OnUnequip();
@@ -228,10 +398,11 @@ public class PlayerEquipmentManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Chỉ ẩn Renderer của item/súng.
-    /// Object, WeaponInstance, gunBarrel và dữ liệu đạn vẫn tồn tại.
+    /// Only hides the item renderers.
+    /// The object, WeaponInstance and ammunition state remain active.
     /// </summary>
-    public void SetWeaponVisualVisible(bool visible)
+    public void SetWeaponVisualVisible(
+        bool visible)
     {
         _weaponVisualVisible = visible;
         ApplyWeaponVisualState();
@@ -258,40 +429,47 @@ public class PlayerEquipmentManager : MonoBehaviour
     private void ApplyWeaponVisualState()
     {
         if (_currentWeaponRenderers == null)
-        {
             return;
-        }
 
-        foreach (Renderer itemRenderer in _currentWeaponRenderers)
+        foreach (Renderer itemRenderer
+                 in _currentWeaponRenderers)
         {
             if (itemRenderer != null)
             {
-                itemRenderer.enabled = _weaponVisualVisible;
+                itemRenderer.enabled =
+                    _weaponVisualVisible;
             }
         }
     }
 
-    private void ApplyFPSLayer(GameObject target)
+    private void ApplyFPSLayer(
+        GameObject target)
     {
-        int fpsLayer = LayerMask.NameToLayer(_fpsLayerName);
+        int fpsLayer =
+            LayerMask.NameToLayer(_fpsLayerName);
 
         if (fpsLayer < 0)
         {
             Debug.LogWarning(
-                $"[PlayerEquipmentManager] Không tìm thấy layer " +
-                $"'{_fpsLayerName}'. Giữ nguyên layer của prefab.",
+                $"[PlayerEquipmentManager] Layer '{_fpsLayerName}' was not found. Prefab layers were preserved.",
                 this
             );
 
             return;
         }
 
-        SetLayerRecursively(target, fpsLayer);
+        SetLayerRecursively(
+            target,
+            fpsLayer
+        );
     }
 
-    private void NotifyWeaponChanged(WeaponInstance weaponInstance)
+    private void NotifyWeaponChanged(
+        WeaponInstance weaponInstance)
     {
-        OnWeaponEquipped?.Invoke(weaponInstance);
+        OnWeaponEquipped?.Invoke(
+            weaponInstance
+        );
     }
 
     private static void SetLayerRecursively(
@@ -299,15 +477,17 @@ public class PlayerEquipmentManager : MonoBehaviour
         int layer)
     {
         if (target == null)
-        {
             return;
-        }
 
         target.layer = layer;
 
-        foreach (Transform child in target.transform)
+        foreach (Transform child
+                 in target.transform)
         {
-            SetLayerRecursively(child.gameObject, layer);
+            SetLayerRecursively(
+                child.gameObject,
+                layer
+            );
         }
     }
 }

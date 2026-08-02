@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e1cce4b68029a74dbfe8a0d8443f1e3, type: 3}
   m_Name: "\u0110\u1EA1n s\xFAng l\u1EE5c"
   m_EditorClassIdentifier: 
-  itemName: "\u0110\u1EA1n S\xFAng L\u1EE5c"
-  icon: {fileID: 0}
-  worldPrefab: {fileID: 0}
+  itemName: Pistol Ammo
+  icon: {fileID: 21300000, guid: f463dc332d496204eb5619a4753fb909, type: 3}
+  worldPrefab: {fileID: 195412, guid: a991ce3caab51f44889616a93b745f92, type: 3}
   equipPrefab: {fileID: 0}
   description: 
   category: 0

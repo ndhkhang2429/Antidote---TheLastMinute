@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e1cce4b68029a74dbfe8a0d8443f1e3, type: 3}
   m_Name: "\u0110\xE8n pin"
   m_EditorClassIdentifier: 
-  itemName: "\u0110\xE8n pin"
-  icon: {fileID: 21300000, guid: a279bf255471579438e26a6cab9cda68, type: 3}
+  itemName: FlashLight
+  icon: {fileID: -769456089, guid: 1ccf96e0e0107da48b32c4db5ea8d458, type: 3}
   worldPrefab: {fileID: 1002705123656268, guid: d86ca2f4159e6a942abd8dfc52b38395, type: 3}
   equipPrefab: {fileID: 2563050338911216061, guid: 557df357c0b423e4a94f101a5c3aa98c, type: 3}
   description: 
-  category: 5
-  weaponSlotType: 5
+  category: 4
+  weaponSlotType: 4
   maxStack: 5
   weightPerUnit: 8
   autoEquip: 0

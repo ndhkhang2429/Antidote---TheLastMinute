@@ -6,32 +6,49 @@ public class InventorySystem : MonoBehaviour
 {
     public static InventorySystem Instance { get; private set; }
 
-    [Header("Backpack — mặc định có sẵn, không cần loot")]
+    public const int RifleSlotIndex = 0;
+    public const int PistolSlotIndex = 1;
+    public const int MeleeSlotIndex = 2;
+    public const int ItemSlotIndex = 3;
+
+    public const int WeaponSlotCount = 3;
+
+    [Header("Backpack")]
     [SerializeField] private float _defaultCapacity = 150f;
 
-    [Header("Weapon Slots (0=Rifle, 1=Pistol, 2=Melee, 3=Grenade)")]
-    public InventorySlot[] weaponSlots = new InventorySlot[4];
+    [Header("Weapon Slots (0=Rifle, 1=Pistol, 2=Melee)")]
+    public InventorySlot[] weaponSlots =
+        new InventorySlot[WeaponSlotCount];
 
     [Header("Item Grid")]
     [SerializeField] private List<InventorySlot> itemSlots = new();
     [SerializeField] private int maxItemSlots = 32;
 
-    [Header("Slot 5 — QuestItem đang cầm")]
+    [Header("Slot 4 - Held Quest Item")]
     public InventorySlot heldItemSlot = new InventorySlot();
 
     [Header("Active Slot")]
     public int activeSlot = -1;
     public int activeWeaponSlot = -1;
 
+    [Header("Number Key Input")]
+    [Tooltip("Disable this if another script already handles slot input.")]
+    [SerializeField] private bool handleNumberKeyInput = true;
+
     public float MaxCapacity => _defaultCapacity;
+
     public float UsedCapacity
     {
         get
         {
             float used = 0f;
-            foreach (var slot in itemSlots)
+
+            foreach (InventorySlot slot in itemSlots)
+            {
                 if (!slot.IsEmpty)
                     used += slot.item.weightPerUnit * slot.quantity;
+            }
+
             return used;
         }
     }
@@ -41,25 +58,53 @@ public class InventorySystem : MonoBehaviour
     public event Action<int> OnActiveSlotChanged;
     public event Action<ItemDataSO> OnHeldItemChanged;
 
-    public void NotifyInventoryChanged() => OnInventoryChanged?.Invoke();
-
-    void Awake()
+    public void NotifyInventoryChanged()
     {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        OnInventoryChanged?.Invoke();
+    }
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        for (int i = 0; i < weaponSlots.Length; i++)
-            weaponSlots[i] = new InventorySlot();
-    }
-
-    void Start()
-    {
-        Debug.Log($"[Inventory] Sẵn sàng | Sức chứa: {MaxCapacity}");
+        // Start with three empty weapon slots.
+        weaponSlots =
+            new InventorySlot[WeaponSlotCount];
 
         for (int i = 0; i < weaponSlots.Length; i++)
         {
-            if (weaponSlots[i] != null && !weaponSlots[i].IsEmpty)
+            weaponSlots[i] =
+                new InventorySlot();
+        }
+
+        // Start with an empty quest-item slot.
+        heldItemSlot =
+            new InventorySlot();
+        itemSlots.Clear();
+
+        activeSlot = -1;
+        activeWeaponSlot = -1;
+    }
+
+    private void Start()
+    {
+        Debug.Log(
+            $"[Inventory] Ready | Capacity: {MaxCapacity}"
+        );
+
+        /*
+         * Tự chọn vũ khí đầu tiên đang có.
+         */
+        for (int i = 0; i < weaponSlots.Length; i++)
+        {
+            if (!weaponSlots[i].IsEmpty)
             {
                 SelectWeaponSlot(i);
                 break;
@@ -69,258 +114,411 @@ public class InventorySystem : MonoBehaviour
         OnInventoryChanged?.Invoke();
     }
 
-    // Trả về số lượng còn dư (nếu nhặt xong dư 0 là nhặt sạch)
-    public int PickupItem(ItemDataSO item, int amount = 1)
+    private void Update()
     {
-        if (item == null) return amount;
+        if (!handleNumberKeyInput)
+            return;
+
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            SelectWeaponSlot(RifleSlotIndex);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            SelectWeaponSlot(PistolSlotIndex);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            SelectWeaponSlot(MeleeSlotIndex);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            SelectItemSlot();
+        }
+    }
+
+    public int PickupItem(
+        ItemDataSO item,
+        int amount = 1)
+    {
+        if (item == null)
+            return amount;
+
         switch (item.category)
         {
-            case ItemCategory.Equipment: return amount;
+            case ItemCategory.Equipment:
+                return amount;
+
             case ItemCategory.Weapon:
-                bool equipped = TryEquipWeapon(item as WeaponDataSO);
-                return equipped ? (amount - 1) : amount;
-            default: return TryAddToGrid(item, amount);
+                {
+                    bool equipped =
+                        TryEquipWeapon(item as WeaponDataSO);
+
+                    return equipped
+                        ? amount - 1
+                        : amount;
+                }
+
+            default:
+                return TryAddToGrid(item, amount);
         }
     }
 
     public bool TryEquipWeapon(WeaponDataSO weapon)
     {
-        if (weapon == null) return false;
-        int slotIndex = WeaponSlotIndex(weapon.weaponSlotType);
-        if (slotIndex < 0) return false;
+        if (weapon == null)
+            return false;
+
+        int slotIndex =
+            WeaponSlotIndex(weapon.weaponSlotType);
+
+        /*
+         * Grenade và QuestItem không còn được đưa vào
+         * mảng weaponSlots.
+         */
+        if (slotIndex < 0 ||
+            slotIndex >= WeaponSlotCount)
+        {
+            return false;
+        }
 
         weaponSlots[slotIndex].Set(weapon, 1);
+
         OnWeaponEquipped?.Invoke(weapon);
         OnInventoryChanged?.Invoke();
+
         return true;
     }
 
-    int WeaponSlotIndex(WeaponSlotType type) => type switch
+    private int WeaponSlotIndex(WeaponSlotType type)
     {
-        WeaponSlotType.Rifle => 0,
-        WeaponSlotType.PistolOrShotgun => 1,
-        WeaponSlotType.Melee => 2,
-        WeaponSlotType.Grenade => 3,
-        WeaponSlotType.QuestItem => 4,
-        _ => -1
-    };
+        return type switch
+        {
+            WeaponSlotType.Rifle =>
+                RifleSlotIndex,
 
-    public int TryAddToGrid(ItemDataSO item, int amount)
-    {
-        if (item.weightPerUnit <= 0f) return AddToSlots(item, amount);
+            WeaponSlotType.PistolOrShotgun =>
+                PistolSlotIndex,
 
-        float freeCapacity = MaxCapacity - UsedCapacity;
+            WeaponSlotType.Melee =>
+                MeleeSlotIndex,
 
-        if (freeCapacity <= 0f) return amount;
+            WeaponSlotType.QuestItem => -1,
 
-        int canFit = Mathf.FloorToInt(freeCapacity / item.weightPerUnit);
-        if (canFit <= 0) return amount;
-
-        int amountToTry = Mathf.Min(amount, canFit);
-        int leftoverFromWeight = amount - amountToTry;
-
-        int leftoverFromSlots = AddToSlots(item, amountToTry);
-
-        return leftoverFromWeight + leftoverFromSlots;
+            _ => -1
+        };
     }
 
-    int AddToSlots(ItemDataSO item, int amount)
+    public int TryAddToGrid(
+        ItemDataSO item,
+        int amount)
+    {
+        if (item == null || amount <= 0)
+            return amount;
+
+        if (item.weightPerUnit <= 0f)
+            return AddToSlots(item, amount);
+
+        float freeCapacity =
+            MaxCapacity - UsedCapacity;
+
+        if (freeCapacity <= 0f)
+            return amount;
+
+        int canFit = Mathf.FloorToInt(
+            freeCapacity / item.weightPerUnit
+        );
+
+        if (canFit <= 0)
+            return amount;
+
+        int amountToTry =
+            Mathf.Min(amount, canFit);
+
+        int leftoverFromWeight =
+            amount - amountToTry;
+
+        int leftoverFromSlots =
+            AddToSlots(item, amountToTry);
+
+        return leftoverFromWeight +
+               leftoverFromSlots;
+    }
+
+    private int AddToSlots(
+        ItemDataSO item,
+        int amount)
     {
         int remaining = amount;
 
-        foreach (var slot in itemSlots)
+        foreach (InventorySlot slot in itemSlots)
         {
-            if (!slot.IsEmpty && slot.item == item && !slot.IsFull)
+            if (slot.IsEmpty ||
+                slot.item != item ||
+                slot.IsFull)
             {
-                remaining = slot.Add(remaining);
-                if (remaining == 0) break;
+                continue;
             }
+
+            remaining = slot.Add(remaining);
+
+            if (remaining == 0)
+                break;
         }
 
-        while (remaining > 0 && itemSlots.Count < maxItemSlots)
+        while (remaining > 0 &&
+               itemSlots.Count < maxItemSlots)
         {
-            var newSlot = new InventorySlot();
+            InventorySlot newSlot =
+                new InventorySlot();
+
             newSlot.Set(item, 0);
             remaining = newSlot.Add(remaining);
+
             itemSlots.Add(newSlot);
         }
 
         if (remaining < amount)
         {
-            if (!heldItemSlot.IsEmpty && heldItemSlot.item == item)
-                heldItemSlot.quantity = CountItem(item);
+            if (!heldItemSlot.IsEmpty &&
+                heldItemSlot.item == item)
+            {
+                heldItemSlot.quantity =
+                    CountItem(item);
+            }
+
             OnInventoryChanged?.Invoke();
 
             if (item.category != ItemCategory.Document)
-                QuestManager.Instance?.ReportEvent(QuestCompletionType.PickupItem, item.itemName);
+            {
+                QuestManager.Instance?.ReportEvent(
+                    QuestCompletionType.PickupItem,
+                    item.itemName
+                );
+            }
         }
 
         return remaining;
     }
 
-    public bool RemoveItem(ItemDataSO item, int amount = 1)
+    public bool RemoveItem(
+        ItemDataSO item,
+        int amount = 1)
     {
+        if (item == null || amount <= 0)
+            return false;
+
         int toRemove = amount;
-        foreach (var slot in itemSlots)
+
+        foreach (InventorySlot slot in itemSlots)
         {
-            if (slot.IsEmpty || slot.item != item) continue;
-            int take = Mathf.Min(slot.quantity, toRemove);
+            if (slot.IsEmpty || slot.item != item)
+                continue;
+
+            int take =
+                Mathf.Min(slot.quantity, toRemove);
+
             slot.quantity -= take;
             toRemove -= take;
-            if (slot.quantity <= 0) slot.Clear();
-            if (toRemove <= 0) break;
+
+            if (slot.quantity <= 0)
+                slot.Clear();
+
+            if (toRemove <= 0)
+                break;
         }
+
         bool success = toRemove < amount;
-        if (success)
+
+        if (!success)
+            return false;
+
+        if (!heldItemSlot.IsEmpty &&
+            heldItemSlot.item == item)
         {
-            if (!heldItemSlot.IsEmpty && heldItemSlot.item == item)
+            int remaining = CountItem(item);
+
+            if (remaining <= 0)
             {
-                int remaining = CountItem(item);
-                if (remaining <= 0)
+                heldItemSlot.Clear();
+
+                if (activeSlot == ItemSlotIndex)
                 {
-                    heldItemSlot.Clear();
-                    if (activeSlot == 4)
-                    {
-                        activeSlot = -1;
-                        OnActiveSlotChanged?.Invoke(-1);
-                        OnHeldItemChanged?.Invoke(null);
-                    }
+                    activeSlot = -1;
+                    activeWeaponSlot = -1;
+
+                    OnActiveSlotChanged?.Invoke(-1);
+                    OnHeldItemChanged?.Invoke(null);
                 }
-                else heldItemSlot.quantity = remaining;
             }
-            OnInventoryChanged?.Invoke();
-            return true;
+            else
+            {
+                heldItemSlot.quantity = remaining;
+            }
         }
-        return false;
+
+        OnInventoryChanged?.Invoke();
+        return true;
     }
 
-    public bool MoveGrenadeToWeaponSlot(InventorySlot fromGridSlot)
+    /*
+     * Slot 4 mới dành cho QuestItem.
+     */
+    public bool MoveQuestItemToSlot4(
+        InventorySlot fromGridSlot)
     {
-        if (fromGridSlot.IsEmpty || fromGridSlot.item.category != ItemCategory.Grenade) return false;
-        ItemDataSO draggedItem = fromGridSlot.item;
-        var grenadeSlot = weaponSlots[3];
-
-        if (grenadeSlot.IsEmpty)
+        if (fromGridSlot == null ||
+            fromGridSlot.IsEmpty ||
+            fromGridSlot.item.category !=
+            ItemCategory.QuestItem)
         {
-            fromGridSlot.quantity -= 1;
-            if (fromGridSlot.quantity <= 0) fromGridSlot.Clear();
-            grenadeSlot.Set(draggedItem, 1);
-            OnInventoryChanged?.Invoke();
-            return true;
-        }
-        if (grenadeSlot.item == draggedItem) return false;
-
-        ItemDataSO oldItem = grenadeSlot.item;
-        int oldQty = grenadeSlot.quantity;
-        fromGridSlot.quantity -= 1;
-        bool wasCleared = false;
-        if (fromGridSlot.quantity <= 0) { fromGridSlot.Clear(); wasCleared = true; }
-
-        // --- ĐÃ FIX: Chuyển int sang điều kiện so sánh ---
-        int leftover = TryAddToGrid(oldItem, oldQty);
-        if (leftover == 0)
-        {
-            grenadeSlot.Set(draggedItem, 1);
-            OnInventoryChanged?.Invoke();
-            return true;
-        }
-        else
-        {
-            // Trả lại phần dư nếu không thể hoán đổi
-            if (wasCleared) fromGridSlot.Set(draggedItem, 1);
-            else fromGridSlot.quantity += 1;
-
-            // Xóa bớt phần đã lỡ thêm vào Grid (Rollback) để tránh nhân bản item
-            if (leftover < oldQty)
-            {
-                int addedAccidentally = oldQty - leftover;
-                RemoveItem(oldItem, addedAccidentally);
-            }
             return false;
         }
-    }
 
-    public bool MoveQuestItemToSlot5(InventorySlot fromGridSlot)
-    {
-        if (fromGridSlot.IsEmpty || fromGridSlot.item.category != ItemCategory.QuestItem) return false;
-        ItemDataSO draggedItem = fromGridSlot.item;
+        ItemDataSO draggedItem =
+            fromGridSlot.item;
 
         if (heldItemSlot.IsEmpty)
         {
-            fromGridSlot.quantity -= 1;
-            if (fromGridSlot.quantity <= 0) fromGridSlot.Clear();
+            fromGridSlot.quantity--;
+
+            if (fromGridSlot.quantity <= 0)
+                fromGridSlot.Clear();
+
             heldItemSlot.Set(draggedItem, 1);
-            OnHeldItemChanged?.Invoke(heldItemSlot.item);
+
+            OnHeldItemChanged?.Invoke(
+                heldItemSlot.item
+            );
+
             OnInventoryChanged?.Invoke();
             return true;
         }
-        if (heldItemSlot.item == draggedItem) return false;
 
-        ItemDataSO oldItem = heldItemSlot.item;
-        int oldQty = heldItemSlot.quantity;
-        fromGridSlot.quantity -= 1;
+        if (heldItemSlot.item == draggedItem)
+            return false;
+
+        ItemDataSO oldItem =
+            heldItemSlot.item;
+
+        int oldQuantity =
+            heldItemSlot.quantity;
+
+        fromGridSlot.quantity--;
+
         bool wasCleared = false;
-        if (fromGridSlot.quantity <= 0) { fromGridSlot.Clear(); wasCleared = true; }
 
-        // --- ĐÃ FIX: Chuyển int sang điều kiện so sánh ---
-        int leftover = TryAddToGrid(oldItem, oldQty);
+        if (fromGridSlot.quantity <= 0)
+        {
+            fromGridSlot.Clear();
+            wasCleared = true;
+        }
+
+        int leftover =
+            TryAddToGrid(oldItem, oldQuantity);
+
         if (leftover == 0)
         {
             heldItemSlot.Set(draggedItem, 1);
-            OnHeldItemChanged?.Invoke(heldItemSlot.item);
+
+            OnHeldItemChanged?.Invoke(
+                heldItemSlot.item
+            );
+
             OnInventoryChanged?.Invoke();
             return true;
         }
-        else
-        {
-            if (wasCleared) fromGridSlot.Set(draggedItem, 1);
-            else fromGridSlot.quantity += 1;
 
-            if (leftover < oldQty)
-            {
-                int addedAccidentally = oldQty - leftover;
-                RemoveItem(oldItem, addedAccidentally);
-            }
-            return false;
+        /*
+         * Rollback nếu không thể đưa item cũ
+         * trở lại inventory.
+         */
+        if (wasCleared)
+            fromGridSlot.Set(draggedItem, 1);
+        else
+            fromGridSlot.quantity++;
+
+        if (leftover < oldQuantity)
+        {
+            int accidentallyAdded =
+                oldQuantity - leftover;
+
+            RemoveItem(
+                oldItem,
+                accidentallyAdded
+            );
         }
+
+        return false;
     }
 
     public void SelectWeaponSlot(int index)
     {
-        if (index < 0 || index > 3) return;
+        if (index < 0 ||
+            index >= WeaponSlotCount)
+        {
+            return;
+        }
+
         activeSlot = index;
         activeWeaponSlot = index;
+
         OnActiveSlotChanged?.Invoke(index);
-        OnHeldItemChanged?.Invoke(weaponSlots[index].item);
+
+        OnHeldItemChanged?.Invoke(
+            weaponSlots[index].item
+        );
+
         OnInventoryChanged?.Invoke();
     }
 
     public void SelectItemSlot()
     {
-        activeSlot = 4;
+        activeSlot = ItemSlotIndex;
         activeWeaponSlot = -1;
-        OnActiveSlotChanged?.Invoke(4);
-        OnHeldItemChanged?.Invoke(heldItemSlot.item);
+
+        OnActiveSlotChanged?.Invoke(
+            ItemSlotIndex
+        );
+
+        OnHeldItemChanged?.Invoke(
+            heldItemSlot.item
+        );
+
         OnInventoryChanged?.Invoke();
     }
 
     public bool AssignItemSlot(ItemDataSO item)
     {
-        if (item == null || item.category != ItemCategory.QuestItem) return false;
-        heldItemSlot.Set(item, CountItem(item));
+        if (item == null ||
+            item.category != ItemCategory.QuestItem)
+        {
+            return false;
+        }
+
+        heldItemSlot.Set(
+            item,
+            CountItem(item)
+        );
+
         OnHeldItemChanged?.Invoke(item);
         OnInventoryChanged?.Invoke();
+
         return true;
     }
 
     public void ClearItemSlot()
     {
         heldItemSlot.Clear();
-        if (activeSlot == 4)
+
+        if (activeSlot == ItemSlotIndex)
         {
             activeSlot = -1;
+            activeWeaponSlot = -1;
+
             OnActiveSlotChanged?.Invoke(-1);
         }
+
         OnHeldItemChanged?.Invoke(null);
         OnInventoryChanged?.Invoke();
     }
@@ -329,93 +527,163 @@ public class InventorySystem : MonoBehaviour
     {
         activeSlot = -1;
         activeWeaponSlot = -1;
+
         OnActiveSlotChanged?.Invoke(-1);
         OnHeldItemChanged?.Invoke(null);
         OnInventoryChanged?.Invoke();
     }
 
-    public bool IsHoldingQuestItem() => activeSlot == 4 && !heldItemSlot.IsEmpty;
-    public bool IsHoldingItem(ItemDataSO item) => activeSlot == 4 && !heldItemSlot.IsEmpty && heldItemSlot.item == item;
+    public bool IsHoldingQuestItem()
+    {
+        return activeSlot == ItemSlotIndex &&
+               !heldItemSlot.IsEmpty;
+    }
+
+    public bool IsHoldingItem(ItemDataSO item)
+    {
+        return activeSlot == ItemSlotIndex &&
+               !heldItemSlot.IsEmpty &&
+               heldItemSlot.item == item;
+    }
+
     public ItemDataSO GetHeldItem()
     {
-        if (activeSlot == 4) return heldItemSlot.item;
-        if (activeSlot >= 0 && activeSlot <= 3) return weaponSlots[activeSlot].item;
+        if (activeSlot == ItemSlotIndex)
+            return heldItemSlot.item;
+
+        if (activeSlot >= 0 &&
+            activeSlot < WeaponSlotCount)
+        {
+            return weaponSlots[activeSlot].item;
+        }
+
         return null;
     }
-    public List<InventorySlot> GetItemSlots() => itemSlots;
-    public bool HasItem(ItemDataSO item, int amount = 1)
+
+    public List<InventorySlot> GetItemSlots()
+    {
+        return itemSlots;
+    }
+
+    public bool HasItem(
+        ItemDataSO item,
+        int amount = 1)
     {
         int count = 0;
-        foreach (var slot in itemSlots)
-            if (!slot.IsEmpty && slot.item == item) count += slot.quantity;
+
+        foreach (InventorySlot slot in itemSlots)
+        {
+            if (!slot.IsEmpty &&
+                slot.item == item)
+            {
+                count += slot.quantity;
+            }
+        }
+
         return count >= amount;
     }
+
     public int CountItem(ItemDataSO item)
     {
         int count = 0;
-        foreach (var slot in itemSlots)
-            if (!slot.IsEmpty && slot.item == item) count += slot.quantity;
-        return count;
-    }
-    // --- CƠ CHẾ SỬ DỤNG VẬT PHẨM (MÁU, NƯỚC) ---
-    // --- CƠ CHẾ SỬ DỤNG VẬT PHẨM (MÁU, NƯỚC) ---
-    public void UseItem(InventorySlot slot)
-    {
-        if (slot == null || slot.IsEmpty) return;
 
-        // Chỉ cho phép dùng nếu nó thuộc Category Consumable
-        if (slot.item.category != ItemCategory.Consumable) return;
-
-        ConsumableDataSO consumable = slot.item as ConsumableDataSO;
-        if (consumable != null)
+        foreach (InventorySlot slot in itemSlots)
         {
-            if (PlayerState.Instance != null)
+            if (!slot.IsEmpty &&
+                slot.item == item)
             {
-                HealthSystem playerHealth = PlayerState.Instance.GetComponent<HealthSystem>();
-                PlayerStamina playerStamina = PlayerState.Instance.GetComponent<PlayerStamina>();
-
-                // Kiểm tra xem người chơi có THỰC SỰ cần dùng vật phẩm này không
-                bool needHealth = playerHealth != null && consumable.healthRestore > 0 && playerHealth.CurrentHP < playerHealth.MaxHP;
-                bool needStamina = playerStamina != null && consumable.thirstRestore > 0 && playerStamina.currentStamina < playerStamina.maxStamina;
-
-                // Nếu cả máu và thể lực đều không cần hồi (hoặc vật phẩm không cung cấp)
-                if (!needHealth && !needStamina)
-                {
-                    InventoryUI.Instance.CloseInventory();
-                    if (NotificationUI.Instance != null)
-                        NotificationUI.Instance.ShowNotification("Chỉ số đang đầy, không cần dùng!");
-                    return; // Ngắt hàm, không trừ item
-                }
-
-                InventoryUI.Instance.CloseInventory();
-                float useTime = consumable.useTime;
-
-                ActionTimerManager.Instance.StartAction($"Đang dùng {consumable.itemName}...", useTime, () =>
-                {
-                    // Hồi máu nếu vật phẩm có thông số hồi máu và người chơi đang mất máu
-                    if (needHealth)
-                    {
-                        playerHealth.Heal(consumable.healthRestore);
-                    }
-
-                    // Hồi thể lực nếu vật phẩm có thông số hồi nước và người chơi đang mất sức
-                    if (needStamina)
-                    {
-                        playerStamina.RestoreStamina(consumable.thirstRestore);
-                    }
-
-                    if (NotificationUI.Instance != null)
-                    {
-                        // Tạo thông báo linh hoạt dựa trên tác dụng của vật phẩm
-                        string notifMsg = $"Đã dùng {consumable.itemName}";
-                        NotificationUI.Instance.ShowNotification(notifMsg);
-                    }
-
-                    slot.quantity--;
-                    if (slot.quantity <= 0) slot.Clear();
-                    NotifyInventoryChanged();
-                });
+                count += slot.quantity;
             }
         }
+
+        return count;
+    }
+
+    public void UseItem(InventorySlot slot)
+    {
+        if (slot == null || slot.IsEmpty)
+            return;
+
+        if (slot.item.category !=
+            ItemCategory.Consumable)
+        {
+            return;
+        }
+
+        ConsumableDataSO consumable =
+            slot.item as ConsumableDataSO;
+
+        if (consumable == null ||
+            PlayerState.Instance == null)
+        {
+            return;
+        }
+
+        HealthSystem playerHealth =
+            PlayerState.Instance
+                .GetComponent<HealthSystem>();
+
+        PlayerStamina playerStamina =
+            PlayerState.Instance
+                .GetComponent<PlayerStamina>();
+
+        bool needsHealth =
+            playerHealth != null &&
+            consumable.healthRestore > 0 &&
+            playerHealth.CurrentHP <
+            playerHealth.MaxHP;
+
+        bool needsStamina =
+            playerStamina != null &&
+            consumable.thirstRestore > 0 &&
+            playerStamina.currentStamina <
+            playerStamina.maxStamina;
+
+        if (!needsHealth && !needsStamina)
+        {
+            InventoryUI.Instance?.CloseInventory();
+
+            NotificationUI.Instance?.ShowNotification(
+                "Your vitals are already stable."
+            );
+
+            return;
+        }
+
+        InventoryUI.Instance?.CloseInventory();
+
+        float useTime = consumable.useTime;
+
+        ActionTimerManager.Instance.StartAction(
+            $"Using {consumable.itemName}...",
+            useTime,
+            () =>
+            {
+                if (needsHealth)
+                {
+                    playerHealth.Heal(
+                        consumable.healthRestore
+                    );
+                }
+
+                if (needsStamina)
+                {
+                    playerStamina.RestoreStamina(
+                        consumable.thirstRestore
+                    );
+                }
+
+                NotificationUI.Instance?.ShowNotification(
+                    $"{consumable.itemName} used."
+                );
+
+                slot.quantity--;
+
+                if (slot.quantity <= 0)
+                    slot.Clear();
+
+                NotifyInventoryChanged();
+            }
+        );
     }
 }

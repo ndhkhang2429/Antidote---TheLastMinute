@@ -143,7 +143,7 @@ public class PlayerInteraction : MonoBehaviour
         var examinable = hitObject.GetComponent<ExaminableObject>();
         if (examinable != null)
         {
-            InteractionUIManager.Instance.ShowPrompt($"{fBtn} Đọc <color=#{hexItem}>{examinable.objectName}</color>");
+            InteractionUIManager.Instance.ShowPrompt($"{fBtn} Read <color=#{hexItem}>{examinable.objectName}</color>");
             return true;
         }
 
@@ -159,7 +159,7 @@ public class PlayerInteraction : MonoBehaviour
         var mainSwitch = hitObject.GetComponentInParent<MainSwitchInteractable>();
         if (mainSwitch != null)
         {
-            InteractionUIManager.Instance.ShowPrompt($"{fBtn} Gạt cần điện");
+            InteractionUIManager.Instance.ShowPrompt($"{fBtn} Flip the electric lever.");
             return true;
         }
 
@@ -174,14 +174,14 @@ public class PlayerInteraction : MonoBehaviour
             string qtyText = worldItem.quantity > 1 ? $" (x{worldItem.quantity})" : "";
 
             // Phím [F] lấy màu _keyColor, Tên item lấy màu _itemColor
-            InteractionUIManager.Instance.ShowPrompt($"{fBtn} Nhặt <color=#{hexItem}>{name}{qtyText}</color>");
+            InteractionUIManager.Instance.ShowPrompt($"{fBtn} Pick <color=#{hexItem}>{name}{qtyText}</color>");
             return true;
         }
 
         // ── Electrical key ────────────────────────────────────
         if (hitObject.CompareTag("ElectricalKey"))
         {
-            InteractionUIManager.Instance.ShowPrompt($"{fBtn} Lấy chìa khóa");
+            InteractionUIManager.Instance.ShowPrompt($"{fBtn} Pick electrical key");
             return true;
         }
 

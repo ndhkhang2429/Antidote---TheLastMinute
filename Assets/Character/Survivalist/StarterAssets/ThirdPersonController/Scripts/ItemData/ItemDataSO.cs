@@ -4,7 +4,6 @@ public enum ItemCategory
 {
     Equipment,   // Nón, áo giáp, balo → không chiếm sức chứa
     Weapon,      // Súng, cận chiến → không chiếm sức chứa
-    Grenade,     // Lựu đạn → chiếm sức chứa
     Consumable,  // Máu, đồ uống → chiếm sức chứa
     Ammo,        // Đạn → chiếm sức chứa
     QuestItem,    // Vật phẩm nhiệm vụ → chiếm sức chứa
@@ -17,8 +16,7 @@ public enum WeaponSlotType
     Rifle,             // Ô 1
     PistolOrShotgun,   // Ô 2
     Melee,             // Ô 3
-    Grenade,           // Ô 4
-    QuestItem          // Ô 5
+    QuestItem          // Ô 4
 }
 
 [CreateAssetMenu(fileName = "New Item", menuName = "Inventory/Item Data")]

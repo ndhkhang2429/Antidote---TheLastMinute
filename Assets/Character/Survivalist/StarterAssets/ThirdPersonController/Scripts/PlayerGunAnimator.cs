@@ -40,6 +40,8 @@ public class PlayerGunAnimator : MonoBehaviour
         _input = GetComponent<StarterAssetsInputs>();
         _mainCamera = Camera.main;
         _equipmentManager = GetComponent<PlayerEquipmentManager>();
+        if (_equipmentManager == null)
+            _equipmentManager = GetComponentInChildren<PlayerEquipmentManager>(true);
 
         _hashIsShooting = Animator.StringToHash("isShooting");
         _hashReloading = Animator.StringToHash("reloading");
@@ -206,7 +208,7 @@ public class PlayerGunAnimator : MonoBehaviour
         {
             _weaponAudio?.PlayEmpty();
             NotificationUI.Instance?.ShowNotification(
-                "Không có đạn dự trữ!"
+                "No reserve ammunition."
             );
 
             _input.reload = false;
@@ -224,18 +226,21 @@ public class PlayerGunAnimator : MonoBehaviour
             _fpsArmsAnimator.SetBool(_hashReloading, true);
         }
 
-        Debug.Log($"🔄 Đang nạp {data.itemName}...");
+        Debug.Log($"[Reload] Reloading {data.itemName}...");
 
         if (ActionTimerManager.Instance != null)
         {
             ActionTimerManager.Instance.StartAction(
-                $"Nạp {data.itemName}...",
+                $"Reloading {data.itemName}...",
                 data.reloadTime,
                 () => FinishReload(data, inventory)
             );
         }
         else
         {
+            _fallbackReloadData = data;
+            _fallbackInventory = inventory;
+
             Invoke(
                 nameof(FinishReloadFallback),
                 data.reloadTime
@@ -283,7 +288,10 @@ public class PlayerGunAnimator : MonoBehaviour
 
         if (amountToReload > 0)
         {
-            _activeWeapon.currentAmmo += amountToReload;
+            int ammoAfterReload =
+                _activeWeapon.currentAmmo + amountToReload;
+
+            _activeWeapon.SetAmmoAfterReload(ammoAfterReload);
 
             inventory.RemoveItem(
                 data.compatibleAmmo,
@@ -292,7 +300,7 @@ public class PlayerGunAnimator : MonoBehaviour
         }
 
         Debug.Log(
-            $"✅ Nạp xong! Đạn: " +
+            $"[Reload] Complete. Ammo: " +
             $"{_activeWeapon.currentAmmo}/" +
             $"{data.magazineSize}"
         );
@@ -345,7 +353,7 @@ public class PlayerGunAnimator : MonoBehaviour
             _weaponAudio?.PlayEmpty();
 
             NotificationUI.Instance?.ShowNotification(
-                "Súng hết đạn!"
+                "Magazine empty."
             );
 
             _input.shoot = false;
@@ -375,12 +383,18 @@ public class PlayerGunAnimator : MonoBehaviour
             return;
         }
 
-        _activeWeapon.currentAmmo--;
+        if (!_activeWeapon.TryConsumeAmmo())
+        {
+            _weaponAudio?.PlayEmpty();
+            NotificationUI.Instance?.ShowNotification("Magazine empty.");
+            _input.shoot = false;
+            return;
+        }
 
         _weaponAudio?.PlayFire();
 
         Debug.Log(
-            $"💥 Bắn! Còn " +
+            $"[Shoot] Ammo remaining: " +
             $"{_activeWeapon.currentAmmo}/" +
             $"{data.magazineSize}"
         );

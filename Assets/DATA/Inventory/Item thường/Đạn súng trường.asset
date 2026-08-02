@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e1cce4b68029a74dbfe8a0d8443f1e3, type: 3}
   m_Name: "\u0110\u1EA1n s\xFAng tr\u01B0\u1EDDng"
   m_EditorClassIdentifier: 
-  itemName: "\u0110\u1EA1n S\xFAng Tr\u01B0\u1EDDng"
-  icon: {fileID: 0}
+  itemName: Rifle Ammo
+  icon: {fileID: 21300000, guid: 8860aa91b07829141a7aca68ab449daf, type: 3}
   worldPrefab: {fileID: 103226, guid: 8763502436213a942851460236cd07e4, type: 3}
   equipPrefab: {fileID: 0}
   description: 
