@@ -10,30 +10,34 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 04ce8e414680cba4aa1845a9e8740ae4, type: 3}
-  m_Name: "L\u1EF1u \u0111\u1EA1n"
+  m_Name: "R\xECu"
   m_EditorClassIdentifier: 
-  itemName: 
-  icon: {fileID: 0}
-  worldPrefab: {fileID: 0}
-  equipPrefab: {fileID: 0}
+  itemName: Axe
+  icon: {fileID: -543699653, guid: cb92356bea9b9a3449e182505a74acf7, type: 3}
+  worldPrefab: {fileID: 4553568729403791351, guid: 237276ab14a839d459e4d5007e14a58e, type: 3}
+  equipPrefab: {fileID: 4553568729403791351, guid: 237276ab14a839d459e4d5007e14a58e, type: 3}
   description: 
-  category: 0
-  weaponSlotType: 4
+  category: 1
+  weaponSlotType: 3
   maxStack: 1
   weightPerUnit: 0
   autoEquip: 0
-  combatType: 0
-  damage: 0
-  attachPointName: 
+  combatType: 1
+  damage: 16
+  attachPointName: Right_Hand
   fireRate: 0
   magazineSize: 0
+  reloadTime: 2
   compatibleAmmo: {fileID: 0}
   bulletPrefab: {fileID: 0}
   bulletSpeed: 50
   muzzleFlashPrefab: {fileID: 0}
-  cooldown: 0.5
+  gripOffset: {x: -0.028, y: -0.02, z: 0.027}
+  gripRotation: {x: 201.521, y: -144.48, z: -154.023}
+  isAutomatic: 1
+  cooldown: 0.8
   comboSteps: 3
-  comboResetTime: 1.2
+  comboResetTime: 1.5
   hitDistance: 1.2
   hitHeight: 0.8
   hitRadius: 0.6
