@@ -1,4 +1,5 @@
 ﻿using TMPro;
+using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 
 public class InventoryUI : MonoBehaviour
@@ -16,6 +17,8 @@ public class InventoryUI : MonoBehaviour
 
     bool _isOpen;
     bool _tabWasPressed;
+
+    public bool IsOpen => _isOpen;
 
     public static InventoryUI Instance { get; private set; }
 

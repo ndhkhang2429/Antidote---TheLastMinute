@@ -104,6 +104,13 @@ public class PlayerGunAnimator : MonoBehaviour
     {
         UpdateWalkAnimation();
 
+        if (InventoryUI.Instance != null &&
+        InventoryUI.Instance.IsOpen)
+        {
+            CancelCombatInput();
+            return;
+        }
+
         if (_activeWeapon == null)
         {
             return;

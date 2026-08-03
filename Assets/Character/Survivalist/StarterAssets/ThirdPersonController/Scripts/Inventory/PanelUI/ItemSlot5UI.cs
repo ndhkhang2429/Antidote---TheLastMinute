@@ -19,7 +19,6 @@ public class ItemSlot4UI :
     [Header("UI References")]
     [SerializeField] private Image iconImage;
     [SerializeField] private TextMeshProUGUI nameLabel;
-    [SerializeField] private TextMeshProUGUI hintLabel;
 
     [Header("Colors")]
     [SerializeField]
@@ -168,16 +167,6 @@ public class ItemSlot4UI :
 
             nameLabel.color = colorHasItem;
         }
-
-        if (hintLabel != null)
-        {
-            hintLabel.gameObject.SetActive(true);
-
-            hintLabel.text =
-                isActive
-                    ? "CURRENTLY HELD"
-                    : "PRESS [4] TO HOLD";
-        }
     }
 
     private void ShowEmptyState()
@@ -192,12 +181,6 @@ public class ItemSlot4UI :
         {
             nameLabel.text = "EMPTY";
             nameLabel.color = colorEmpty;
-        }
-
-        if (hintLabel != null)
-        {
-            hintLabel.gameObject.SetActive(true);
-            hintLabel.text = "DRAG A QUEST ITEM HERE";
         }
     }
 
