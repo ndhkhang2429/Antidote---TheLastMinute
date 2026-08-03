@@ -19,10 +19,14 @@ MonoBehaviour:
   - {fileID: 6178577023303151387, guid: 0433f766ad92df24086f5e496c1eff54, type: 3}
   - {fileID: 6176856055419875589, guid: d85c6093db19f354d848fe6d4fcf103f, type: 3}
   - {fileID: 4982165776056593501, guid: c2a05e90e05a77a48bc5db3cfa6fe731, type: 3}
-  minConcurrent: 6
-  maxConcurrent: 9
+  initialSpawnCount: 3
+  maxConcurrent: 4
+  totalSpawnBudget: 7
+  spawnPerWave: 2
+  timeBetweenWaves: 15
+  waveTriggerAliveCount: 1
   tankPrefab: {fileID: 1241832387351857126, guid: 20852c22a8981a04baba7018ac5c0a5c, type: 3}
   tankSpawnChance: 0.15
   maxTankConcurrent: 3
-  respawnCooldown: 20
   despawnDelay: 5
+  stayClearedAfterCompletion: 1

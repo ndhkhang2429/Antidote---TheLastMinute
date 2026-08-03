@@ -144,9 +144,14 @@ public class ZombieBase : MonoBehaviour
         audioController = GetComponent<ZombieAudioController>();
 
         if (healthSystem == null)
+        {
             Debug.LogError($"[ZombieBase] {gameObject.name} thiếu HealthSystem!");
+        }
         else
+        {
             healthSystem.OnDeath += Die;
+            healthSystem.OnDamagedByAttacker += HandleDamagedByAttacker;
+        }
     }
     protected virtual void Start()
     {
@@ -162,7 +167,10 @@ public class ZombieBase : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (healthSystem != null) healthSystem.OnDeath -= Die;
+        if (healthSystem == null) return;
+
+        healthSystem.OnDeath -= Die;
+        healthSystem.OnDamagedByAttacker -= HandleDamagedByAttacker;
     }
 
     protected virtual void Update()
@@ -638,6 +646,76 @@ public class ZombieBase : MonoBehaviour
         return v.sqrMagnitude > 0.0001f ? v.normalized : Vector3.zero;
     }
 
+    /// <summary>
+    /// Khi nhận damage từ Player, zombie lập tức biết vị trí Player và chuyển sang Chase,
+    /// không phụ thuộc detectionRange hoặc Line of Sight tại thời điểm bị bắn.
+    /// </summary>
+    private void HandleDamagedByAttacker(
+        GameObject attacker,
+        float currentHP,
+        float maxHP)
+    {
+        if (_isDead)
+            return;
+
+        // Nếu script súng chưa truyền attacker, vẫn tự tìm Player để zombie phản ứng.
+        GameObject playerObject = null;
+
+        if (attacker != null)
+        {
+            Transform attackerRoot = attacker.transform.root;
+
+            if (attacker.CompareTag("Player"))
+                playerObject = attacker;
+            else if (attackerRoot.CompareTag("Player"))
+                playerObject = attackerRoot.gameObject;
+            else
+                playerObject = attacker.GetComponentInParent<Transform>()?.root.gameObject;
+        }
+
+        if (playerObject == null || !playerObject.CompareTag("Player"))
+            playerObject = GameObject.FindGameObjectWithTag("Player");
+
+        if (playerObject == null)
+        {
+            Debug.LogWarning(
+                $"[ZombieBase] {name} bị gây damage nhưng không tìm thấy GameObject có tag Player.");
+            return;
+        }
+
+        player = playerObject.transform;
+
+        _hasDetectedPlayer = true;
+        _screamDone = true;
+        _screamPhase = ScreamPhase.None;
+
+        // Bị bắn thì buộc đuổi Player, không phụ thuộc detectionRange hoặc LOS ban đầu.
+        _forcedByAlarm = true;
+
+        _lastSeenTime = Time.time;
+        _lastKnownPlayerPosition = player.position;
+        _hasLineOfSightNow = true;
+        _mode = ZombieMode.Chase;
+
+        if (agent != null &&
+            agent.isActiveAndEnabled &&
+            agent.isOnNavMesh)
+        {
+            agent.isStopped = false;
+            agent.speed = runSpeed;
+            agent.stoppingDistance = attackRange;
+            agent.updatePosition = true;
+            agent.updateRotation = true;
+            agent.SetDestination(player.position);
+        }
+
+        if (anim != null)
+            anim.SetFloat("Speed", 2f, 0.1f, Time.deltaTime);
+
+        Debug.Log(
+            $"[ZombieBase] {name} bị bắn và bắt đầu đuổi theo {playerObject.name}.");
+    }
+
     // ── Public API ───────────────────────────────────────────────────────────
     /// <summary>
     /// Gọi bởi ZombiePool ngay sau khi Warp() agent tới vị trí spawn mới.
@@ -713,16 +791,14 @@ public class ZombieBase : MonoBehaviour
 
     public virtual void TakeDamage(float damage, GameObject attacker = null)
     {
-        if (_isDead) return;
+        if (_isDead || healthSystem == null)
+            return;
+
+        if (attacker == null)
+            attacker = GameObject.FindGameObjectWithTag("Player");
+
         healthSystem.TakeDamage(damage, attacker);
         audioController?.PlayHurt();
-        _hasDetectedPlayer = true;
-        _screamDone = true;
-        _screamPhase = ScreamPhase.None;
-        // MỚI THÊM: bị đánh trúng thì coi như biết chính xác vị trí player ngay lúc đó,
-        // kể cả nếu raycast LOS chưa kịp cập nhật frame này
-        _lastSeenTime = Time.time;
-        _lastKnownPlayerPosition = player.position;
     }
 
     /// <summary>Gọi từ Animation Event của clip Attack.</summary>

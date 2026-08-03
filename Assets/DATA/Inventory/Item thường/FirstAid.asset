@@ -17,7 +17,7 @@ MonoBehaviour:
   worldPrefab: {fileID: 1987713744733760, guid: b55df95fa6211964e8ad561501250fac, type: 3}
   equipPrefab: {fileID: 0}
   description: 
-  category: 3
+  category: 2
   weaponSlotType: 0
   maxStack: 1
   weightPerUnit: 10

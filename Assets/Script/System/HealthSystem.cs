@@ -31,6 +31,7 @@ public class HealthSystem : MonoBehaviour
     // ── C# events — ZombieBase và script cùng GameObject subscribe ──
     public event Action OnDeath;
     public event Action<float, float> OnDamaged;  // (currentHP, maxHP)
+    public event Action<GameObject, float, float> OnDamagedByAttacker;
     public event Action<float, float> OnHealed;   // (currentHP, maxHP)
 
     // ── Runtime state ──────────────────────────────────────
@@ -58,8 +59,9 @@ public class HealthSystem : MonoBehaviour
         Debug.Log($"[HealthSystem] {gameObject.name} nhận {damage} damage " +
                   $"từ {attacker?.name ?? "Unknown"}. HP: {_currentHP}/{MaxHP}");
 
-        OnDamaged?.Invoke(_currentHP, MaxHP);  // C# event → ZombieBase, script cùng GO
-        _soOnDamaged?.Raise(HPPercent);        // SO event  → HUD, Audio qua Inspector
+        OnDamaged?.Invoke(_currentHP, MaxHP);
+        OnDamagedByAttacker?.Invoke(attacker, _currentHP, MaxHP);
+        _soOnDamaged?.Raise(HPPercent);
 
         if (_currentHP <= 0)
             Die();
