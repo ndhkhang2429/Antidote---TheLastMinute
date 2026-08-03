@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TMPro;
@@ -7,6 +8,9 @@ public class ItemSlotUI : MonoBehaviour,
     IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler,
     IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler
 {
+    public static event Action<ItemSlotUI> ItemDragStarted;
+    public static event Action ItemDragEnded;
+
     [Header("Refs")]
     public Image iconImage;
     public TextMeshProUGUI quantityText;
@@ -56,6 +60,7 @@ public class ItemSlotUI : MonoBehaviour,
     {
         if (BoundSlot == null || BoundSlot.IsEmpty) return;
         _dragSource = this;
+        ItemDragStarted?.Invoke(this);
 
         _dragGhost = new GameObject("DragGhost_Grid");
         Canvas canvas = GetComponentInParent<Canvas>();
@@ -106,6 +111,7 @@ public class ItemSlotUI : MonoBehaviour,
     {
         if (_dragGhost != null) Destroy(_dragGhost);
         _dragSource = null;
+        ItemDragEnded?.Invoke();
 
         // Trả lại độ sáng cho ô gốc nếu nó chưa bị xóa
         if (iconImage != null && BoundSlot != null && !BoundSlot.IsEmpty)
