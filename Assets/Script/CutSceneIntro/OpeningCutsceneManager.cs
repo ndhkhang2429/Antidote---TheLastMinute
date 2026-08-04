@@ -17,9 +17,20 @@ public class OpeningCutsceneManager : MonoBehaviour
 
     [Header("Player")]
     [SerializeField] private MonoBehaviour[] playerScriptsToDisable;
+    [SerializeField] private GameObject playerArmature;
 
     [Header("Gameplay UI")]
     [SerializeField] private GameObject gameplayUI;
+
+    [Header("Zombie Spawn")]
+    [SerializeField] private GameObject zombieSpawnRoot;
+
+    [Header("Timeline Safety")]
+    [Tooltip("Khoảng sai số dùng để nhận biết Timeline đã đến cuối.")]
+    [SerializeField] private double finishTolerance = 0.05d;
+
+    [Tooltip("Thời gian chờ thêm tối đa nếu Timeline gặp lỗi.")]
+    [SerializeField] private float safetyTimeoutExtra = 2f;
 
     private bool openingFinished;
 
@@ -27,7 +38,7 @@ public class OpeningCutsceneManager : MonoBehaviour
     {
         BeginOpening();
 
-        // Phần 1: chạy các ảnh giới thiệu.
+        // Phần 1: slideshow.
         if (introSlideshow != null)
         {
             yield return StartCoroutine(
@@ -41,10 +52,12 @@ public class OpeningCutsceneManager : MonoBehaviour
             );
         }
 
-        // Phần 2: chạy cảnh mở mắt.
-        yield return StartCoroutine(PlayWakeUpCutscene());
+        // Phần 2: cảnh mở mắt, radio và subtitle.
+        yield return StartCoroutine(
+            PlayWakeUpCutscene()
+        );
 
-        // Phần 3: trả lại gameplay.
+        // Phần 3: trả gameplay.
         EndOpening();
     }
 
@@ -53,6 +66,11 @@ public class OpeningCutsceneManager : MonoBehaviour
         openingFinished = false;
 
         SetPlayerScriptsEnabled(false);
+
+        if (playerArmature != null)
+        {
+            playerArmature.SetActive(false);
+        }
 
         if (gameplayUI != null)
         {
@@ -69,7 +87,12 @@ public class OpeningCutsceneManager : MonoBehaviour
             wakeUpCamera.enabled = false;
         }
 
-        // Không cho màn hình đen che slideshow.
+        if (zombieSpawnRoot != null)
+        {
+            zombieSpawnRoot.SetActive(false);
+        }
+
+        // Không để Canvas đen che slideshow.
         if (wakeUpFadeCanvas != null)
         {
             wakeUpFadeCanvas.SetActive(false);
@@ -78,7 +101,12 @@ public class OpeningCutsceneManager : MonoBehaviour
         if (wakeUpDirector != null)
         {
             wakeUpDirector.Stop();
-            wakeUpDirector.time = 0;
+            wakeUpDirector.time = 0d;
+
+            // Không để Timeline giữ mãi trạng thái Playing ở frame cuối.
+            wakeUpDirector.extrapolationMode =
+                DirectorWrapMode.None;
+
             wakeUpDirector.Evaluate();
         }
 
@@ -97,7 +125,6 @@ public class OpeningCutsceneManager : MonoBehaviour
             yield break;
         }
 
-        // Bật Canvas đen ngay trước cảnh mở mắt.
         if (wakeUpFadeCanvas != null)
         {
             wakeUpFadeCanvas.SetActive(true);
@@ -108,28 +135,73 @@ public class OpeningCutsceneManager : MonoBehaviour
             wakeUpCamera.enabled = true;
         }
 
-        wakeUpDirector.time = 0;
+        wakeUpDirector.Stop();
+        wakeUpDirector.time = 0d;
+        wakeUpDirector.extrapolationMode =
+            DirectorWrapMode.None;
         wakeUpDirector.Evaluate();
-        wakeUpDirector.Play();
 
-        double timelineDuration = wakeUpDirector.duration;
+        double timelineDuration =
+            wakeUpDirector.duration;
 
-        if (timelineDuration <= 0)
+        if (timelineDuration <= 0d ||
+            double.IsInfinity(timelineDuration) ||
+            double.IsNaN(timelineDuration))
         {
             Debug.LogError(
-                "WakeUpTimeline không có thời lượng hợp lệ."
+                $"WakeUpTimeline có duration không hợp lệ: " +
+                $"{timelineDuration}"
             );
 
             yield break;
         }
 
-        // Chờ Timeline chạy đến hết thời lượng.
-        while (wakeUpDirector.time < timelineDuration)
+        wakeUpDirector.Play();
+
+        float elapsedRealtime = 0f;
+
+        float safetyTimeout =
+            (float)timelineDuration +
+            safetyTimeoutExtra;
+
+        while (true)
         {
+            bool reachedEnd =
+                wakeUpDirector.time >=
+                timelineDuration - finishTolerance;
+
+            bool stoppedNaturally =
+                wakeUpDirector.state !=
+                PlayState.Playing;
+
+            if (reachedEnd || stoppedNaturally)
+            {
+                break;
+            }
+
+            elapsedRealtime +=
+                Time.unscaledDeltaTime;
+
+            if (elapsedRealtime >= safetyTimeout)
+            {
+                Debug.LogWarning(
+                    "WakeUpTimeline vượt quá thời gian dự kiến. " +
+                    "Buộc kết thúc để tránh khóa player."
+                );
+
+                break;
+            }
+
             yield return null;
         }
 
         wakeUpDirector.Stop();
+
+        Debug.Log(
+            $"WakeUpTimeline kết thúc. " +
+            $"Time: {wakeUpDirector.time:F3}, " +
+            $"Duration: {timelineDuration:F3}"
+        );
     }
 
     private void EndOpening()
@@ -163,16 +235,27 @@ public class OpeningCutsceneManager : MonoBehaviour
 
         SetPlayerScriptsEnabled(true);
 
+        if (playerArmature != null)
+        {
+            playerArmature.SetActive(true);
+        }
+
         if (gameplayUI != null)
         {
             gameplayUI.SetActive(true);
+        }
+
+        if (zombieSpawnRoot != null)
+        {
+            zombieSpawnRoot.SetActive(true);
         }
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
         Debug.Log(
-            "Opening cutscene hoàn tất. Đã trả quyền điều khiển cho player."
+            "Opening cutscene hoàn tất. " +
+            "Camera và quyền điều khiển đã được trả cho player."
         );
     }
 
@@ -183,12 +266,23 @@ public class OpeningCutsceneManager : MonoBehaviour
             return;
         }
 
-        foreach (MonoBehaviour playerScript in playerScriptsToDisable)
+        foreach (
+            MonoBehaviour playerScript
+            in playerScriptsToDisable)
         {
             if (playerScript != null)
             {
-                playerScript.enabled = enabledValue;
+                playerScript.enabled =
+                    enabledValue;
             }
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (!openingFinished)
+        {
+            EndOpening();
         }
     }
 }

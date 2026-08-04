@@ -26,6 +26,7 @@ public class DeadRoofIntroSlideshow : MonoBehaviour
     [SerializeField] private Image storyImage;
     [SerializeField] private TextMeshProUGUI storyText;
     [SerializeField] private GameObject skipText;
+    [SerializeField] private TypewriterText storyTypewriter;
 
     [Header("Timing")]
     [SerializeField] private float imageFadeDuration = 0.8f;
@@ -57,9 +58,15 @@ public class DeadRoofIntroSlideshow : MonoBehaviour
 
     private void Update()
     {
-        if (!IsFinished && Input.GetKeyDown(KeyCode.Space))
+        if (!IsFinished &&
+            Input.GetKeyDown(KeyCode.Space))
         {
             skipRequested = true;
+
+            if (storyTypewriter != null)
+            {
+                storyTypewriter.CancelTyping(false);
+            }
         }
     }
 
@@ -86,9 +93,28 @@ public class DeadRoofIntroSlideshow : MonoBehaviour
             }
 
             storyImage.sprite = slide.image;
-            storyText.text = slide.storyText;
+
+            if (storyTypewriter != null)
+            {
+                storyTypewriter.ClearImmediately();
+            }
+            else
+            {
+                storyText.text = string.Empty;
+            }
 
             yield return FadeSlide(0f, 1f);
+
+            if (storyTypewriter != null)
+            {
+                yield return StartCoroutine(
+                    storyTypewriter.TypeText(slide.storyText)
+                );
+            }
+            else
+            {
+                storyText.text = slide.storyText;
+            }
 
             float timer = 0f;
 
