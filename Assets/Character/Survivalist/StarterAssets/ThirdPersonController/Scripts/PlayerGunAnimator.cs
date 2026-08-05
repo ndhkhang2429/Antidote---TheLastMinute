@@ -355,7 +355,8 @@ public class PlayerGunAnimator : MonoBehaviour
             return;
         }
 
-        if (_activeWeapon.currentAmmo <= 0)
+        if (_activeWeapon.currentAmmo <= 0 &&
+            !DeveloperCheatManager.InfiniteAmmo)
         {
             _weaponAudio?.PlayEmpty();
 

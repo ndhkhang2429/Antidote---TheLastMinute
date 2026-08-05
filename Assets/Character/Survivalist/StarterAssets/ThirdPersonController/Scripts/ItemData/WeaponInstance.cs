@@ -84,21 +84,22 @@ public class WeaponInstance : MonoBehaviour
             ?.NotifyInventoryChanged();
     }
 
-    public bool TryConsumeAmmo(
-        int amount = 1)
+    public bool TryConsumeAmmo(int amount = 1)
     {
         if (weaponData == null ||
-            weaponData.combatType !=
-            CombatType.Firearm)
+            weaponData.combatType != CombatType.Firearm)
         {
             return false;
         }
 
-        if (amount <= 0 ||
-            currentAmmo < amount)
-        {
+        if (amount <= 0)
             return false;
-        }
+
+        if (DeveloperCheatManager.InfiniteAmmo)
+            return true;
+
+        if (currentAmmo < amount)
+            return false;
 
         currentAmmo -= amount;
         SaveAmmoToSlot();

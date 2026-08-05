@@ -52,7 +52,11 @@ public class HealthSystem : MonoBehaviour
 
     public void TakeDamage(float damage, GameObject attacker = null)
     {
-        if (_isDead || damage <= 0) return;
+        if (DeveloperCheatManager.GodMode && CompareTag("Player"))
+            return;
+
+        if (_isDead || damage <= 0)
+            return;
 
         _currentHP = Mathf.Clamp(_currentHP - damage, 0, MaxHP);
 

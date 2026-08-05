@@ -80,4 +80,29 @@ public class QuestManager : MonoBehaviour
             AnnounceCurrentStep();
         }
     }
+
+    public void CheatCompleteAllSteps()
+    {
+        if (activeChain == null)
+        {
+            Debug.LogWarning(
+                "[Quest Cheat] Không có QuestChain đang hoạt động."
+            );
+            return;
+        }
+
+        int safetyLimit = activeChain.steps.Length + 1;
+        int completedCount = 0;
+
+        while (CurrentStep != null &&
+               completedCount < safetyLimit)
+        {
+            CompleteCurrentStep();
+            completedCount++;
+        }
+
+        Debug.Log(
+            $"[Quest Cheat] Đã hoàn thành {completedCount} bước nhiệm vụ."
+        );
+    }
 }

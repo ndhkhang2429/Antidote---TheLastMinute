@@ -132,6 +132,46 @@ public class MainSwitchInteractable : MonoBehaviour, IQuestRequirement
         TryUseItem(InventorySystem.Instance);
     }
 
+    public void CheatTurnOnPower()
+    {
+        if (isOn)
+        {
+            Debug.Log("[MainSwitch Cheat] Nguồn điện đã được bật trước đó.");
+            return;
+        }
+
+        StopAllCoroutines();
+
+        isAnimating = false;
+        isOn = true;
+
+        if (lightingManager == null)
+            lightingManager = LightingManager.Instance;
+
+        if (lightingManager != null)
+        {
+            lightingManager.SetPower(true);
+        }
+        else
+        {
+            Debug.LogWarning(
+                "[MainSwitch Cheat] Không tìm thấy LightingManager."
+            );
+        }
+
+        PlaySound(soundSuccess);
+        StartCoroutine(AnimateSwitch(onAngle));
+
+        if (NotificationUI.Instance != null)
+        {
+            NotificationUI.Instance.ShowNotification(
+                "Cheat: Nguồn điện toàn bệnh viện đã được khôi phục!"
+            );
+        }
+
+        Debug.Log("[MainSwitch Cheat] Power: ON");
+    }
+
     // ── Animation (Giữ nguyên logic SmoothStep của bạn) ───────────
     IEnumerator AnimateSwitch(float targetAngle)
     {
