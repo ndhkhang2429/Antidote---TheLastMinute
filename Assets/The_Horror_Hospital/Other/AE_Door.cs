@@ -1,316 +1,245 @@
 ﻿using UnityEngine;
-using UnityEngine.Playables;
-using System.Collections;
 
 namespace Art_Equilibrium
 {
+    /// <summary>
+    /// Điều khiển cửa thường, cửa mật khẩu, cửa thẻ từ và cổng vào boss.
+    /// Việc teleport/cutscene boss được giao hoàn toàn cho BossEncounterController.
+    /// </summary>
     public class AE_Door : MonoBehaviour
     {
-        bool trig, open;
-        public float smooth = 2.0f;
-        public float DoorOpenAngle = 87.0f;
-        private Quaternion defaultRot;
-        private Quaternion openRot;
-        private Vector3 defaultLocalPos;
-        private Vector3 targetLocalSlidePos;
+        [Header("Door Movement")]
+        [SerializeField] private bool isSlidingDoor;
+        [SerializeField] private float smooth = 2f;
+        [SerializeField] private float doorOpenAngle = 87f;
+        [SerializeField] private Vector3 slideOffset = new Vector3(1f, 0f, 0f);
 
-        private bool isKeyPressed;
+        [Header("Interaction Text")]
+        [SerializeField] private string openMessage = "Open F";
+        [SerializeField] private string closeMessage = "Close F";
+        [SerializeField] private Font messageFont;
+        [SerializeField] private int fontSize = 24;
+        [SerializeField] private Color fontColor = Color.white;
+        [SerializeField] private Vector2 messagePosition = new Vector2(0.5f, 0.5f);
 
-        [Header("Door Type")]
-        public bool isSlidingDoor = false;
-        public Vector3 slideOffset = new Vector3(1, 0, 0);
+        [Header("Audio")]
+        [SerializeField] private AudioClip openSound;
+        [SerializeField] private AudioClip closeSound;
+        [SerializeField] private AudioClip accessDeniedSound;
 
-        [Header("GUI Settings")]
-        public string openMessage = "Open F";
-        public string closeMessage = "Close F";
-        public Font messageFont;
-        public int fontSize = 24;
-        public Color fontColor = Color.white;
-        public Vector2 messagePosition = new Vector2(0.5f, 0.5f);
+        [Header("Boss Door")]
+        [SerializeField] private bool isBossDoor;
+        [SerializeField] private BossEncounterController bossEncounterController;
 
-        private string doorMessage = "";
+        [Header("Password Lock")]
+        [SerializeField] private bool requiresPassword;
+        [SerializeField] private string lockedMessage = "Cần mật khẩu";
 
-        [Header("Audio Settings")]
-        public AudioClip openSound;
-        public AudioClip closeSound;
-        private AudioSource audioSource;
+        [Header("Keycard Lock")]
+        [SerializeField] private bool requiresKeycard;
+        [SerializeField] private ItemDataSO requiredKeycardSO;
 
-        [Header("Boss Door Settings")]
-        public bool isBossDoor = false;
-        public PlayableDirector timelineDirector;
-        public Transform bossRoomSpawnPoint;
-        public Transform playerTransform;
-        public MonoBehaviour playerMovementScript;
+        private Quaternion _closedRotation;
+        private Quaternion _openRotation;
+        private Vector3 _closedLocalPosition;
+        private Vector3 _openLocalPosition;
+        private AudioSource _audioSource;
+        private string _doorMessage = string.Empty;
+        private bool _playerInRange;
+        private bool _open;
+        private bool _interactionHeld;
+        private bool _isUnlocked;
+        private bool _bossEncounterRequested;
 
-        // --- THÊM PHẦN HIỆU ỨNG CHUYỂN CẢNH ---
-        [Header("Transition Effects")]
-        public CanvasGroup fadeCanvasGroup;
-        public float fadeSpeed = 1.5f;
-
-        private bool hasTransitioned = false;
-
-        // ===========================================
-        // Khóa mật khẩu 
-        // ===========================================
-        [Header("Password Lock (chỉ dùng cho cửa cần mật khẩu)")]
-        [Tooltip("Bật true nếu cửa này cần mở khóa bằng mật khẩu trước khi cho phép bấm F mở cửa")]
-        public bool requiresPassword = false;
-        [Tooltip("Chữ hiện khi player đứng gần nhưng CHƯA nhập đúng mật khẩu")]
-        public string lockedMessage = "Cần mật khẩu";
-
-        // ===========================================
-        // Khóa bằng thẻ từ (Dùng cho phòng Boss)
-        // ===========================================
-        [Header("Keycard Lock (Thẻ từ)")]
-        [Tooltip("Bật true nếu cửa này cần quét thẻ từ để mở")]
-        public bool requiresKeycard = false;
-
-        [Tooltip("Kéo file Scriptable Object của chiếc thẻ từ vào đây")]
-        public ItemDataSO requiredKeycardSO;
-
-        public AudioClip accessDeniedSound;
-
-        private bool isUnlocked = false;
-
-        private void Start()
+        private void Awake()
         {
-            defaultRot = transform.rotation;
-            openRot = Quaternion.Euler(transform.eulerAngles.x, transform.eulerAngles.y + DoorOpenAngle, transform.eulerAngles.z);
-            defaultLocalPos = transform.localPosition;
-            targetLocalSlidePos = defaultLocalPos + slideOffset;
-            isKeyPressed = false;
+            _closedRotation = transform.rotation;
+            _openRotation = Quaternion.Euler(
+                transform.eulerAngles.x,
+                transform.eulerAngles.y + doorOpenAngle,
+                transform.eulerAngles.z);
 
-            audioSource = gameObject.AddComponent<AudioSource>();
+            _closedLocalPosition = transform.localPosition;
+            _openLocalPosition = _closedLocalPosition + slideOffset;
+
+            _audioSource = GetComponent<AudioSource>();
+            if (_audioSource == null)
+                _audioSource = gameObject.AddComponent<AudioSource>();
         }
 
         private void Update()
         {
-            // Xử lý Animation cửa mở/đóng
-            if (isSlidingDoor)
+            AnimateDoor();
+
+            if (Input.GetKeyDown(KeyCode.F) && _playerInRange && !_interactionHeld)
             {
-                Vector3 targetPos = open ? targetLocalSlidePos : defaultLocalPos;
-                transform.localPosition = Vector3.Lerp(transform.localPosition, targetPos, Time.deltaTime * smooth);
-            }
-            else
-            {
-                Quaternion targetRot = open ? openRot : defaultRot;
-                transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * smooth);
-            }
-
-            // Xử lý Tương tác phím F
-            if (Input.GetKeyDown(KeyCode.F) && trig && !isKeyPressed)
-            {
-                isKeyPressed = true;
-
-                // 1. Kiểm tra Cửa Mật Khẩu
-                if (requiresPassword && !isUnlocked)
-                {
-                    return; // Chặn lại, player phải giải puzzle mật khẩu trước
-                }
-
-                // 2. Kiểm tra Cửa Thẻ Từ
-                if (requiresKeycard)
-                {
-                    // Ưu tiên 1: Cần có điện
-                    if (LightingManager.Instance != null && !LightingManager.Instance.IsPowerOn)
-                    {
-                        if (NotificationUI.Instance != null)
-                            NotificationUI.Instance.ShowNotification("Máy đọc thẻ không hoạt động. Cần mở hệ thống điện.");
-
-                        if (audioSource != null && accessDeniedSound != null)
-                            audioSource.PlayOneShot(accessDeniedSound);
-
-                        return; // Chặn lại
-                    }
-
-                    // Ưu tiên 2: Điện đã có -> Check túi đồ xem có thẻ không
-                    if (InventorySystem.Instance != null && requiredKeycardSO != null)
-                    {
-                        // Gọi hàm kiểm tra Item trong InventorySystem
-                        bool hasCard = InventorySystem.Instance.HasItem(requiredKeycardSO);
-
-                        if (!hasCard)
-                        {
-                            if (NotificationUI.Instance != null)
-                                NotificationUI.Instance.ShowNotification("Truy cập bị từ chối: Yêu cầu Thẻ Từ.");
-
-                            if (audioSource != null && accessDeniedSound != null)
-                                audioSource.PlayOneShot(accessDeniedSound);
-
-                            return; // Chặn lại
-                        }
-                    }
-                    else
-                    {
-                        Debug.LogWarning("[AE_Door] Thiếu InventorySystem.Instance hoặc chưa kéo requiredKeycardSO vào Inspector!");
-                    }
-                }
-
-                // 3. Nếu mọi điều kiện hợp lệ
-                if (isBossDoor)
-                {
-                    if (!hasTransitioned)
-                    {
-                        hasTransitioned = true;
-                        doorMessage = "";
-                        StartCoroutine(TransitionRoutine());
-                    }
-                }
-                else
-                {
-                    open = !open;
-                    PlayDoorSound();
-                }
+                _interactionHeld = true;
+                TryInteract();
             }
 
             if (Input.GetKeyUp(KeyCode.F))
+                _interactionHeld = false;
+
+            UpdateInteractionMessage();
+        }
+
+        private void TryInteract()
+        {
+            if (_bossEncounterRequested) return;
+
+            if (requiresPassword && !_isUnlocked)
             {
-                isKeyPressed = false;
+                PlayDeniedSound();
+                return;
             }
 
-            // Hiển thị chữ gợi ý trên màn hình
-            if (!hasTransitioned)
+            if (requiresKeycard && !CanUnlockWithKeycard())
+                return;
+
+            _isUnlocked = true;
+
+            if (isBossDoor)
             {
-                if (requiresPassword && !isUnlocked)
-                    doorMessage = trig ? lockedMessage : "";
-                else
-                    doorMessage = trig ? (open ? closeMessage : openMessage) : "";
+                if (bossEncounterController == null)
+                {
+                    Debug.LogError("[AE_Door] Cửa boss chưa được gán BossEncounterController.", this);
+                    return;
+                }
+
+                if (bossEncounterController.StartBossEncounter())
+                {
+                    _bossEncounterRequested = true;
+                    _doorMessage = string.Empty;
+                }
+
+                return;
             }
+
+            _open = !_open;
+            PlayDoorSound();
+        }
+
+        private bool CanUnlockWithKeycard()
+        {
+            if (LightingManager.Instance != null && !LightingManager.Instance.IsPowerOn)
+            {
+                NotificationUI.Instance?.ShowNotification(
+                    "Máy đọc thẻ không hoạt động. Cần mở hệ thống điện.");
+                PlayDeniedSound();
+                return false;
+            }
+
+            if (InventorySystem.Instance == null || requiredKeycardSO == null)
+            {
+                Debug.LogWarning(
+                    "[AE_Door] Thiếu InventorySystem hoặc chưa gán Required Keycard SO.",
+                    this);
+                PlayDeniedSound();
+                return false;
+            }
+
+            if (!InventorySystem.Instance.HasItem(requiredKeycardSO))
+            {
+                NotificationUI.Instance?.ShowNotification(
+                    "Truy cập bị từ chối: Yêu cầu Thẻ Từ.");
+                PlayDeniedSound();
+                return false;
+            }
+
+            return true;
+        }
+
+        private void AnimateDoor()
+        {
+            if (isSlidingDoor)
+            {
+                Vector3 target = _open ? _openLocalPosition : _closedLocalPosition;
+                transform.localPosition = Vector3.Lerp(
+                    transform.localPosition,
+                    target,
+                    Time.deltaTime * smooth);
+            }
+            else
+            {
+                Quaternion target = _open ? _openRotation : _closedRotation;
+                transform.rotation = Quaternion.Slerp(
+                    transform.rotation,
+                    target,
+                    Time.deltaTime * smooth);
+            }
+        }
+
+        private void UpdateInteractionMessage()
+        {
+            if (!_playerInRange || _bossEncounterRequested)
+            {
+                _doorMessage = string.Empty;
+                return;
+            }
+
+            if (requiresPassword && !_isUnlocked)
+                _doorMessage = lockedMessage;
+            else
+                _doorMessage = _open ? closeMessage : openMessage;
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            if (other.CompareTag("Player") && !_bossEncounterRequested)
+                _playerInRange = true;
+        }
+
+        private void OnTriggerExit(Collider other)
+        {
+            if (!other.CompareTag("Player")) return;
+            _playerInRange = false;
+            _doorMessage = string.Empty;
         }
 
         private void OnGUI()
         {
-            if (!string.IsNullOrEmpty(doorMessage))
+            if (string.IsNullOrEmpty(_doorMessage)) return;
+
+            GUIStyle style = new GUIStyle(GUI.skin.label)
             {
-                GUIStyle style = new GUIStyle(GUI.skin.label)
-                {
-                    alignment = TextAnchor.MiddleCenter,
-                    fontSize = fontSize,
-                    normal = { textColor = fontColor }
-                };
+                alignment = TextAnchor.MiddleCenter,
+                fontSize = fontSize
+            };
+            style.normal.textColor = fontColor;
 
-                if (messageFont != null) style.font = messageFont;
+            if (messageFont != null)
+                style.font = messageFont;
 
-                float screenWidth = Screen.width;
-                float screenHeight = Screen.height;
-                Vector2 labelSize = style.CalcSize(new GUIContent(doorMessage));
-                float labelX = screenWidth * messagePosition.x - labelSize.x / 2;
-                float labelY = screenHeight * messagePosition.y - labelSize.y / 2;
-
-                GUI.Label(new Rect(labelX, labelY, labelSize.x, labelSize.y), doorMessage, style);
-            }
-        }
-
-        private void OnTriggerEnter(Collider coll)
-        {
-            if (coll.CompareTag("Player") && !hasTransitioned)
-            {
-                doorMessage = open ? closeMessage : openMessage;
-                trig = true;
-            }
-        }
-
-        private void OnTriggerExit(Collider coll)
-        {
-            if (coll.CompareTag("Player"))
-            {
-                doorMessage = "";
-                trig = false;
-            }
+            Vector2 labelSize = style.CalcSize(new GUIContent(_doorMessage));
+            float x = Screen.width * messagePosition.x - labelSize.x * 0.5f;
+            float y = Screen.height * messagePosition.y - labelSize.y * 0.5f;
+            GUI.Label(new Rect(x, y, labelSize.x, labelSize.y), _doorMessage, style);
         }
 
         private void PlayDoorSound()
         {
-            if (audioSource != null)
-            {
-                if (open && openSound != null)
-                {
-                    audioSource.clip = openSound;
-                    audioSource.Play();
-                }
-                else if (!open && closeSound != null)
-                {
-                    audioSource.clip = closeSound;
-                    audioSource.Play();
-                }
-            }
+            AudioClip clip = _open ? openSound : closeSound;
+            if (_audioSource != null && clip != null)
+                _audioSource.PlayOneShot(clip);
         }
 
-        // Gọi hàm này từ Keypad khi nhập đúng mật khẩu
+        private void PlayDeniedSound()
+        {
+            if (_audioSource != null && accessDeniedSound != null)
+                _audioSource.PlayOneShot(accessDeniedSound);
+        }
+
+        /// <summary>Được Keypad gọi sau khi nhập đúng mật khẩu.</summary>
         public void UnlockByPassword()
         {
-            if (isUnlocked) return;
-            isUnlocked = true;
-            open = true;
-            doorMessage = "";
-            PlayDoorSound();
-        }
+            if (_isUnlocked) return;
+            _isUnlocked = true;
 
-        // ==========================================
-        // COROUTINE: XỬ LÝ FADE MÀN HÌNH & CHUYỂN CẢNH
-        // ==========================================
-        private IEnumerator TransitionRoutine()
-        {
-            if (playerMovementScript != null) playerMovementScript.enabled = false;
-
-            if (fadeCanvasGroup != null)
+            // Cửa boss là portal nên không xoay/mở model cửa tại đây.
+            if (!isBossDoor)
             {
-                float timer = 0f;
-                while (timer < 1f)
-                {
-                    timer += Time.deltaTime * fadeSpeed;
-                    fadeCanvasGroup.alpha = Mathf.Lerp(0f, 1f, timer);
-                    yield return null;
-                }
-                fadeCanvasGroup.alpha = 1f;
-            }
-
-            yield return new WaitForSeconds(0.2f);
-
-            TeleportPlayer();
-
-            if (timelineDirector != null)
-            {
-                timelineDirector.Play();
-                timelineDirector.stopped += OnCutsceneFinished;
-            }
-
-            if (fadeCanvasGroup != null)
-            {
-                float timer = 0f;
-                while (timer < 1f)
-                {
-                    timer += Time.deltaTime * fadeSpeed;
-                    fadeCanvasGroup.alpha = Mathf.Lerp(1f, 0f, timer);
-                    yield return null;
-                }
-                fadeCanvasGroup.alpha = 0f;
-            }
-        }
-
-        private void TeleportPlayer()
-        {
-            if (playerTransform == null || bossRoomSpawnPoint == null) return;
-
-            CharacterController cc = playerTransform.GetComponent<CharacterController>();
-            if (cc != null) cc.enabled = false;
-
-            playerTransform.position = bossRoomSpawnPoint.position;
-            playerTransform.rotation = bossRoomSpawnPoint.rotation;
-
-            if (cc != null) cc.enabled = true;
-        }
-
-        private void OnCutsceneFinished(PlayableDirector director)
-        {
-            if (playerMovementScript != null)
-            {
-                playerMovementScript.enabled = true;
-            }
-
-            if (timelineDirector != null)
-            {
-                timelineDirector.stopped -= OnCutsceneFinished;
+                _open = true;
+                PlayDoorSound();
             }
         }
     }
