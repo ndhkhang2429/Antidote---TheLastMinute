@@ -14,6 +14,7 @@ public class MutatedBossZombie : ZombieBase
     {
         Disabled,
         Phase1,
+        Melee,
         Stomp,
         Summon,
         Charge,
@@ -43,11 +44,15 @@ public class MutatedBossZombie : ZombieBase
     [SerializeField] private float phase2Threshold = 0.5f;
     [SerializeField] private float phaseTransitionDuration = 2.5f;
     [SerializeField] private GameObject phase2TransitionVfx;
+    [SerializeField] private BossPhaseTransitionController phaseTransitionController;
 
     [Header("== PHASE 1: STOMP ==")]
     [SerializeField] private float stompCooldown = 8f;
     [SerializeField] private float stompRange = 4.5f;
     [SerializeField] private float stompAnimationDuration = 2.2f;
+    [SerializeField] private float stompTakeoffDelay = 0.2f;
+    [SerializeField] private float stompJumpHeight = 2.8f;
+    [SerializeField] private float stompJumpDuration = 0.9f;
     [SerializeField] private float stompRadius = 6f;
     [SerializeField] private float stompDamageMultiplier = 1.2f;
 
@@ -56,10 +61,19 @@ public class MutatedBossZombie : ZombieBase
     [SerializeField] private float chargeMinDistance = 5f;
     [SerializeField] private float chargeMaxDistance = 12f;
     [SerializeField] private float chargeWindUp = 0.8f;
-    [SerializeField] private float chargeDuration = 1.1f;
+    [SerializeField] private float chargeDuration = 1.6f;
     [SerializeField] private float chargeSpeed = 11f;
+    [SerializeField] private float chargeOvershootDistance = 1.5f;
+    [SerializeField] private float chargeMaxTravelDistance = 14f;
     [SerializeField] private float chargeHitRadius = 1.8f;
     [SerializeField] private float chargeDamageMultiplier = 1.4f;
+
+    [Header("== PHASE 1: MELEE ==")]
+    [SerializeField] private float meleeRange = 3f;
+    [SerializeField] private float meleeCooldown = 1.8f;
+    [SerializeField] private float meleeAnimationDuration = 1.35f;
+    [SerializeField] private float meleeHitDelay = 0.55f;
+    [SerializeField] private float meleeDamageMultiplier = 1f;
 
     [Header("== PHASE 1: SUMMON ==")]
     [SerializeField] private GameObject minionPrefab;
@@ -67,6 +81,7 @@ public class MutatedBossZombie : ZombieBase
     [SerializeField] private int maxAliveMinions = 4;
     [SerializeField] private float summonCooldown = 20f;
     [SerializeField] private float summonAnimationDuration = 2.5f;
+    [SerializeField] private float summonSpawnDelay = 1.2f;
 
     [Header("== PHASE 2: GENERAL ==")]
     [SerializeField] private float phase2MoveSpeedMultiplier = 1.15f;
@@ -112,9 +127,14 @@ public class MutatedBossZombie : ZombieBase
     private bool _encounterActive;
     private bool _isPhase2;
     private bool _phaseTransitionStarted;
+    private bool _phaseVisualsApplied;
     private bool _skillRunning;
+    private bool _stompImpactTriggered;
+    private bool _stompCanImpact;
+    private bool _meleeImpactTriggered;
 
     private float _stompTimer;
+    private float _meleeTimer;
     private float _chargeTimer;
     private float _summonTimer;
     private float _phase2DecisionTimer;
@@ -141,6 +161,11 @@ public class MutatedBossZombie : ZombieBase
 
         ApplyMaterial(phase1Material);
         ResetCooldowns();
+
+        // Súng trong project có thể trừ máu trực tiếp qua HealthSystem thay vì
+        // gọi MutatedBossZombie.TakeDamage(), vì vậy phải theo dõi HP tại nguồn.
+        if (healthSystem != null)
+            healthSystem.OnDamaged += HandleBossHealthChanged;
 
         if (startActiveForTesting)
             BeginEncounter();
@@ -205,15 +230,26 @@ public class MutatedBossZombie : ZombieBase
         {
             StartCoroutine(StompRoutine());
         }
+        else if (distance <= meleeRange && _meleeTimer >= meleeCooldown)
+        {
+            StartCoroutine(MeleeRoutine());
+        }
         else if (distance >= chargeMinDistance &&
                  distance <= chargeMaxDistance &&
                  _chargeTimer >= chargeCooldown)
         {
             StartCoroutine(ChargeRoutine());
         }
+        else if (distance <= meleeRange)
+        {
+            // Đứng chờ rất ngắn trong lúc melee hồi, không chui vào collider Player.
+            StopAgentSafely();
+            FacePlayer();
+            anim.SetFloat("Speed", 0f, 0.1f, Time.deltaTime);
+        }
         else
         {
-            ChasePlayer(runSpeed, attackRange);
+            ChasePlayer(runSpeed, meleeRange * 0.85f);
         }
     }
 
@@ -272,14 +308,76 @@ public class MutatedBossZombie : ZombieBase
         return available[Random.Range(0, available.Count)];
     }
 
+    private IEnumerator MeleeRoutine()
+    {
+        BeginSkill(BossState.Melee);
+        _meleeTimer = 0f;
+        _meleeImpactTriggered = false;
+        FacePlayer(true);
+        anim.SetTrigger("MeleeTrigger");
+
+        float hitDelay = Mathf.Clamp(meleeHitDelay, 0f, meleeAnimationDuration);
+        yield return new WaitForSeconds(hitDelay);
+
+        if (_isDead) yield break;
+        Event_TriggerMeleeHit();
+
+        float remainingAnimation = Mathf.Max(0f, meleeAnimationDuration - hitDelay);
+        if (remainingAnimation > 0f)
+            yield return new WaitForSeconds(remainingAnimation);
+
+        yield return SkillRecovery();
+        FinishSkill();
+    }
+
     private IEnumerator StompRoutine()
     {
         BeginSkill(BossState.Stomp);
         _stompTimer = 0f;
+        _stompImpactTriggered = false;
+        _stompCanImpact = false;
         FacePlayer(true);
         anim.SetTrigger("StompTrigger");
 
-        yield return new WaitForSeconds(stompAnimationDuration);
+        // Cho Animator đủ thời gian rời Locomotion trước khi script nâng boss lên.
+        if (stompTakeoffDelay > 0f)
+            yield return new WaitForSeconds(stompTakeoffDelay);
+
+        if (_isDead) yield break;
+
+        Vector3 groundPosition = transform.position;
+
+        if (AgentReady())
+        {
+            agent.isStopped = true;
+            agent.updatePosition = false;
+            agent.updateRotation = false;
+        }
+
+        float elapsed = 0f;
+        float jumpDuration = Mathf.Max(0.1f, stompJumpDuration);
+        while (elapsed < jumpDuration && !_isDead)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / jumpDuration);
+            transform.position = groundPosition +
+                                 Vector3.up * (Mathf.Sin(t * Mathf.PI) * stompJumpHeight);
+            yield return null;
+        }
+
+        if (_isDead) yield break;
+
+        transform.position = groundPosition;
+        EnableAndWarpAgent();
+        _stompCanImpact = true;
+        Event_TriggerStompShockwave();
+
+        float remainingAnimation = Mathf.Max(
+            0f,
+            stompAnimationDuration - stompTakeoffDelay - jumpDuration);
+        if (remainingAnimation > 0f)
+            yield return new WaitForSeconds(remainingAnimation);
+
         yield return SkillRecovery();
         FinishSkill();
     }
@@ -291,7 +389,16 @@ public class MutatedBossZombie : ZombieBase
         FacePlayer(true);
         anim.SetTrigger("SummonTrigger");
 
-        yield return new WaitForSeconds(summonAnimationDuration);
+        float spawnDelay = Mathf.Clamp(summonSpawnDelay, 0f, summonAnimationDuration);
+        yield return new WaitForSeconds(spawnDelay);
+
+        if (_isDead) yield break;
+        Event_TriggerSummonMinions();
+
+        float remainingAnimation = Mathf.Max(0f, summonAnimationDuration - spawnDelay);
+        if (remainingAnimation > 0f)
+            yield return new WaitForSeconds(remainingAnimation);
+
         yield return SkillRecovery();
         FinishSkill();
     }
@@ -308,19 +415,34 @@ public class MutatedBossZombie : ZombieBase
         if (_isDead || player == null) yield break;
 
         Vector3 chargeDirection = FlatDir(player.position - transform.position);
+        float distanceToLockedTarget = FlatDistanceToPlayer();
+        float targetTravelDistance = Mathf.Min(
+            distanceToLockedTarget + chargeOvershootDistance,
+            chargeMaxTravelDistance);
         bool damagedPlayer = false;
         float elapsed = 0f;
+        float travelled = 0f;
 
         PrepareAgentForManualMovement();
         anim.CrossFade("Locomotion", 0.1f);
         anim.SetFloat("Speed", 2f);
 
-        while (elapsed < chargeDuration && !_isDead)
+        while (elapsed < chargeDuration && travelled < targetTravelDistance && !_isDead)
         {
             elapsed += Time.deltaTime;
+            float remainingDistance = targetTravelDistance - travelled;
+            float stepDistance = Mathf.Min(chargeSpeed * Time.deltaTime, remainingDistance);
 
             if (AgentReady())
-                agent.Move(chargeDirection * chargeSpeed * Time.deltaTime);
+            {
+                Vector3 beforeMove = transform.position;
+                agent.Move(chargeDirection * stepDistance);
+                travelled += Vector3.Distance(beforeMove, transform.position);
+            }
+            else
+            {
+                break;
+            }
 
             if (!damagedPlayer && FlatDistanceToPlayer() <= chargeHitRadius)
             {
@@ -412,31 +534,18 @@ public class MutatedBossZombie : ZombieBase
 
     private IEnumerator PhaseTransitionRoutine()
     {
-        _phaseTransitionStarted = true;
-        _skillRunning = true;
-        _state = BossState.PhaseTransition;
-        StopAgentSafely();
         anim.SetFloat("Speed", 0f);
         anim.SetTrigger("RoarTransition");
 
-        if (phase2TransitionVfx != null)
-        {
-            GameObject vfx = Instantiate(phase2TransitionVfx, transform.position, Quaternion.identity);
-            Destroy(vfx, phaseTransitionDuration + 2f);
-        }
+        // ZombieBase cũng phản ứng với event nhận damage; dừng lại lần nữa ở
+        // frame kế tiếp để nó không kéo agent đi trong phase transition.
+        yield return null;
+        StopAgentSafely();
 
         yield return new WaitForSeconds(phaseTransitionDuration * 0.5f);
-        ApplyMaterial(phase2Material);
+        ApplyPhase2Visuals();
         yield return new WaitForSeconds(phaseTransitionDuration * 0.5f);
-
-        _isPhase2 = true;
-        _skillRunning = false;
-        _state = BossState.Phase2;
-        _phase2DecisionTimer = 0f;
-        _rockSpikeTimer = rockSpikesCooldown;
-        _leapTimer = leapCooldown;
-        _frenzyTimer = frenzyCooldown;
-        ResumeAgentSafely(runSpeed * phase2MoveSpeedMultiplier);
+        CompletePhase2Transition();
     }
 
     public override void TakeDamage(float damage, GameObject attacker = null)
@@ -450,18 +559,91 @@ public class MutatedBossZombie : ZombieBase
             return;
         }
 
-        if (!_isPhase2 && !_phaseTransitionStarted && healthSystem.HPPercent <= phase2Threshold)
+    }
+
+    private void HandleBossHealthChanged(float currentHP, float maxHP)
+    {
+        if (currentHP <= 0f || maxHP <= 0f) return;
+        if (!_encounterActive || _isPhase2 || _phaseTransitionStarted) return;
+
+        if (currentHP / maxHP <= phase2Threshold)
         {
-            // Hủy skill đang chạy để transition không xung đột với coroutine cũ.
-            StopAllCoroutines();
-            _skillRunning = false;
-            StartCoroutine(PhaseTransitionRoutine());
+            Debug.Log($"[Boss] HP còn {currentHP / maxHP:P0}. Bắt đầu chuyển Phase 2.", this);
+            BeginPhase2Transition();
         }
+    }
+
+    private void BeginPhase2Transition()
+    {
+        StopAllCoroutines();
+        _phaseTransitionStarted = true;
+        _phaseVisualsApplied = false;
+        _skillRunning = true;
+        _state = BossState.PhaseTransition;
+        StopAgentSafely();
+        anim.SetFloat("Speed", 0f);
+
+        if (phaseTransitionController != null &&
+            phaseTransitionController.PlayTransition(this))
+        {
+            return;
+        }
+
+        // Nếu Timeline chưa được gán thì vẫn chuyển phase bằng coroutine cũ.
+        StartCoroutine(PhaseTransitionRoutine());
+    }
+
+    /// <summary>Controller gọi ở giữa Timeline để đổi material và bật VFX.</summary>
+    public void ApplyPhase2Visuals()
+    {
+        if (_phaseVisualsApplied) return;
+        _phaseVisualsApplied = true;
+
+        ApplyMaterial(phase2Material);
+
+        if (phase2TransitionVfx != null)
+        {
+            GameObject vfx = Instantiate(
+                phase2TransitionVfx,
+                transform.position,
+                Quaternion.identity);
+            Destroy(vfx, 5f);
+        }
+    }
+
+    /// <summary>Controller gọi khi Timeline kết thúc để bắt đầu gameplay Phase 2.</summary>
+    public void CompletePhase2Transition()
+    {
+        if (_isDead || _isPhase2) return;
+
+        ApplyPhase2Visuals();
+        _isPhase2 = true;
+        Debug.Log("[Boss] Đã chuyển sang Phase 2.", this);
+        _skillRunning = false;
+        _state = BossState.Phase2;
+        _phase2DecisionTimer = 0f;
+        _rockSpikeTimer = rockSpikesCooldown;
+        _leapTimer = leapCooldown;
+        _frenzyTimer = frenzyCooldown;
+        ResumeAgentSafely(runSpeed * phase2MoveSpeedMultiplier);
+    }
+
+    // Script tự gọi theo Melee Hit Delay; có thể giữ thêm Animation Event mà không gây double damage.
+    public void Event_TriggerMeleeHit()
+    {
+        if (_state != BossState.Melee || _meleeImpactTriggered) return;
+        _meleeImpactTriggered = true;
+
+        if (FlatDistanceToPlayer() <= meleeRange * 1.15f)
+            DamagePlayer(attackDamage * meleeDamageMultiplier);
     }
 
     // Animation Event: đặt đúng thời điểm chân boss chạm đất trong Attack_Stomp.
     public void Event_TriggerStompShockwave()
     {
+        if (_state != BossState.Stomp || !_stompCanImpact || _stompImpactTriggered) return;
+        _stompImpactTriggered = true;
+
         SpawnImpactEffects(stompVfxPrefab, 0.05f);
 
         if (FlatDistanceToPlayer() <= stompRadius)
@@ -471,7 +653,17 @@ public class MutatedBossZombie : ZombieBase
     // Animation Event: đặt vào thời điểm boss hoàn tất động tác gọi minion.
     public void Event_TriggerSummonMinions()
     {
-        if (minionPrefab == null || minionSpawnPoints == null) return;
+        if (minionPrefab == null)
+        {
+            Debug.LogWarning("[Boss] Chưa gán Minion Prefab.", this);
+            return;
+        }
+
+        if (minionSpawnPoints == null || minionSpawnPoints.Length == 0)
+        {
+            Debug.LogWarning("[Boss] Chưa gán Minion Spawn Points.", this);
+            return;
+        }
 
         CleanupMinionList();
         int slots = Mathf.Max(0, maxAliveMinions - _aliveMinions.Count);
@@ -485,6 +677,8 @@ public class MutatedBossZombie : ZombieBase
             _aliveMinions.Add(minion);
             slots--;
         }
+
+        Debug.Log($"[Boss] Summon hoàn tất. Minion đang sống: {_aliveMinions.Count}.", this);
     }
 
     // Leap gọi trực tiếp khi đáp đất; không cần Animation Event.
@@ -628,6 +822,7 @@ public class MutatedBossZombie : ZombieBase
     private void TickCooldowns()
     {
         _stompTimer += Time.deltaTime;
+        _meleeTimer += Time.deltaTime;
         _chargeTimer += Time.deltaTime;
         _summonTimer += Time.deltaTime;
 
@@ -642,8 +837,10 @@ public class MutatedBossZombie : ZombieBase
     private void ResetCooldowns()
     {
         _stompTimer = 2f;
+        _meleeTimer = meleeCooldown;
         _chargeTimer = 0f;
-        _summonTimer = 0f;
+        // Lần summon đầu diễn ra sớm để người chơi thấy rõ cơ chế Phase 1.
+        _summonTimer = Mathf.Max(0f, summonCooldown - 5f);
         _phase2DecisionTimer = 0f;
         _rockSpikeTimer = 0f;
         _leapTimer = 0f;
