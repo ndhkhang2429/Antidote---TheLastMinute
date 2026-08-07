@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.AI;
 
 /// <summary>
-/// AI chiến đấu độc lập của Mutated Boss.
+/// AI chiến đấu độc lập của Mutated Boss. Leap impact được khóa để không tạo decal hai lần.
 /// Không phụ thuộc Timeline hoặc bất kỳ Cutscene Manager nào.
 /// BossEncounterController chỉ cần gọi BeginEncounter() khi cutscene mở trận kết thúc.
 /// </summary>
@@ -132,6 +132,7 @@ public class MutatedBossZombie : ZombieBase
     private bool _stompImpactTriggered;
     private bool _stompCanImpact;
     private bool _meleeImpactTriggered;
+    private bool _leapImpactTriggered;
 
     private float _stompTimer;
     private float _meleeTimer;
@@ -477,6 +478,7 @@ public class MutatedBossZombie : ZombieBase
     {
         BeginSkill(BossState.Leap);
         _leapTimer = 0f;
+        _leapImpactTriggered = false;
         FacePlayer(true);
         anim.SetTrigger("LeapTrigger");
 
@@ -514,7 +516,7 @@ public class MutatedBossZombie : ZombieBase
 
         transform.position = landingPosition;
         EnableAndWarpAgent();
-        Event_TriggerLeapShockwave();
+        TriggerLeapImpact(landingPosition);
 
         yield return SkillRecovery();
         FinishSkill();
@@ -681,10 +683,36 @@ public class MutatedBossZombie : ZombieBase
         Debug.Log($"[Boss] Summon hoàn tất. Minion đang sống: {_aliveMinions.Count}.", this);
     }
 
-    // Leap gọi trực tiếp khi đáp đất; không cần Animation Event.
+    // Giữ lại cho các clip cũ có Animation Event. Event giữa không trung sẽ bị bỏ qua.
     public void Event_TriggerLeapShockwave()
     {
-        SpawnImpactEffects(leapVfxPrefab, 0.05f);
+        if (_state != BossState.Leap || _leapImpactTriggered)
+            return;
+
+        // Animation Event cũ có thể chạy khi boss còn đang bay. Chỉ chấp nhận
+        // event khi chân boss đã rất gần bề mặt NavMesh.
+        if (!NavMesh.SamplePosition(
+                transform.position,
+                out NavMeshHit groundHit,
+                1f,
+                NavMesh.AllAreas))
+        {
+            return;
+        }
+
+        if (Mathf.Abs(transform.position.y - groundHit.position.y) > 0.35f)
+            return;
+
+        TriggerLeapImpact(groundHit.position);
+    }
+
+    private void TriggerLeapImpact(Vector3 groundPosition)
+    {
+        if (_state != BossState.Leap || _leapImpactTriggered)
+            return;
+
+        _leapImpactTriggered = true;
+        SpawnImpactEffectsAt(leapVfxPrefab, groundPosition, 0.05f);
 
         if (FlatDistanceToPlayer() <= leapRadius)
             DamagePlayer(attackDamage * leapDamageMultiplier);
@@ -921,15 +949,26 @@ public class MutatedBossZombie : ZombieBase
 
     private void SpawnImpactEffects(GameObject mainVfx, float crackHeight)
     {
+        SpawnImpactEffectsAt(mainVfx, transform.position, crackHeight);
+    }
+
+    private void SpawnImpactEffectsAt(
+        GameObject mainVfx,
+        Vector3 groundPosition,
+        float crackHeight)
+    {
         if (mainVfx != null)
         {
-            GameObject vfx = Instantiate(mainVfx, transform.position, mainVfx.transform.rotation);
+            GameObject vfx = Instantiate(
+                mainVfx,
+                groundPosition,
+                mainVfx.transform.rotation);
             Destroy(vfx, 4f);
         }
 
         if (groundCrackPrefab != null)
         {
-            Vector3 position = transform.position + Vector3.up * crackHeight;
+            Vector3 position = groundPosition + Vector3.up * crackHeight;
             GameObject crack = Instantiate(
                 groundCrackPrefab,
                 position,
