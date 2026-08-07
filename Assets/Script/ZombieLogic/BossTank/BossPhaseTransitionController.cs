@@ -7,15 +7,26 @@ using UnityEngine.Playables;
 /// </summary>
 public class BossPhaseTransitionController : MonoBehaviour
 {
+    [Header("SCRIPT VERSION")]
+    [SerializeField] private string scriptVersion = "2.0 - Phase 2 Orbit Snap";
+
     [Header("Timeline")]
     [SerializeField] private PlayableDirector phase2Director;
     [SerializeField] private float materialSwapTime = 1.8f;
     [SerializeField] private float safetyTimeout = 8f;
 
+    [Header("Phase 2 Camera Orbit")]
+    [Tooltip("Pivot cha của Phase2FocusCamera. Pivot sẽ được đưa tới vị trí hiện tại của boss trước khi Timeline chạy.")]
+    [SerializeField] private Transform phase2CameraOrbit;
+    [Tooltip("Bật nếu pivot cũng phải lấy Y của boss. Thông thường nên bật.")]
+    [SerializeField] private bool snapOrbitYToBoss = true;
+    [Tooltip("Độ cao cộng thêm cho pivot so với chân boss. Camera con vẫn giữ Local Y riêng.")]
+    [SerializeField] private float orbitPivotYOffset = 0f;
+
     [Header("Player Lock")]
-    [Tooltip("ThirdPersonController, PlayerAttack và các script input cần khóa.")]
+    [Tooltip("ThirdPersonController, PlayerAttack, PlayerInteraction và các script input cần khóa.")]
     [SerializeField] private MonoBehaviour[] playerScriptsToDisable;
-    [Tooltip("Ví dụ FPS Hands cần ẩn trong cutscene.")]
+    [Tooltip("FPS Hands, HUD và các object cần ẩn trong cutscene.")]
     [SerializeField] private GameObject[] playerObjectsToHide;
 
     private MutatedBossZombie _boss;
@@ -30,7 +41,8 @@ public class BossPhaseTransitionController : MonoBehaviour
     /// <summary>Được MutatedBossZombie gọi khi HP chạm ngưỡng Phase 2.</summary>
     public bool PlayTransition(MutatedBossZombie boss)
     {
-        if (_running || boss == null) return false;
+        if (_running || boss == null)
+            return false;
 
         if (phase2Director == null || phase2Director.playableAsset == null)
         {
@@ -49,6 +61,7 @@ public class BossPhaseTransitionController : MonoBehaviour
     private IEnumerator TransitionSequence()
     {
         LockPlayer();
+        SnapCameraOrbitToBoss();
 
         _directorStopped = false;
         _visualsApplied = false;
@@ -70,7 +83,8 @@ public class BossPhaseTransitionController : MonoBehaviour
             if (!_visualsApplied && elapsed >= materialSwapTime)
             {
                 _visualsApplied = true;
-                _boss?.ApplyPhase2Visuals();
+                if (_boss != null)
+                    _boss.ApplyPhase2Visuals();
             }
 
             yield return null;
@@ -89,17 +103,46 @@ public class BossPhaseTransitionController : MonoBehaviour
         FinishTransition();
     }
 
+    private void SnapCameraOrbitToBoss()
+    {
+        if (phase2CameraOrbit == null)
+        {
+            Debug.LogWarning(
+                "[BossPhaseTransition] Chưa gán Phase 2 Camera Orbit; camera sẽ dùng vị trí đặt sẵn trong Scene.",
+                this);
+            return;
+        }
+
+        if (_boss == null)
+            return;
+
+        Vector3 bossPosition = _boss.transform.position;
+        Vector3 orbitPosition = phase2CameraOrbit.position;
+
+        orbitPosition.x = bossPosition.x;
+        orbitPosition.z = bossPosition.z;
+
+        if (snapOrbitYToBoss)
+            orbitPosition.y = bossPosition.y + orbitPivotYOffset;
+
+        phase2CameraOrbit.position = orbitPosition;
+    }
+
     private void FinishTransition()
     {
-        if (!_running) return;
+        if (!_running)
+            return;
 
         if (!_visualsApplied)
         {
             _visualsApplied = true;
-            _boss?.ApplyPhase2Visuals();
+            if (_boss != null)
+                _boss.ApplyPhase2Visuals();
         }
 
-        _boss?.CompletePhase2Transition();
+        if (_boss != null)
+            _boss.CompletePhase2Transition();
+
         UnlockPlayer();
 
         _boss = null;
@@ -122,7 +165,8 @@ public class BossPhaseTransitionController : MonoBehaviour
         for (int i = 0; i < playerScriptsToDisable.Length; i++)
         {
             MonoBehaviour script = playerScriptsToDisable[i];
-            if (script == null || script == this) continue;
+            if (script == null || script == this)
+                continue;
 
             _previousScriptStates[i] = script.enabled;
             script.enabled = false;
@@ -132,7 +176,8 @@ public class BossPhaseTransitionController : MonoBehaviour
         for (int i = 0; i < playerObjectsToHide.Length; i++)
         {
             GameObject target = playerObjectsToHide[i];
-            if (target == null) continue;
+            if (target == null)
+                continue;
 
             _previousObjectStates[i] = target.activeSelf;
             target.SetActive(false);
@@ -164,7 +209,8 @@ public class BossPhaseTransitionController : MonoBehaviour
 
     private void OnDisable()
     {
-        if (!_running) return;
+        if (!_running)
+            return;
 
         StopAllCoroutines();
 
