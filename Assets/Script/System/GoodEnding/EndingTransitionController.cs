@@ -17,57 +17,149 @@ public class EndingTransitionController : MonoBehaviour
 
     private void Update()
     {
-        // TEST ONLY
+        // CHEAT - GIỮ LẠI ĐỂ TEST ENDING
         if (Input.GetKeyDown(KeyCode.F7))
         {
+            Debug.Log("[EndingTransition] F7 pressed.");
+
             StartRooftopTransition();
         }
     }
 
     public void StartRooftopTransition()
     {
+        Debug.Log(
+            $"[EndingTransition] StartRooftopTransition called. " +
+            $"isTransitioning = {isTransitioning}"
+        );
+
         if (isTransitioning)
+        {
+            Debug.LogWarning(
+                "[EndingTransition] Transition already running."
+            );
+
             return;
+        }
+
+        // Kiểm tra reference NGAY TẠI ĐÂY
+        if (fadeController == null)
+        {
+            Debug.LogError(
+                "[EndingTransition] FadeController is NULL!"
+            );
+
+            return;
+        }
+
+        if (player == null)
+        {
+            Debug.LogError(
+                "[EndingTransition] Player is NULL!"
+            );
+
+            return;
+        }
+
+        if (rooftopSpawnPoint == null)
+        {
+            Debug.LogError(
+                "[EndingTransition] RooftopSpawnPoint is NULL!"
+            );
+
+            return;
+        }
+
+        isTransitioning = true;
 
         StartCoroutine(RooftopTransitionRoutine());
     }
 
     private IEnumerator RooftopTransitionRoutine()
     {
-        if (fadeController == null ||
-            player == null ||
-            rooftopSpawnPoint == null)
-        {
-            Debug.LogError("[EndingTransition] Missing reference!");
-            yield break;
-        }
+        Debug.Log(
+            "[EndingTransition] Transition coroutine STARTED."
+        );
 
-        isTransitioning = true;
+        // ============================
+        // 1. FADE OUT
+        // ============================
 
-        // 1. Fade màn hình thành màu đen
+        Debug.Log("[EndingTransition] Fade OUT started.");
+
         fadeController.FadeOut(fadeOutDuration);
 
-        yield return new WaitForSecondsRealtime(fadeOutDuration);
+        yield return new WaitForSecondsRealtime(
+            fadeOutDuration + 0.1f
+        );
 
-        // 2. Teleport player trong lúc màn hình đang đen
+        Debug.Log("[EndingTransition] Fade OUT finished.");
+
+        // ============================
+        // 2. TELEPORT
+        // ============================
+
+        Debug.Log(
+            "[EndingTransition] Teleporting player to rooftop..."
+        );
+
         TeleportPlayerToRooftop();
 
-        // 3. Giữ màn hình đen một chút
-        yield return new WaitForSecondsRealtime(blackScreenHoldTime);
+        Debug.Log(
+            $"[EndingTransition] Player teleported to: " +
+            $"{player.position}"
+        );
 
-        // 4. Fade trở lại gameplay
+        // ============================
+        // 3. BLACK HOLD
+        // ============================
+
+        yield return new WaitForSecondsRealtime(
+            blackScreenHoldTime
+        );
+
+        // ============================
+        // 4. FADE IN
+        // ============================
+
+        Debug.Log("[EndingTransition] Fade IN started.");
+
         fadeController.FadeIn(fadeInDuration);
 
-        yield return new WaitForSecondsRealtime(fadeInDuration);
+        yield return new WaitForSecondsRealtime(
+            fadeInDuration + 0.1f
+        );
+
+        Debug.Log("[EndingTransition] Fade IN finished.");
 
         isTransitioning = false;
+
+        Debug.Log(
+            "[EndingTransition] Rooftop transition COMPLETE."
+        );
     }
 
     private void TeleportPlayerToRooftop()
     {
+        CharacterController characterController =
+            player.GetComponent<CharacterController>();
+
+        // Rất quan trọng với FirstPersonController
+        if (characterController != null)
+        {
+            characterController.enabled = false;
+        }
+
         player.SetPositionAndRotation(
             rooftopSpawnPoint.position,
             rooftopSpawnPoint.rotation
         );
+
+        if (characterController != null)
+        {
+            characterController.enabled = true;
+        }
+
+        Physics.SyncTransforms();
     }
 }

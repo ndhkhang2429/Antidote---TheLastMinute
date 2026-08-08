@@ -36,6 +36,10 @@ public class MutatedBossZombie : ZombieBase
     [Header("== ENCOUNTER ==")]
     [Tooltip("Chỉ bật để test boss mà không cần cutscene.")]
     [SerializeField] private bool startActiveForTesting = false;
+    [Header("== ENDING ==")]
+    [SerializeField] private EndingTransitionController endingTransitionController;
+    [SerializeField] private float rooftopTransitionDelay = 2.5f;
+
 
     [Header("== PHASE VISUAL ==")]
     [SerializeField] private SkinnedMeshRenderer bossRenderer;
@@ -133,6 +137,7 @@ public class MutatedBossZombie : ZombieBase
     private bool _stompCanImpact;
     private bool _meleeImpactTriggered;
     private bool _leapImpactTriggered;
+    private bool _endingTriggered;
 
     private float _stompTimer;
     private float _meleeTimer;
@@ -166,7 +171,10 @@ public class MutatedBossZombie : ZombieBase
         // Súng trong project có thể trừ máu trực tiếp qua HealthSystem thay vì
         // gọi MutatedBossZombie.TakeDamage(), vì vậy phải theo dõi HP tại nguồn.
         if (healthSystem != null)
+        {
             healthSystem.OnDamaged += HandleBossHealthChanged;
+            healthSystem.OnDeath += HandleBossDeath;
+        }
 
         if (startActiveForTesting)
             BeginEncounter();
@@ -974,6 +982,52 @@ public class MutatedBossZombie : ZombieBase
                 position,
                 Quaternion.Euler(-90f, 0f, 0f));
             Destroy(crack, 10f);
+        }
+    }
+
+    private void HandleBossDeath()
+    {
+        if (_endingTriggered)
+            return;
+
+        _endingTriggered = true;
+
+        Debug.Log("[Boss] Boss defeated. Preparing rooftop ending...", this);
+
+        _encounterActive = false;
+        _skillRunning = false;
+
+        StopAgentSafely();
+
+        StartCoroutine(BossDeathEndingRoutine());
+    }
+
+    private IEnumerator BossDeathEndingRoutine()
+    {
+        // Cho death animation chạy một lúc trước khi fade
+        yield return new WaitForSecondsRealtime(rooftopTransitionDelay);
+
+        if (endingTransitionController != null)
+        {
+            Debug.Log("[Boss] Starting rooftop transition.", this);
+
+            endingTransitionController.StartRooftopTransition();
+        }
+        else
+        {
+            Debug.LogError(
+                "[Boss] EndingTransitionController chưa được gán!",
+                this
+            );
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (healthSystem != null)
+        {
+            healthSystem.OnDamaged -= HandleBossHealthChanged;
+            healthSystem.OnDeath -= HandleBossDeath;
         }
     }
 
