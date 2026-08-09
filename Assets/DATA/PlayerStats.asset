@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: PlayerStats
   m_EditorClassIdentifier: 
   maxHP: 100
-  interactionRadius: 5
+  interactionRadius: 2.03
   dropDestroyDelay: 3

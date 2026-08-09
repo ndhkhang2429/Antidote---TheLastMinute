@@ -329,15 +329,44 @@ public class PlayerInteraction : MonoBehaviour
 
             if (leftover <= 0)
             {
-                // Trường hợp 1: Nhặt sạch sẽ -> Xóa hộp đạn
-                itemToPickUp.GetComponent<Collider>().enabled = false;
+                Collider itemCollider =
+                    itemToPickUp.GetComponent<Collider>();
+
+                if (itemCollider != null)
+                {
+                    itemCollider.enabled = false;
+                }
+
+                /*
+                 * Thông báo nhặt đồ chạy trước.
+                 */
+                if (NotificationUI.Instance != null)
+                {
+                    NotificationUI.Instance.ShowNotification(
+                        $"Picked {data.itemName} x{pickedAmount}"
+                    );
+                }
+
+                /*
+                 * UnityEvent nếu item đang sử dụng event khác.
+                 */
                 worldItem.TriggerPickedUp();
+
+                /*
+                 * Tutorial luôn chạy cuối cùng để không bị
+                 * thông báo nhặt đồ ghi đè.
+                 */
+                OpeningTutorialHints tutorial =
+                    FindObjectOfType<OpeningTutorialHints>();
+
+                tutorial?.NotifyItemPickedUp(data);
+
                 Destroy(itemToPickUp);
 
-                if (NotificationUI.Instance != null)
-                    NotificationUI.Instance.ShowNotification($"Picked {data.itemName} x{pickedAmount}");
-
-                Debug.Log($"[PlayerInteraction] Nhặt sạch: {data.itemName} x{pickedAmount}");
+                Debug.Log(
+                    $"[PlayerInteraction] Nhặt sạch: " +
+                    $"{data.itemName} x{pickedAmount}"
+                );
             }
             else
             {

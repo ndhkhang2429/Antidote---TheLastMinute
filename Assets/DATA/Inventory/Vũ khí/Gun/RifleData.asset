@@ -15,7 +15,7 @@ MonoBehaviour:
   itemName: Rifle
   icon: {fileID: 1307821520, guid: 3cae41c34246bb14dba7c07b8ef7a726, type: 3}
   worldPrefab: {fileID: 1296605364670726625, guid: 9bac10e691f2b134e8a762aac4cb9231, type: 3}
-  equipPrefab: {fileID: 1296605364670726625, guid: 9bac10e691f2b134e8a762aac4cb9231, type: 3}
+  equipPrefab: {fileID: 1296605364670726625, guid: 36aa711a7048c31449c94a9518e7bf09, type: 3}
   description: 
   category: 1
   weaponSlotType: 1

@@ -60,13 +60,14 @@ public class InventoryUI : MonoBehaviour
         // ── Slot selection — hoạt động dù inventory mở/đóng
         if (Input.GetKeyDown(KeyCode.Alpha1))
             InventorySystem.Instance?.SelectWeaponSlot(0);
+
         if (Input.GetKeyDown(KeyCode.Alpha2))
             InventorySystem.Instance?.SelectWeaponSlot(1);
+
         if (Input.GetKeyDown(KeyCode.Alpha3))
             InventorySystem.Instance?.SelectWeaponSlot(2);
+
         if (Input.GetKeyDown(KeyCode.Alpha4))
-            InventorySystem.Instance?.SelectWeaponSlot(3);
-        if (Input.GetKeyDown(KeyCode.Alpha5))
             InventorySystem.Instance?.SelectItemSlot();
 
         // ── X → tay không ────────────────────────────────

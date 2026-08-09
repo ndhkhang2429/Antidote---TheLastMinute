@@ -15,7 +15,7 @@ MonoBehaviour:
   itemName: Axe
   icon: {fileID: -543699653, guid: cb92356bea9b9a3449e182505a74acf7, type: 3}
   worldPrefab: {fileID: 4553568729403791351, guid: 237276ab14a839d459e4d5007e14a58e, type: 3}
-  equipPrefab: {fileID: 4553568729403791351, guid: 237276ab14a839d459e4d5007e14a58e, type: 3}
+  equipPrefab: {fileID: 4553568729403791351, guid: a6247be2ccdb5b743906574cbe615daa, type: 3}
   description: 
   category: 1
   weaponSlotType: 3

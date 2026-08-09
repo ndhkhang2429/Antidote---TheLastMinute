@@ -32,6 +32,13 @@ public class OpeningCutsceneManager : MonoBehaviour
     [Tooltip("Thời gian chờ thêm tối đa nếu Timeline gặp lỗi.")]
     [SerializeField] private float safetyTimeoutExtra = 2f;
 
+    [Header("Opening Tutorial")]
+    [Tooltip("Tutorial zombie được đặt thủ công ngoài hành lang.")]
+    [SerializeField] private GameObject tutorialZombie;
+
+    [Tooltip("Zone 1 phải bị khóa cho tới khi player nhặt được pistol.")]
+    [SerializeField] private GameObject firstZombieZone;
+
     private bool openingFinished;
 
     private IEnumerator Start()
@@ -90,6 +97,16 @@ public class OpeningCutsceneManager : MonoBehaviour
         if (zombieSpawnRoot != null)
         {
             zombieSpawnRoot.SetActive(false);
+        }
+
+        if (tutorialZombie != null)
+        {
+            tutorialZombie.SetActive(false);
+        }
+
+        if (firstZombieZone != null)
+        {
+            firstZombieZone.SetActive(false);
         }
 
         // Không để Canvas đen che slideshow.
@@ -248,6 +265,23 @@ public class OpeningCutsceneManager : MonoBehaviour
         if (zombieSpawnRoot != null)
         {
             zombieSpawnRoot.SetActive(true);
+        }
+
+        /*
+        * Root được bật lại nhưng Zone 1 vẫn phải khóa
+        * cho tới khi player nhặt được pistol.
+        */
+        if (firstZombieZone != null)
+        {
+            firstZombieZone.SetActive(false);
+        }
+
+        /*
+         * Tutorial zombie được bật riêng sau intro.
+         */
+        if (tutorialZombie != null)
+        {
+            tutorialZombie.SetActive(true);
         }
 
         Cursor.lockState = CursorLockMode.Locked;

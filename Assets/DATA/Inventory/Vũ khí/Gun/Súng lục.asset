@@ -15,7 +15,7 @@ MonoBehaviour:
   itemName: Pistol
   icon: {fileID: 21300000, guid: 136d39cc2caed3240bc1efff765e57ca, type: 3}
   worldPrefab: {fileID: 3763604498974455608, guid: 24293e33d3322f84bb98b6c032ce2dc9, type: 3}
-  equipPrefab: {fileID: 3763604498974455608, guid: 24293e33d3322f84bb98b6c032ce2dc9, type: 3}
+  equipPrefab: {fileID: 3763604498974455608, guid: c30d2d8da42e3ad4e9b6b9974f41f26b, type: 3}
   description: 
   category: 1
   weaponSlotType: 2
@@ -25,6 +25,11 @@ MonoBehaviour:
   combatType: 0
   damage: 22
   attachPointName: 
+  meleeSwingClips: []
+  meleeHitFleshClips: []
+  meleeSwingVolume: 0.65
+  meleeHitFleshVolume: 0.8
+  meleePitchRange: {x: 0.95, y: 1.05}
   fireRate: 0.18
   magazineSize: 12
   reloadTime: 1.6

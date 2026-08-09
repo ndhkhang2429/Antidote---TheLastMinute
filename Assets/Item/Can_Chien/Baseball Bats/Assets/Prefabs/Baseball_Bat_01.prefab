@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 66014645225810575}
   - component: {fileID: 1669582417543323004}
   - component: {fileID: 8159536270199849734}
+  - component: {fileID: 6888741296703180870}
   m_Layer: 9
   m_Name: Baseball_Bat_01
   m_TagString: Untagged
@@ -130,8 +131,37 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.053552825, y: 0.78967714, z: 0.053796966}
-  m_Center: {x: -0.0024570916, y: 0.4022652, z: 0.0055900197}
+  m_Size: {x: 0.52991027, y: 0.78967714, z: 0.3983686}
+  m_Center: {x: 0.00985983, y: 0.4022652, z: 0.026215345}
+--- !u!114 &6888741296703180870
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1602661717803204}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f6a1e86508d24e46a2758cc5cd2f050, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemData: {fileID: 11400000, guid: 3e5547f6fd5b6f449ac6e3906c471496, type: 2}
+  quantity: 1
+  onPickedUp:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: OpeningTutorialHints, Assembly-CSharp
+        m_MethodName: OnBatPickedUp
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &2123192282468287115
 GameObject:
   m_ObjectHideFlags: 0
