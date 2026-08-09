@@ -22,14 +22,30 @@ MonoBehaviour:
   maxStack: 1
   weightPerUnit: 0
   autoEquip: 0
+  combatType: 0
   damage: 10
+  attachPointName: 
+  meleeSwingClips:
+  - {fileID: 8300000, guid: 437656e3929eb20408e8eb41ac4cfb33, type: 3}
+  meleeHitFleshClips:
+  - {fileID: 8300000, guid: 85afa82be34c2df46a64e48703b3e95a, type: 3}
+  - {fileID: 8300000, guid: 68812c4a641ddf54282d4e70306cfa7b, type: 3}
+  meleeSwingVolume: 0.65
+  meleeHitFleshVolume: 0.5
+  meleePitchRange: {x: 0.95, y: 1.05}
   fireRate: 0
   magazineSize: 0
+  reloadTime: 2
   compatibleAmmo: {fileID: 0}
-  attachPointName: 
-  comboResetTime: 1.2
-  comboSteps: 3
+  bulletPrefab: {fileID: 0}
+  bulletSpeed: 50
+  muzzleFlashPrefab: {fileID: 0}
+  gripOffset: {x: 0, y: 0, z: 0}
+  gripRotation: {x: 0, y: 0, z: 0}
+  isAutomatic: 1
   cooldown: 0.5
+  comboSteps: 3
+  comboResetTime: 1.2
   hitDistance: 1.2
   hitHeight: 0.8
   hitRadius: 0.4

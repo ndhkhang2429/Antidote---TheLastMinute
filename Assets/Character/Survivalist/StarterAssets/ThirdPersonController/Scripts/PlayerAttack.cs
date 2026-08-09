@@ -13,6 +13,10 @@ public class PlayerAttack : MonoBehaviour
     [Header("FPS Reference")]
     [SerializeField] private Transform _cameraRoot;
 
+    [Header("Melee Audio")]
+    [SerializeField]
+    private PlayerMeleeAudioController _meleeAudio;
+
     private Animator _animator;
     private StarterAssetsInputs _input;
 
@@ -113,7 +117,15 @@ public class PlayerAttack : MonoBehaviour
         if (_animator == null) return;
         _animator.SetTrigger(_hashWeaponAttack);
     }
+    public void OnMeleeSwing()
+    {
+        var data = CurrentWeapon();
 
+        if (data == null)
+            data = _unarmedData;
+
+        _meleeAudio?.PlaySwing(data);
+    }
     public void OnMeleeHit()
     {
         var data = CurrentWeapon();
@@ -134,7 +146,7 @@ public class PlayerAttack : MonoBehaviour
             if (zombie == null) continue;
 
             zombie.TakeDamage(_currentDamage, gameObject);
-
+            _meleeAudio?.PlayHitFlesh(data);
             Vector3 hitPoint = hit.ClosestPoint(hitCenter);
             Vector3 hitNormal = (hitPoint - transform.position).normalized;
             hit.GetComponentInParent<ZombieBloodFXHandler>()?.OnHitMelee(hitPoint, hitNormal);

@@ -14,6 +14,19 @@ public class WeaponDataSO : ItemDataSO // Kế thừa từ ItemDataSO gốc củ
     public float damage;               // Dùng chung cho cả chém và bắn
     public string attachPointName;     // Tên Bone/Transform để gắn súng/dao vào tay
 
+    [Header("Melee Audio")]
+    public AudioClip[] meleeSwingClips;
+    public AudioClip[] meleeHitFleshClips;
+
+    [Range(0f, 1f)]
+    public float meleeSwingVolume = 0.65f;
+
+    [Range(0f, 1f)]
+    public float meleeHitFleshVolume = 0.8f;
+
+    public Vector2 meleePitchRange =
+        new Vector2(0.95f, 1.05f);
+
     [Header("Ranged Combat (Dành cho Súng)")]
     public float fireRate = 0.2f;      // Thời gian trễ giữa 2 phát bắn
     public int magazineSize = 30;      // Sức chứa của 1 băng đạn

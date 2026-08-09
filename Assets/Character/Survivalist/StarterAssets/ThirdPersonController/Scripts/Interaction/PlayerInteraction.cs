@@ -16,6 +16,18 @@ public class PlayerInteraction : MonoBehaviour
     [SerializeField] private GameEventSO OnItemPickedUp;
     [SerializeField] private GameEventSO OnItemDropped;
 
+    [Header("Interaction Audio")]
+    [SerializeField] private AudioSource _interactionAudioSource;
+    [SerializeField] private AudioClip[] _pickupClips;
+    [SerializeField] private AudioClip _electricalKeyPickupClip;
+
+    [SerializeField, Range(0f, 1f)]
+    private float _pickupVolume = 0.65f;
+
+    [SerializeField]
+    private Vector2 _pickupPitchRange =
+        new Vector2(0.97f, 1.03f);
+
     [Header("Tùy chỉnh UI Tương tác")]
     [SerializeField] private string _interactKey = "[F]";
     [SerializeField] private Color _keyColor = new Color(1f, 0.8f, 0f); // Màu Vàng mặc định
@@ -309,6 +321,7 @@ public class PlayerInteraction : MonoBehaviour
         if (pickedAmount > 0)
         {
             OnItemPickedUp?.Raise();
+            PlayPickupSound();
 
             if (leftover <= 0)
             {
@@ -318,7 +331,7 @@ public class PlayerInteraction : MonoBehaviour
                 Destroy(itemToPickUp);
 
                 if (NotificationUI.Instance != null)
-                    NotificationUI.Instance.ShowNotification($"Đã nhặt {data.itemName} x{pickedAmount}");
+                    NotificationUI.Instance.ShowNotification($"Picked {data.itemName} x{pickedAmount}");
 
                 Debug.Log($"[PlayerInteraction] Nhặt sạch: {data.itemName} x{pickedAmount}");
             }
@@ -328,7 +341,7 @@ public class PlayerInteraction : MonoBehaviour
                 worldItem.quantity = leftover;
 
                 if (NotificationUI.Instance != null)
-                    NotificationUI.Instance.ShowNotification($"Nhặt {pickedAmount}. Balo đầy, bỏ lại {leftover}!");
+                    NotificationUI.Instance.ShowNotification($"Pick {pickedAmount}. Balo đầy, bỏ lại {leftover}!");
 
                 Debug.Log($"[PlayerInteraction] Nhặt {pickedAmount}, dư lại {leftover} viên trên mặt đất.");
             }
@@ -337,7 +350,7 @@ public class PlayerInteraction : MonoBehaviour
         {
             // Trường hợp 3: Balo đầy cứng không nhét nổi viên nào
             if (NotificationUI.Instance != null)
-                NotificationUI.Instance.ShowNotification("Balo đã đầy cứng!");
+                NotificationUI.Instance.ShowNotification("Balo fulled!");
 
             Debug.Log("[PlayerInteraction] Balo đầy, không nhặt được viên nào!");
         }
@@ -347,7 +360,13 @@ public class PlayerInteraction : MonoBehaviour
 
     void PickupElectricalKey()
     {
-        if (_currentTarget == null) return;
+        if (_currentTarget == null)
+            return;
+
+        PlayInteractionSound(
+            _electricalKeyPickupClip,
+            _pickupVolume
+        );
 
         _currentTarget.GetComponent<Collider>().enabled = false;
         Destroy(_currentTarget);
@@ -367,6 +386,42 @@ public class PlayerInteraction : MonoBehaviour
     {
         if (_animator != null)
             _animator.SetInteger(_paramWeaponType, weaponType);
+    }
+
+    private void PlayInteractionSound(
+    AudioClip clip,
+    float volume)
+    {
+        if (_interactionAudioSource == null ||
+            clip == null)
+        {
+            return;
+        }
+
+        _interactionAudioSource.pitch = Random.Range(
+            _pickupPitchRange.x,
+            _pickupPitchRange.y
+        );
+
+        _interactionAudioSource.PlayOneShot(
+            clip,
+            volume
+        );
+    }
+
+    private void PlayPickupSound()
+    {
+        if (_pickupClips == null ||
+            _pickupClips.Length == 0)
+        {
+            return;
+        }
+
+        AudioClip clip = _pickupClips[
+            Random.Range(0, _pickupClips.Length)
+        ];
+
+        PlayInteractionSound(clip, _pickupVolume);
     }
 
     void OnDrawGizmos()

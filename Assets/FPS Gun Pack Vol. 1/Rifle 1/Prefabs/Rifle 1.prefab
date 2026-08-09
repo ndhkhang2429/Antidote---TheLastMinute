@@ -1226,7 +1226,7 @@ AudioSource:
   m_GameObject: {fileID: 1296605364670726625}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: -465681671910564903, guid: 0f713ce5008c93f4caef6f27f04a2759, type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 1
@@ -1235,7 +1235,7 @@ AudioSource:
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
-  Priority: 128
+  Priority: 64
   DopplerLevel: 1
   MinDistance: 1
   MaxDistance: 500
@@ -1330,12 +1330,12 @@ MonoBehaviour:
   _reloadClip: {fileID: 8300000, guid: 420279f2885854144bad74030f161867, type: 3}
   _emptyClip: {fileID: 8300000, guid: 917f54bcee9c0154582f8885927a1bf6, type: 3}
   _drawClip: {fileID: 8300000, guid: 3030b3cb695121e448ff696f0be42b44, type: 3}
-  _holsterClip: {fileID: 0}
-  _fireVolume: 1
-  _reloadVolume: 1
-  _emptyVolume: 0.8
-  _drawVolume: 0.8
-  _holsterVolume: 0.8
+  _holsterClip: {fileID: 8300000, guid: d191d66b78cde9049b16b4473f7483ad, type: 3}
+  _fireVolume: 0.85
+  _reloadVolume: 0.85
+  _emptyVolume: 0.55
+  _drawVolume: 0.6
+  _holsterVolume: 0.6
   _randomizeFirePitch: 1
   _firePitchRange: {x: 0.97, y: 1.03}
 --- !u!114 &6440670559186022208

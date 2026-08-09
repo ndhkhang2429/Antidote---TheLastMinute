@@ -676,8 +676,7 @@ ModelImporter:
     - name: upperarm_correctiveRoot_l
       parentName: upperarm_l
       position: {x: -0, y: 0.000000057220458, z: 0.000000019073486}
-      rotation: {x: -0.00000070943497, y: -0.00000028312178, z: -0.0000002346934,
-        w: 1}
+      rotation: {x: -0.00000070943497, y: -0.00000028312178, z: -0.0000002346934, w: 1}
       scale: {x: 1.0000004, y: 1.0000001, z: 1.0000002}
     - name: upperarm_in_l
       parentName: upperarm_correctiveRoot_l
@@ -737,8 +736,7 @@ ModelImporter:
     - name: lowerarm_correctiveRoot_l
       parentName: lowerarm_l
       position: {x: -0.00000015258789, y: -0.000000076293944, z: 0.000000019073486}
-      rotation: {x: -0.000000017462256, y: -0.00000017136331, z: 0.00000023841852,
-        w: 1}
+      rotation: {x: -0.000000017462256, y: -0.00000017136331, z: 0.00000023841852, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: lowerarm_bck_l
       parentName: lowerarm_correctiveRoot_l
@@ -918,8 +916,7 @@ ModelImporter:
     - name: upperarm_twistCor_01_r
       parentName: upperarm_twist_01_r
       position: {x: -0.000000114440915, y: 0, z: 0}
-      rotation: {x: 0.000000007450581, y: -9.3132235e-10, z: -0.0000000011641529,
-        w: 1}
+      rotation: {x: 0.000000007450581, y: -9.3132235e-10, z: -0.0000000011641529, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: upperarm_twist_02_r
       parentName: upperarm_r
@@ -929,8 +926,7 @@ ModelImporter:
     - name: upperarm_twistCor_02_r
       parentName: upperarm_twist_02_r
       position: {x: 0.000000038146972, y: -0.000000076293944, z: 0}
-      rotation: {x: -0.00000008195639, y: -0.000000005587935, z: 0.0000000013969832,
-        w: 1}
+      rotation: {x: -0.00000008195639, y: -0.000000005587935, z: 0.0000000013969832, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: upperarm_tricep_r
       parentName: upperarm_twist_02_r
@@ -1120,8 +1116,7 @@ ModelImporter:
     - name: thigh_in_r
       parentName: thigh_correctiveRoot_r
       position: {x: -0.103929825, y: 0.007809932, z: -0.092181824}
-      rotation: {x: 0.000000019033905, y: -0.0000000018626451, z: -0.0000000027939677,
-        w: 1}
+      rotation: {x: 0.000000019033905, y: -0.0000000018626451, z: -0.0000000027939677, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: thigh_out_r
       parentName: thigh_correctiveRoot_r
@@ -1136,8 +1131,7 @@ ModelImporter:
     - name: thigh_twistCor_01_r
       parentName: thigh_twist_01_r
       position: {x: -0, y: 0, z: 0}
-      rotation: {x: 0.000000009429642, y: 0.0000000018626451, z: -0.0000000018626454,
-        w: 1}
+      rotation: {x: 0.000000009429642, y: 0.0000000018626451, z: -0.0000000018626454, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: thigh_twist_02_r
       parentName: thigh_r
@@ -1147,8 +1141,7 @@ ModelImporter:
     - name: thigh_twistCor_02_r
       parentName: thigh_twist_02_r
       position: {x: -0, y: 0, z: 0}
-      rotation: {x: 0.000000009429642, y: 0.0000000018626451, z: -0.0000000018626454,
-        w: 1}
+      rotation: {x: 0.000000009429642, y: 0.0000000018626451, z: -0.0000000018626454, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: calf_r
       parentName: thigh_r
@@ -1178,8 +1171,7 @@ ModelImporter:
     - name: calf_twistCor_02_r
       parentName: calf_twist_02_r
       position: {x: -0, y: 0, z: 0}
-      rotation: {x: -0.0000000024447215, y: -0.0000000018626449, z: 0.0000000018626449,
-        w: 1}
+      rotation: {x: -0.0000000024447215, y: -0.0000000018626449, z: 0.0000000018626449, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: calf_twist_01_r
       parentName: calf_r
@@ -1239,8 +1231,7 @@ ModelImporter:
     - name: thigh_in_l
       parentName: thigh_correctiveRoot_l
       position: {x: 0.10327446, y: -0.008447506, z: 0.091944486}
-      rotation: {x: -0.0000000069849198, y: -0.0000000018626451, z: -1.3010427e-17,
-        w: 1}
+      rotation: {x: -0.0000000069849198, y: -0.0000000018626451, z: -1.3010427e-17, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: thigh_out_l
       parentName: thigh_correctiveRoot_l
@@ -1334,8 +1325,7 @@ ModelImporter:
     hasTranslationDoF: 0
     hasExtraRoot: 1
     skeletonHasParents: 1
-  lastHumanDescriptionAvatarSource: {fileID: 9000000, guid: b70d347428f94b44684e92af7f0bb31e,
-    type: 3}
+  lastHumanDescriptionAvatarSource: {fileID: 9000000, guid: b70d347428f94b44684e92af7f0bb31e, type: 3}
   autoGenerateAvatarMappingIfUnspecified: 1
   animationType: 3
   humanoidOversampling: 1

@@ -25,6 +25,15 @@ MonoBehaviour:
   combatType: 1
   damage: 16
   attachPointName: Right_Hand
+  meleeSwingClips:
+  - {fileID: 8300000, guid: 4871c2b923addde4fb2d55c7a6ad7e6b, type: 3}
+  - {fileID: 8300000, guid: aba6ca0b0af0c104aa8d4fe9ab8280f6, type: 3}
+  meleeHitFleshClips:
+  - {fileID: 8300000, guid: 6fbf8c1639a455d4eb035024b0aea5a8, type: 3}
+  - {fileID: 8300000, guid: ef6580e42a388da4b9dde47f2b24372c, type: 3}
+  meleeSwingVolume: 0.65
+  meleeHitFleshVolume: 0.8
+  meleePitchRange: {x: 0.95, y: 1.05}
   fireRate: 0
   magazineSize: 0
   reloadTime: 2

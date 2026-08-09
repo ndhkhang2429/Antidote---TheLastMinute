@@ -801,7 +801,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 851793ed4d2c8fa4d9cd7cbcdfc4a262, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highlightColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+  highlightColor: {r: 0.43529412, g: 0.43529412, b: 0.43529412, a: 1}
 --- !u!82 &1177752894004954377
 AudioSource:
   m_ObjectHideFlags: 0
@@ -811,16 +811,16 @@ AudioSource:
   m_GameObject: {fileID: 3763604498974455608}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: -465681671910564903, guid: 0f713ce5008c93f4caef6f27f04a2759, type: 2}
   m_audioClip: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
-  Priority: 128
+  Priority: 64
   DopplerLevel: 1
   MinDistance: 1
   MaxDistance: 500
@@ -916,11 +916,11 @@ MonoBehaviour:
   _emptyClip: {fileID: 8300000, guid: c7fedcb840e562c43a609ed206198f40, type: 3}
   _drawClip: {fileID: 8300000, guid: 749ef6f3f1248d041be4cfb755cd6b51, type: 3}
   _holsterClip: {fileID: 8300000, guid: 6438817db679ad0499f863dc8a0a9fce, type: 3}
-  _fireVolume: 1
-  _reloadVolume: 0.85
-  _emptyVolume: 0.75
-  _drawVolume: 0.8
-  _holsterVolume: 0.8
+  _fireVolume: 0.78
+  _reloadVolume: 0.6
+  _emptyVolume: 0.55
+  _drawVolume: 0.55
+  _holsterVolume: 0.55
   _randomizeFirePitch: 1
   _firePitchRange: {x: 0.97, y: 1.03}
 --- !u!1 &3899073714259699312

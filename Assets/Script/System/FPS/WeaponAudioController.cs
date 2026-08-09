@@ -108,10 +108,18 @@ public class WeaponAudioController : MonoBehaviour
         temporarySource.volume = _holsterVolume;
         temporarySource.pitch = 1f;
 
-        // Âm thanh 2D dành cho chính người chơi nghe.
+        // Đi qua cùng Audio Mixer Group với vũ khí.
+        temporarySource.outputAudioMixerGroup =
+            _audioSource != null
+                ? _audioSource.outputAudioMixerGroup
+                : null;
+
+        // Đây là âm thanh của vũ khí người chơi.
         temporarySource.spatialBlend = 0f;
+        temporarySource.reverbZoneMix = 0f;
         temporarySource.playOnAwake = false;
         temporarySource.loop = false;
+        temporarySource.priority = 80;
 
         temporarySource.Play();
 

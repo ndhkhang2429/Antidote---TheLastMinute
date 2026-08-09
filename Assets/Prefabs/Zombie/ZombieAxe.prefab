@@ -744,11 +744,11 @@ AudioSource:
   Spatialize: 0
   SpatializePostEffects: 0
   Priority: 128
-  DopplerLevel: 1
-  MinDistance: 2
-  MaxDistance: 15
+  DopplerLevel: 0
+  MinDistance: 1
+  MaxDistance: 10
   Pan2D: 0
-  rolloffMode: 0
+  rolloffMode: 2
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -756,23 +756,50 @@ AudioSource:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
-      time: 0
+      time: 0.1
       value: 1
-      inSlope: 0
-      outSlope: 0
+      inSlope: -10.0039835
+      outSlope: -10.0039835
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
+      inWeight: 0
+      outWeight: 0
     - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
+      time: 0.2
+      value: 0.5
+      inSlope: -2.5009959
+      outSlope: -2.5009959
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.4
+      value: 0.25
+      inSlope: -0.62524897
+      outSlope: -0.62524897
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.81519777
+      value: 0.048980713
+      inSlope: -0.15631224
+      outSlope: -0.15631224
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.9361572
+      value: 0
+      inSlope: -0.10003988
+      outSlope: -0.10003988
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
@@ -835,18 +862,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   oneShotSource: {fileID: 4525440566887389737}
   idleSource: {fileID: 5496190239379083227}
-  idleGroanClips: []
-  idleGroanIntervalMin: 4
-  idleGroanIntervalMax: 9
-  idleGroanVolume: 0.5
-  alertClips: []
-  alertVolume: 1
-  attackClips: []
-  attackVolume: 0.9
-  hurtClips: []
-  hurtVolume: 0.8
-  deathClips: []
-  deathVolume: 1
+  idleGroanClips:
+  - {fileID: 8300000, guid: c6c69b4a4399ebd4da6222131c88b14e, type: 3}
+  - {fileID: 8300000, guid: 91a52f06828dceb42a0561b7803c96c7, type: 3}
+  idleGroanIntervalMin: 6
+  idleGroanIntervalMax: 12
+  idleGroanVolume: 0.23
+  alertClips:
+  - {fileID: 8300000, guid: 8b48193e289634a4eb43f1835e7fd7ec, type: 3}
+  alertVolume: 0.55
+  attackClips:
+  - {fileID: 8300000, guid: 8225a66a6aa5c644794ddd1197e71bee, type: 3}
+  - {fileID: 8300000, guid: 0f9123129086a3b4ca9bad33b6dff621, type: 3}
+  attackVolume: 0.6
+  hurtClips:
+  - {fileID: 8300000, guid: 0c17c1e05867de7469d8207c84c78243, type: 3}
+  - {fileID: 8300000, guid: 000e4828858c79c4daecf4ed0983d752, type: 3}
+  hurtVolume: 0.6
+  deathClips:
+  - {fileID: 8300000, guid: 1b51b3a4c0b16ce409cf6bd16c9516c2, type: 3}
+  deathVolume: 0.7
   pitchMin: 0.92
   pitchMax: 1.08
 --- !u!82 &5496190239379083227

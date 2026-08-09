@@ -669,11 +669,11 @@ AudioSource:
   Spatialize: 0
   SpatializePostEffects: 0
   Priority: 128
-  DopplerLevel: 1
+  DopplerLevel: 0
   MinDistance: 2
   MaxDistance: 15
   Pan2D: 0
-  rolloffMode: 0
+  rolloffMode: 2
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -681,23 +681,41 @@ AudioSource:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
-      time: 0
+      time: 0.13333334
       value: 1
-      inSlope: 0
-      outSlope: 0
+      inSlope: -7.5029984
+      outSlope: -7.5029984
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
+      inWeight: 0
+      outWeight: 0
     - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
+      time: 0.26666668
+      value: 0.5
+      inSlope: -1.8757496
+      outSlope: -1.8757496
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.53333336
+      value: 0.25
+      inSlope: -0.4689374
+      outSlope: -0.4689374
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.99694824
+      value: 0.008134976
+      inSlope: -0.13338663
+      outSlope: -0.13338663
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
@@ -765,28 +783,28 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 6485c998ec9a509418b8c282cb323bec, type: 3}
   - {fileID: 8300000, guid: 2d7bdc8a873e8c64cbe0899f00cd561d, type: 3}
   - {fileID: 8300000, guid: b859a0b81b1405649a23ff8b627364d7, type: 3}
-  idleGroanIntervalMin: 4
-  idleGroanIntervalMax: 9
-  idleGroanVolume: 0.5
+  idleGroanIntervalMin: 5
+  idleGroanIntervalMax: 11
+  idleGroanVolume: 0.2
   alertClips:
   - {fileID: 8300000, guid: 0f9f4ea19c264e44ba1f249d832b5e7e, type: 3}
   - {fileID: 8300000, guid: 8972973a0f63fc94da480433ae2ace78, type: 3}
   - {fileID: 8300000, guid: abb28281981e23a4da41d68083c63c9a, type: 3}
-  alertVolume: 1
+  alertVolume: 0.55
   attackClips:
   - {fileID: 8300000, guid: aca447a559e490b4eb8cf4d673f3c31f, type: 3}
   - {fileID: 8300000, guid: a67058b2c28f173409bb3c74ae9c3ecd, type: 3}
   - {fileID: 8300000, guid: bf927f95370a6ce49bb484bdebef3396, type: 3}
   - {fileID: 8300000, guid: f8e5e8841fd1f7740a239daecfe1132a, type: 3}
   - {fileID: 8300000, guid: 319bb74d56d2e024db48d1a786497b60, type: 3}
-  attackVolume: 0.9
+  attackVolume: 0.65
   hurtClips:
   - {fileID: 8300000, guid: 833fa49a7a3167a4785a16a244036243, type: 3}
   - {fileID: 8300000, guid: 9579afdb9d2116748857f44d62517975, type: 3}
-  hurtVolume: 0.8
+  hurtVolume: 0.6
   deathClips:
   - {fileID: 8300000, guid: a4c974b535cd47d4d9d8248e4931eadd, type: 3}
-  deathVolume: 1
+  deathVolume: 0.7
   pitchMin: 0.92
   pitchMax: 1.08
 --- !u!82 &7603223010417553186
