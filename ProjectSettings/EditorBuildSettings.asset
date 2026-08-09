@@ -12,7 +12,7 @@ EditorBuildSettings:
     path: Assets/The_Horror_Hospital/Scenes/HH_Demo.unity
     guid: 33091c10cdd3b8041a57d911feed5b69
   - enabled: 1
-    path: Assets/The_Horror_Hospital/Scenes/Test_TPP.unity
+    path: Assets/Scenes/Test_TPP.unity
     guid: 1cf1ed5c032fd314ab6c88f6d8c3af1f
   - enabled: 1
     path: Assets/Scenes/GameOver.unity
