@@ -83,7 +83,8 @@ public class FusePanelManager : MonoBehaviour
         for (int i = 0; i < allSwitches.Length; i++)
         {
             if (i >= correctSwitchStates.Length) break;
-            if (allSwitches[i].isOn != correctSwitchStates[i]) return false;
+            if (allSwitches[i].IsOn != correctSwitchStates[i])
+                return false;
         }
         return true;
     }

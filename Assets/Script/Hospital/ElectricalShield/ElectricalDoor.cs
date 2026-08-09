@@ -1,86 +1,218 @@
 ﻿using System.Collections;
 using UnityEngine;
 
+[RequireComponent(typeof(AudioSource))]
 public class ElectricalDoor : MonoBehaviour, IQuestRequirement
 {
-    [Header("Cài đặt Cửa")]
-    public Transform hingeTransform;
-    [Tooltip("Thường cửa xoay quanh trục Y. Nếu model bị lỗi trục, đổi thành X hoặc Z.")]
-    public Vector3 rotationAxis = Vector3.forward; // Mặc định là trục Y (0, 1, 0)
-    public float openAngle = -150f;
-    public float openSpeed = 2f;
+    [Header("Door Settings")]
+    [SerializeField] private Transform hingeTransform;
 
-    [Header("Trạng thái")]
-    public bool _isOpen = false;
+    [Tooltip(
+        "The axis around which the door rotates. " +
+        "Change this to X, Y, or Z depending on the model."
+    )]
+    [SerializeField]
+    private Vector3 rotationAxis =
+        Vector3.forward;
 
-    [Header("Vật phẩm bên trong tủ")]
-    [Tooltip("Kéo tất cả Collider của Cầu chì hoặc Cần gạt bên trong tủ vào đây")]
-    public Collider[] insideColliders;
+    [SerializeField] private float openAngle = -150f;
+
+    [Min(0.01f)]
+    [SerializeField] private float openSpeed = 2f;
+
+    [Header("Door State")]
+    [SerializeField] private bool _isOpen = false;
+
+    [Header("Objects Inside Cabinet")]
+    [Tooltip(
+        "Assign all colliders belonging to fuses, switches, " +
+        "or interactable objects inside the cabinet."
+    )]
+    [SerializeField] private Collider[] insideColliders;
+
+    [Header("Door Audio")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip openClip;
+    [SerializeField] private AudioClip closeClip;
+
+    [Range(0f, 1f)]
+    [SerializeField] private float openVolume = 0.75f;
+
+    [Range(0f, 1f)]
+    [SerializeField] private float closeVolume = 0.7f;
+
+    [SerializeField]
+    private Vector2 pitchRange =
+        new Vector2(0.97f, 1.03f);
 
     private Coroutine currentAnimation;
+    private bool _isAnimating;
 
-    void Start()
+    private void Awake()
     {
-        if (hingeTransform == null) hingeTransform = transform;
+        if (audioSource == null)
+        {
+            audioSource = GetComponent<AudioSource>();
+        }
+    }
 
-        // Khởi tạo góc xoay ban đầu
-        float startAngle = _isOpen ? openAngle : 0f;
-        hingeTransform.localRotation = Quaternion.Euler(rotationAxis * startAngle);
+    private void Start()
+    {
+        if (hingeTransform == null)
+        {
+            hingeTransform = transform;
+        }
+
+        float startAngle =
+            _isOpen ? openAngle : 0f;
+
+        hingeTransform.localRotation =
+            Quaternion.Euler(
+                rotationAxis.normalized * startAngle
+            );
 
         ToggleInsideColliders(_isOpen);
     }
 
-    // Trả về null vì không còn cần yêu cầu item nào nữa
-    public ItemDataSO GetRequiredItem() => null;
+    // This door does not require an inventory item.
+    public ItemDataSO GetRequiredItem()
+    {
+        return null;
+    }
 
-    public bool IsCompleted() => _isOpen;
+    public bool IsCompleted()
+    {
+        return _isOpen;
+    }
 
-    // Chỉ hiển thị Mở hoặc Đóng
     public string GetPrompt()
     {
-        return _isOpen ? "[F] Đóng tủ điện" : "[F] Mở tủ điện";
+        if (_isAnimating)
+        {
+            return null;
+        }
+
+        return _isOpen
+            ? "[F] Close electrical cabinet"
+            : "[F] Open electrical cabinet";
     }
 
-    public bool TryUseItem(InventorySystem inv)
+    public bool TryUseItem(InventorySystem inventory)
     {
-        // Bỏ hoàn toàn bước check chìa khóa, trực tiếp thực hiện mở/đóng
-        _isOpen = !_isOpen; // Đảo trạng thái
+        if (_isAnimating)
+        {
+            return false;
+        }
+
+        _isOpen = !_isOpen;
 
         ToggleInsideColliders(_isOpen);
 
-        if (currentAnimation != null) StopCoroutine(currentAnimation);
-        currentAnimation = StartCoroutine(AnimateDoor(_isOpen ? openAngle : 0f));
+        if (_isOpen)
+        {
+            PlayDoorSound(openClip, openVolume);
+        }
+        else
+        {
+            PlayDoorSound(closeClip, closeVolume);
+        }
 
-        Debug.Log(_isOpen ? "Mở tủ điện" : "Đóng tủ điện");
+        if (currentAnimation != null)
+        {
+            StopCoroutine(currentAnimation);
+        }
 
-        // (Tùy chọn) Bạn có thể thêm NotificationUI ở đây nếu muốn thông báo mỗi khi mở/đóng
+        float targetAngle =
+            _isOpen ? openAngle : 0f;
+
+        currentAnimation =
+            StartCoroutine(AnimateDoor(targetAngle));
+
+        Debug.Log(
+            _isOpen
+                ? "[ElectricalDoor] Cabinet opened."
+                : "[ElectricalDoor] Cabinet closed."
+        );
+
         return true;
     }
 
-    // ── Hàm phụ trợ ──────────────────────────────────────────
     private void ToggleInsideColliders(bool state)
     {
-        if (insideColliders == null) return;
-        foreach (var col in insideColliders)
+        if (insideColliders == null)
         {
-            if (col != null) col.enabled = state;
+            return;
+        }
+
+        foreach (Collider col in insideColliders)
+        {
+            if (col != null)
+            {
+                col.enabled = state;
+            }
         }
     }
 
-    // ── Animation ──────────────────────────────────────────
-    IEnumerator AnimateDoor(float targetAngle)
+    private IEnumerator AnimateDoor(float targetAngle)
     {
-        Quaternion startRot = hingeTransform.localRotation;
-        Quaternion endRot = Quaternion.Euler(rotationAxis * targetAngle);
-        float time = 0;
+        _isAnimating = true;
 
-        while (time < 1f)
+        Quaternion startRotation =
+            hingeTransform.localRotation;
+
+        Quaternion targetRotation =
+            Quaternion.Euler(
+                rotationAxis.normalized * targetAngle
+            );
+
+        float progress = 0f;
+        float safeSpeed = Mathf.Max(0.01f, openSpeed);
+
+        while (progress < 1f)
         {
-            time += Time.deltaTime * openSpeed;
-            hingeTransform.localRotation = Quaternion.Slerp(startRot, endRot, time);
+            progress += Time.deltaTime * safeSpeed;
+
+            float smoothProgress =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    Mathf.Clamp01(progress)
+                );
+
+            hingeTransform.localRotation =
+                Quaternion.Slerp(
+                    startRotation,
+                    targetRotation,
+                    smoothProgress
+                );
+
             yield return null;
         }
 
-        hingeTransform.localRotation = endRot;
+        hingeTransform.localRotation =
+            targetRotation;
+
+        _isAnimating = false;
+        currentAnimation = null;
+    }
+
+    private void PlayDoorSound(
+        AudioClip clip,
+        float volume)
+    {
+        if (audioSource == null || clip == null)
+        {
+            return;
+        }
+
+        audioSource.pitch = Random.Range(
+            pitchRange.x,
+            pitchRange.y
+        );
+
+        audioSource.PlayOneShot(
+            clip,
+            volume
+        );
     }
 }

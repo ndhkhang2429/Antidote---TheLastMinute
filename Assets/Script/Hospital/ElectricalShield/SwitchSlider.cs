@@ -3,75 +3,180 @@ using UnityEngine;
 
 public class SwitchSlider : MonoBehaviour
 {
-    [Header("Config")]
-    public bool isOn = false;
+    [Header("Switch Settings")]
+    [SerializeField] private bool isOn = false;
 
-    [Tooltip("Trục và khoảng cách dịch chuyển từ vị trí gốc khi ON.\n" +
-             "Ví dụ: (0, 0, 0.03) = dịch 3cm theo trục Z khi ON\n" +
-             "Khi OFF sẽ ở vị trí gốc ban đầu.")]
-    public Vector3 onOffset = new Vector3(0f, 0f, 0.03f);
+    [Tooltip(
+        "Local position offset applied when the switch is ON.\n" +
+        "Example: (0, 0, 0.03) moves the switch 3 cm " +
+        "along the local Z axis."
+    )]
+    [SerializeField]
+    private Vector3 onOffset =
+        new Vector3(0f, 0f, 0.03f);
 
-    public float slideDuration = 0.15f;
+    [Min(0.01f)]
+    [SerializeField] private float slideDuration = 0.15f;
 
     [Header("References")]
-    public PanelInteractZone panelZone;
-    public FusePanelManager fusePanelManager;
+    [SerializeField] private PanelInteractZone panelZone;
+    [SerializeField] private FusePanelManager fusePanelManager;
 
-    // ── State ──────────────────────────────────────────────
-    private Vector3 _originPosition; // Vị trí gốc lúc Start
-    private bool _isAnimating = false;
+    [Header("Switch Audio")]
+    [Tooltip(
+        "A shared Audio Source can be used by all switches " +
+        "inside the electrical cabinet."
+    )]
+    [SerializeField] private AudioSource audioSource;
 
-    void Start()
+    [SerializeField] private AudioClip switchOnClip;
+    [SerializeField] private AudioClip switchOffClip;
+
+    [Range(0f, 1f)]
+    [SerializeField] private float switchVolume = 0.65f;
+
+    [SerializeField]
+    private Vector2 pitchRange =
+        new Vector2(0.97f, 1.03f);
+
+    private Vector3 _originPosition;
+    private bool _isAnimating;
+
+    public bool IsOn => isOn;
+
+    private void Start()
     {
-        // Ghi nhớ vị trí gốc
         _originPosition = transform.localPosition;
 
-        // Set trạng thái ban đầu
-        if (isOn)
-            transform.localPosition = _originPosition + onOffset;
+        transform.localPosition = isOn
+            ? _originPosition + onOffset
+            : _originPosition;
     }
 
-    void OnMouseDown()
+    private void OnMouseDown()
     {
-        if (panelZone == null || !panelZone.IsInPanelMode) return;
-        if (_isAnimating) return;
+        if (panelZone == null ||
+            !panelZone.IsInPanelMode)
+        {
+            return;
+        }
+
         Toggle();
     }
 
     public void Toggle()
     {
+        if (_isAnimating)
+        {
+            return;
+        }
+
         isOn = !isOn;
-        Vector3 target = isOn ? _originPosition + onOffset : _originPosition;
-        StartCoroutine(AnimateSlide(target));
+
+        Vector3 targetPosition = isOn
+            ? _originPosition + onOffset
+            : _originPosition;
+
+        PlaySwitchSound();
+
+        StartCoroutine(
+            AnimateSlide(targetPosition)
+        );
+
         fusePanelManager?.UpdatePanelState();
-        Debug.Log($"[Switch {gameObject.name}] → {(isOn ? "ON" : "OFF")}");
+
+        Debug.Log(
+            $"[Switch {gameObject.name}] " +
+            $"{(isOn ? "ON" : "OFF")}"
+        );
     }
 
-    IEnumerator AnimateSlide(Vector3 targetPos)
+    private IEnumerator AnimateSlide(
+        Vector3 targetPosition)
     {
         _isAnimating = true;
-        Vector3 startPos = transform.localPosition;
-        float elapsed = 0f;
 
-        while (elapsed < slideDuration)
+        Vector3 startPosition =
+            transform.localPosition;
+
+        float elapsed = 0f;
+        float safeDuration =
+            Mathf.Max(0.01f, slideDuration);
+
+        while (elapsed < safeDuration)
         {
             elapsed += Time.deltaTime;
-            float t = Mathf.SmoothStep(0f, 1f, elapsed / slideDuration);
-            transform.localPosition = Vector3.Lerp(startPos, targetPos, t);
+
+            float progress = Mathf.Clamp01(
+                elapsed / safeDuration
+            );
+
+            float smoothProgress =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    progress
+                );
+
+            transform.localPosition =
+                Vector3.Lerp(
+                    startPosition,
+                    targetPosition,
+                    smoothProgress
+                );
+
             yield return null;
         }
 
-        transform.localPosition = targetPos;
+        transform.localPosition =
+            targetPosition;
+
         _isAnimating = false;
     }
 
-    void OnDrawGizmosSelected()
+    private void PlaySwitchSound()
     {
-        // Preview vị trí ON trong editor
-        Vector3 origin = transform.localPosition;
+        if (audioSource == null)
+        {
+            return;
+        }
+
+        AudioClip selectedClip =
+            isOn ? switchOnClip : switchOffClip;
+
+        if (selectedClip == null)
+        {
+            return;
+        }
+
+        audioSource.pitch = Random.Range(
+            pitchRange.x,
+            pitchRange.y
+        );
+
+        audioSource.PlayOneShot(
+            selectedClip,
+            switchVolume
+        );
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Vector3 origin =
+            transform.localPosition;
+
+        Vector3 previewPosition =
+            origin + onOffset;
+
         Gizmos.color = Color.green;
-        Gizmos.DrawSphere(transform.parent != null
-            ? transform.parent.TransformPoint(origin + onOffset)
-            : transform.position + onOffset, 0.005f);
+
+        Gizmos.DrawSphere(
+            transform.parent != null
+                ? transform.parent.TransformPoint(
+                    previewPosition
+                )
+                : transform.position + onOffset,
+            0.005f
+        );
     }
 }

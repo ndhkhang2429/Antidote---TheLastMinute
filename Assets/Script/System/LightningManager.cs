@@ -8,85 +8,160 @@ public class LightingManager : MonoBehaviour
     public bool startsWithPowerOff = true;
 
     [Header("Transition")]
+    [Min(0.01f)]
     public float fadeDuration = 1.5f;
 
     [Header("Exceptions")]
-    public List<Renderer> ignoreRenderers = new List<Renderer>(); // Kéo 2 cái đèn tủ vào đây
-    public static LightingManager Instance { get; private set; }
+    [Tooltip("Kéo các Renderer không bị ảnh hưởng bởi nguồn điện vào đây.")]
+    public List<Renderer> ignoreRenderers =
+        new List<Renderer>();
 
-    // Lưu trạng thái ban đầu
-    private List<Light> managedLights = new List<Light>();
-    private List<RendererEmissionData> managedEmissives = new List<RendererEmissionData>();
-    private bool isPowerOn = false;
+    public static LightingManager Instance
+    {
+        get;
+        private set;
+    }
+
     public bool IsPowerOn => isPowerOn;
 
-    // Struct lưu thông tin emission gốc
+    private readonly List<ManagedLightData>
+        managedLights =
+            new List<ManagedLightData>();
+
+    private readonly List<RendererEmissionData>
+        managedEmissives =
+            new List<RendererEmissionData>();
+
+    private bool isPowerOn;
+
+    private struct ManagedLightData
+    {
+        public Light light;
+        public float originalIntensity;
+    }
+
     private struct RendererEmissionData
     {
-        public Material mat;
+        public Material material;
         public Color originalEmissionColor;
     }
 
-    void Awake()
+    private void Awake()
     {
-        if (Instance != null && Instance != this)
+        if (Instance != null &&
+            Instance != this)
         {
             Destroy(gameObject);
             return;
         }
+
         Instance = this;
     }
 
-    void Start()
+    private void Start()
     {
         CollectAllLightsAndEmissives();
 
         if (startsWithPowerOff)
+        {
             SetPower(false, instant: true);
+        }
+        else
+        {
+            SetPower(true, instant: true);
+        }
     }
 
-    void CollectAllLightsAndEmissives()
+    private void CollectAllLightsAndEmissives()
     {
-        // Thu thập tất cả Light, bỏ qua EmergencyLight
-        Light[] allLights = FindObjectsOfType<Light>();
-        foreach (Light light in allLights)
+        managedLights.Clear();
+        managedEmissives.Clear();
+
+        Light[] allLights =
+            FindObjectsOfType<Light>();
+
+        foreach (Light lightComponent in allLights)
         {
-            if (!light.CompareTag("EmergencyLight"))
-                managedLights.Add(light);
+            if (lightComponent == null ||
+                lightComponent.CompareTag(
+                    "EmergencyLight"
+                ))
+            {
+                continue;
+            }
+
+            managedLights.Add(
+                new ManagedLightData
+                {
+                    light = lightComponent,
+                    originalIntensity =
+                        lightComponent.intensity
+                }
+            );
         }
 
-        // Thu thập tất cả Renderer có Emission, bỏ qua EmergencyLight
-        Renderer[] allRenderers = FindObjectsOfType<Renderer>();
+        Renderer[] allRenderers =
+            FindObjectsOfType<Renderer>();
+
         foreach (Renderer rend in allRenderers)
         {
-            if (rend.CompareTag("EmergencyLight") || ignoreRenderers.Contains(rend)) continue;
-
-            foreach (Material mat in rend.materials)
+            if (rend == null ||
+                rend.CompareTag("EmergencyLight") ||
+                ignoreRenderers.Contains(rend))
             {
-                if (mat.IsKeywordEnabled("_EMISSION"))
+                continue;
+            }
+
+            foreach (Material material in
+                     rend.materials)
+            {
+                if (material == null ||
+                    !material.HasProperty(
+                        "_EmissionColor"
+                    ))
                 {
-                    managedEmissives.Add(new RendererEmissionData
-                    {
-                        mat = mat,
-                        originalEmissionColor = mat.GetColor("_EmissionColor")
-                    });
+                    continue;
                 }
+
+                if (!material.IsKeywordEnabled(
+                        "_EMISSION"
+                    ))
+                {
+                    continue;
+                }
+
+                managedEmissives.Add(
+                    new RendererEmissionData
+                    {
+                        material = material,
+                        originalEmissionColor =
+                            material.GetColor(
+                                "_EmissionColor"
+                            )
+                    }
+                );
             }
         }
 
-        Debug.Log($"[LightingManager] Tìm thấy {managedLights.Count} đèn, {managedEmissives.Count} emissive materials.");
+        Debug.Log(
+            $"[LightingManager] Tìm thấy " +
+            $"{managedLights.Count} đèn và " +
+            $"{managedEmissives.Count} emissive materials."
+        );
     }
 
-    // Hàm này gọi khi gạt cần điện
     public void TogglePower()
     {
         SetPower(!isPowerOn);
     }
 
-    // Hoặc gọi trực tiếp
-    public void SetPower(bool on, bool instant = false)
+    public void SetPower(
+        bool on,
+        bool instant = false)
     {
         isPowerOn = on;
+
+        StopAllCoroutines();
 
         if (instant)
         {
@@ -94,70 +169,236 @@ public class LightingManager : MonoBehaviour
         }
         else
         {
-            StopAllCoroutines();
-            StartCoroutine(FadePower(on));
+            StartCoroutine(
+                FadePower(on)
+            );
         }
     }
 
-    void ApplyPowerInstant(bool on)
+    private void ApplyPowerInstant(bool on)
     {
-        foreach (Light light in managedLights)
-            light.enabled = on;
-
-        foreach (var data in managedEmissives)
+        foreach (ManagedLightData data in
+                 managedLights)
         {
+            if (data.light == null)
+            {
+                continue;
+            }
+
+            data.light.intensity =
+                on ? data.originalIntensity : 0f;
+
+            data.light.enabled = on;
+        }
+
+        foreach (RendererEmissionData data in
+                 managedEmissives)
+        {
+            if (data.material == null)
+            {
+                continue;
+            }
+
             if (on)
             {
-                data.mat.EnableKeyword("_EMISSION");
-                data.mat.SetColor("_EmissionColor", data.originalEmissionColor);
+                data.material.EnableKeyword(
+                    "_EMISSION"
+                );
+
+                data.material.SetColor(
+                    "_EmissionColor",
+                    data.originalEmissionColor
+                );
             }
             else
             {
-                data.mat.SetColor("_EmissionColor", Color.black);
-                data.mat.DisableKeyword("_EMISSION");
+                data.material.SetColor(
+                    "_EmissionColor",
+                    Color.black
+                );
+
+                data.material.DisableKeyword(
+                    "_EMISSION"
+                );
             }
         }
     }
 
-    IEnumerator FadePower(bool on)
+    private IEnumerator FadePower(bool on)
     {
+        float safeDuration =
+            Mathf.Max(0.01f, fadeDuration);
+
         float elapsed = 0f;
 
-        // Lưu intensity ban đầu của từng đèn
-        float[] startIntensities = new float[managedLights.Count];
-        for (int i = 0; i < managedLights.Count; i++)
-        {
-            managedLights[i].enabled = true;
-            startIntensities[i] = managedLights[i].intensity;
-        }
+        float[] startingIntensities =
+            new float[managedLights.Count];
 
-        while (elapsed < fadeDuration)
-        {
-            elapsed += Time.deltaTime;
-            float t = Mathf.Clamp01(elapsed / fadeDuration);
-            float factor = on ? t : (1f - t);
+        Color[] startingEmissionColors =
+            new Color[managedEmissives.Count];
 
-            // Fade light intensity
-            for (int i = 0; i < managedLights.Count; i++)
+        for (int i = 0;
+             i < managedLights.Count;
+             i++)
+        {
+            ManagedLightData data =
+                managedLights[i];
+
+            if (data.light == null)
             {
-                managedLights[i].intensity = startIntensities[i] * factor;
+                continue;
             }
 
-            // Fade emissive
-            foreach (var data in managedEmissives)
+            startingIntensities[i] =
+                data.light.intensity;
+
+            // Phải bật component trước khi fade sáng.
+            data.light.enabled = true;
+        }
+
+        for (int i = 0;
+             i < managedEmissives.Count;
+             i++)
+        {
+            RendererEmissionData data =
+                managedEmissives[i];
+
+            if (data.material == null)
             {
-                data.mat.EnableKeyword("_EMISSION");
-                data.mat.SetColor("_EmissionColor", data.originalEmissionColor * factor);
+                continue;
+            }
+
+            startingEmissionColors[i] =
+                data.material.GetColor(
+                    "_EmissionColor"
+                );
+
+            data.material.EnableKeyword(
+                "_EMISSION"
+            );
+        }
+
+        while (elapsed < safeDuration)
+        {
+            elapsed += Time.deltaTime;
+
+            float progress = Mathf.Clamp01(
+                elapsed / safeDuration
+            );
+
+            float smoothProgress =
+                Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    progress
+                );
+
+            for (int i = 0;
+                 i < managedLights.Count;
+                 i++)
+            {
+                ManagedLightData data =
+                    managedLights[i];
+
+                if (data.light == null)
+                {
+                    continue;
+                }
+
+                float targetIntensity =
+                    on
+                        ? data.originalIntensity
+                        : 0f;
+
+                data.light.intensity =
+                    Mathf.Lerp(
+                        startingIntensities[i],
+                        targetIntensity,
+                        smoothProgress
+                    );
+            }
+
+            for (int i = 0;
+                 i < managedEmissives.Count;
+                 i++)
+            {
+                RendererEmissionData data =
+                    managedEmissives[i];
+
+                if (data.material == null)
+                {
+                    continue;
+                }
+
+                Color targetColor =
+                    on
+                        ? data.originalEmissionColor
+                        : Color.black;
+
+                data.material.SetColor(
+                    "_EmissionColor",
+                    Color.Lerp(
+                        startingEmissionColors[i],
+                        targetColor,
+                        smoothProgress
+                    )
+                );
             }
 
             yield return null;
         }
 
-        // Kết thúc fade
-        if (!on)
+        // Ép chính xác trạng thái cuối.
+        for (int i = 0;
+             i < managedLights.Count;
+             i++)
         {
-            foreach (Light light in managedLights)
-                light.enabled = false;
+            ManagedLightData data =
+                managedLights[i];
+
+            if (data.light == null)
+            {
+                continue;
+            }
+
+            data.light.intensity =
+                on
+                    ? data.originalIntensity
+                    : 0f;
+
+            data.light.enabled = on;
+        }
+
+        foreach (RendererEmissionData data in
+                 managedEmissives)
+        {
+            if (data.material == null)
+            {
+                continue;
+            }
+
+            if (on)
+            {
+                data.material.EnableKeyword(
+                    "_EMISSION"
+                );
+
+                data.material.SetColor(
+                    "_EmissionColor",
+                    data.originalEmissionColor
+                );
+            }
+            else
+            {
+                data.material.SetColor(
+                    "_EmissionColor",
+                    Color.black
+                );
+
+                data.material.DisableKeyword(
+                    "_EMISSION"
+                );
+            }
         }
     }
 }
