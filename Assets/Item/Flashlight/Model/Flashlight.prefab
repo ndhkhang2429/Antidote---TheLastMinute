@@ -124,6 +124,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   highlightColor: {r: 0.82641506, g: 0.82641506, b: 0.82641506, a: 1}
+  emissionIntensity: 2
 --- !u!65 &4619189121896477315
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -159,5 +160,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemData: {fileID: 11400000, guid: 690f8080762c88e4c93fdb07b6ac45ac, type: 2}
   quantity: 1
-  pickupRadius: 2
-  pickupKey: 102
+  onPickedUp:
+    m_PersistentCalls:
+      m_Calls: []

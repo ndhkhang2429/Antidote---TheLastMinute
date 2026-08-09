@@ -110,6 +110,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   highlightColor: {r: 0.4188679, g: 0.4188679, b: 0.4188679, a: 1}
+  emissionIntensity: 2
 --- !u!65 &8159536270199849734
 BoxCollider:
   m_ObjectHideFlags: 0

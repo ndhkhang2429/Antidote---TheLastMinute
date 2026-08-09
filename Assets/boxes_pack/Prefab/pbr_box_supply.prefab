@@ -308,6 +308,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   highlightColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+  emissionIntensity: 2
 --- !u!54 &6890268579305674704
 Rigidbody:
   m_ObjectHideFlags: 0

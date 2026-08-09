@@ -1389,6 +1389,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   highlightColor: {r: 0.43529412, g: 0.43529412, b: 0.43529412, a: 1}
+  emissionIntensity: 2
 --- !u!1 &1413918597966023905
 GameObject:
   m_ObjectHideFlags: 0

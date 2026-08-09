@@ -1,40 +1,120 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class ItemHighlight : MonoBehaviour
 {
     [Header("Highlight Settings")]
-    public Color highlightColor = new Color(0.2f, 0.2f, 0.2f);
+    [ColorUsage(true, true)]
+    [SerializeField] private Color highlightColor = Color.white;
 
-    private Material _mat;
-    private Color _defaultEmission = Color.black;
-    private bool _hasEmissionProperty = false;
+    [SerializeField, Range(0f, 10f)]
+    private float emissionIntensity = 2.5f;
+
+    private Renderer[] _renderers;
+    private Material[][] _materials;
+    private Color[][] _defaultEmissionColors;
+    private bool[][] _hasEmissionProperties;
 
     private void Awake()
     {
-        Renderer render = GetComponent<Renderer>();
-        if (render != null)
+        // Lấy toàn bộ Renderer của object và tất cả object con.
+        _renderers = GetComponentsInChildren<Renderer>(true);
+
+        _materials = new Material[_renderers.Length][];
+        _defaultEmissionColors = new Color[_renderers.Length][];
+        _hasEmissionProperties = new bool[_renderers.Length][];
+
+        for (int rendererIndex = 0;
+             rendererIndex < _renderers.Length;
+             rendererIndex++)
         {
-            _mat = render.material;
-            if (_mat.HasProperty("_EmissionColor"))
+            // materials tạo các material instance riêng cho item này,
+            // tránh làm đổi màu tất cả item dùng chung material.
+            _materials[rendererIndex] =
+                _renderers[rendererIndex].materials;
+
+            int materialCount = _materials[rendererIndex].Length;
+
+            _defaultEmissionColors[rendererIndex] =
+                new Color[materialCount];
+
+            _hasEmissionProperties[rendererIndex] =
+                new bool[materialCount];
+
+            for (int materialIndex = 0;
+                 materialIndex < materialCount;
+                 materialIndex++)
             {
-                _hasEmissionProperty = true;
-                _mat.EnableKeyword("_EMISSION");
-                _defaultEmission = _mat.GetColor("_EmissionColor");
+                Material material =
+                    _materials[rendererIndex][materialIndex];
+
+                if (material == null ||
+                    !material.HasProperty("_EmissionColor"))
+                {
+                    continue;
+                }
+
+                _hasEmissionProperties[rendererIndex][materialIndex] = true;
+
+                _defaultEmissionColors[rendererIndex][materialIndex] =
+                    material.GetColor("_EmissionColor");
             }
         }
     }
 
     public void ToggleHighlight(bool isOn)
     {
-        if (!_hasEmissionProperty || _mat == null) return;
+        if (_materials == null)
+            return;
 
-        if (isOn)
+        Color finalHighlightColor =
+            highlightColor * emissionIntensity;
+
+        for (int rendererIndex = 0;
+             rendererIndex < _materials.Length;
+             rendererIndex++)
         {
-            _mat.SetColor("_EmissionColor", highlightColor);
+            for (int materialIndex = 0;
+                 materialIndex < _materials[rendererIndex].Length;
+                 materialIndex++)
+            {
+                if (!_hasEmissionProperties[rendererIndex][materialIndex])
+                    continue;
+
+                Material material =
+                    _materials[rendererIndex][materialIndex];
+
+                if (material == null)
+                    continue;
+
+                if (isOn)
+                {
+                    material.EnableKeyword("_EMISSION");
+                    material.SetColor(
+                        "_EmissionColor",
+                        finalHighlightColor
+                    );
+                }
+                else
+                {
+                    Color defaultColor =
+                        _defaultEmissionColors
+                        [rendererIndex]
+                        [materialIndex];
+
+                    material.SetColor(
+                        "_EmissionColor",
+                        defaultColor
+                    );
+
+                    if (defaultColor.maxColorComponent <= 0.001f)
+                        material.DisableKeyword("_EMISSION");
+                }
+            }
         }
-        else
-        {
-            _mat.SetColor("_EmissionColor", _defaultEmission);
-        }
+    }
+
+    private void OnDisable()
+    {
+        ToggleHighlight(false);
     }
 }

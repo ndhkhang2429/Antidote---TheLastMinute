@@ -110,7 +110,9 @@ public class PlayerInteraction : MonoBehaviour
                 if (hasPrompt)
                 {
                     _currentTarget = hitObject;
-                    _currentTarget.GetComponent<ItemHighlight>()?.ToggleHighlight(true);
+                    _currentTarget
+                        .GetComponentInParent<ItemHighlight>()
+                        ?.ToggleHighlight(true);
                 }
                 else
                 {
@@ -204,7 +206,9 @@ public class PlayerInteraction : MonoBehaviour
     {
         if (_currentTarget != null)
         {
-            _currentTarget.GetComponent<ItemHighlight>()?.ToggleHighlight(false);
+            _currentTarget
+                .GetComponentInParent<ItemHighlight>()
+                ?.ToggleHighlight(false);
             _currentTarget = null;
         }
         InteractionUIManager.Instance?.HidePrompt();
