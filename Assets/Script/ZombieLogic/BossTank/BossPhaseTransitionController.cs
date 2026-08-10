@@ -7,9 +7,6 @@ using UnityEngine.Playables;
 /// </summary>
 public class BossPhaseTransitionController : MonoBehaviour
 {
-    [Header("SCRIPT VERSION")]
-    [SerializeField] private string scriptVersion = "2.0 - Phase 2 Orbit Snap";
-
     [Header("Timeline")]
     [SerializeField] private PlayableDirector phase2Director;
     [SerializeField] private float materialSwapTime = 1.8f;
@@ -24,7 +21,7 @@ public class BossPhaseTransitionController : MonoBehaviour
     [SerializeField] private float orbitPivotYOffset = 0f;
 
     [Header("Player Lock")]
-    [Tooltip("ThirdPersonController, PlayerAttack, PlayerInteraction và các script input cần khóa.")]
+    [Tooltip("FirstPersonController, PlayerAttack, PlayerInteraction và các script input cần khóa.")]
     [SerializeField] private MonoBehaviour[] playerScriptsToDisable;
     [Tooltip("FPS Hands, HUD và các object cần ẩn trong cutscene.")]
     [SerializeField] private GameObject[] playerObjectsToHide;
