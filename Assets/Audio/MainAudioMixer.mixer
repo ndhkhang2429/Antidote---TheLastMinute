@@ -238,21 +238,13 @@ AudioMixerController:
   m_UpdateMode: 0
   m_ExposedParameters:
   - guid: d75ef974a4078aa40a0741e7b8088470
-    name: AmbienceVolume
-  - guid: e1ee0155dd1474b4d88c75dd4db4a457
-    name: MasterVolume
+    name: Main_Ambience
   - guid: 48b95314ba3930640ab9f2013b0094dc
-    name: MusicVolume
-  - guid: f2017938ff4f8dd4b965c71de6dce7c8
-    name: PlayerVolume
+    name: Main_Music
   - guid: aa82d1b30587e7644a02c71dcc7a8c23
-    name: SFXVolume
+    name: Main_SFX
   - guid: c6aa8b0b5c4f3734eadbc055455bcd2b
-    name: UIVolume
-  - guid: f43d706e99e9ee1429e4382d898bef1e
-    name: WeaponVolume
-  - guid: 72b86eb738cc0bc44a090443acdd83f5
-    name: ZombieVolume
+    name: Main_UI
   m_AudioMixerGroupViews:
   - guids:
     - 35c62622a42860a49af40fb55f73d880

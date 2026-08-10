@@ -390,9 +390,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   attackDamage: 15
   attackCooldown: 1.5
-  walkSpeed: 1
-  runSpeed: 3.5
-  detectionRange: 10
+  walkSpeed: 0.77
+  runSpeed: 2.72
+  detectionRange: 10.69
   attackRange: 2
   wanderRadius: 8
   minIdleTime: 2
@@ -453,7 +453,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _statsSO: {fileID: 0}
-  _maxHPOverride: 100
+  _maxHPOverride: 250
   _soOnDamaged: {fileID: 0}
   _soOnHealed: {fileID: 0}
   _soOnDied: {fileID: 0}

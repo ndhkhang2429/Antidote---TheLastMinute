@@ -62,7 +62,17 @@ AudioMixerController:
   m_SuspendThreshold: -80
   m_EnableSuspend: 1
   m_UpdateMode: 0
-  m_ExposedParameters: []
+  m_ExposedParameters:
+  - guid: 32d5e1c3f58003b46bfba5589936671d
+    name: Boss_Ambience
+  - guid: a5d41cec8abb3374883a34a1db942800
+    name: Boss_SFX
+  - guid: 3538fee464a8f1145a81b5b3d004e311
+    name: Boss_Impact
+  - guid: 7650b4559845ec547ad39a16e8a9f5bf
+    name: Boss_Music
+  - guid: eecfb6bc3dce7f340a4130a93df7d3f3
+    name: Boss_Voice
   m_AudioMixerGroupViews:
   - guids:
     - 63332608947503845af61973f911be6f

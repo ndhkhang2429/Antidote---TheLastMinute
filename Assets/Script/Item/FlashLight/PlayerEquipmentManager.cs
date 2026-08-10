@@ -202,11 +202,17 @@ public class PlayerEquipmentManager : MonoBehaviour
         ItemDataSO heldItem,
         Transform targetSocket)
     {
+        // Mặc định mọi item dùng offset được lưu trực tiếp trong ItemDataSO.
+        // Riêng WeaponDataSO vẫn ưu tiên gripOffset/gripRotation hiện có để
+        // không làm thay đổi vị trí của Rifle/Pistol/Melee đang chạy ổn.
         Vector3 localPosition =
-            Vector3.zero;
+            heldItem.equipLocalPosition;
 
         Vector3 localRotation =
-            Vector3.zero;
+            heldItem.equipLocalRotation;
+
+        Vector3 localScale =
+            heldItem.equipLocalScale;
 
         if (heldItem is WeaponDataSO weaponData)
         {
@@ -240,7 +246,7 @@ public class PlayerEquipmentManager : MonoBehaviour
             Quaternion.Euler(localRotation);
 
         equippedTransform.localScale =
-            Vector3.one;
+            localScale;
 
         ApplyFPSLayer(
             _currentEquippedModel

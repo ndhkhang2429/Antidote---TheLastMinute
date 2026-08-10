@@ -30,6 +30,16 @@ public class ItemDataSO : ScriptableObject
     [Header("Equip Models")]
     public GameObject equipPrefab;
 
+    [Header("Equip Transform")]
+    [Tooltip("Vị trí local của prefab khi được gắn vào socket của Player.")]
+    public Vector3 equipLocalPosition = Vector3.zero;
+
+    [Tooltip("Góc xoay local (Euler) của prefab khi được gắn vào socket của Player.")]
+    public Vector3 equipLocalRotation = Vector3.zero;
+
+    [Tooltip("Scale local của prefab khi được gắn vào socket của Player.")]
+    public Vector3 equipLocalScale = Vector3.one;
+
     [TextArea] public string description;
 
     [Header("Category")]
