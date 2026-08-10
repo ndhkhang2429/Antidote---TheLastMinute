@@ -16,6 +16,9 @@ MonoBehaviour:
   icon: {fileID: -769456089, guid: 1ccf96e0e0107da48b32c4db5ea8d458, type: 3}
   worldPrefab: {fileID: 1002705123656268, guid: d86ca2f4159e6a942abd8dfc52b38395, type: 3}
   equipPrefab: {fileID: 2563050338911216061, guid: 557df357c0b423e4a94f101a5c3aa98c, type: 3}
+  equipLocalPosition: {x: 0.162, y: -0.12, z: 0.261}
+  equipLocalRotation: {x: 0, y: -64.94, z: -38.28}
+  equipLocalScale: {x: 1, y: 1, z: 1}
   description: 
   category: 4
   weaponSlotType: 4

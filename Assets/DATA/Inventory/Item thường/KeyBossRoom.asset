@@ -13,9 +13,12 @@ MonoBehaviour:
   m_Name: KeyBossRoom
   m_EditorClassIdentifier: 
   itemName: Key card bossRoom
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 3ecf563d7dfc35647bf05fe4633a0062, type: 3}
   worldPrefab: {fileID: 593542545141281283, guid: 9ffd4edfa5582d9498e607317781e880, type: 3}
   equipPrefab: {fileID: 593542545141281283, guid: 9ffd4edfa5582d9498e607317781e880, type: 3}
+  equipLocalPosition: {x: 0, y: 0, z: 0}
+  equipLocalRotation: {x: 0, y: 0, z: 0}
+  equipLocalScale: {x: 1, y: 1, z: 1}
   description: 
   category: 4
   weaponSlotType: 4
