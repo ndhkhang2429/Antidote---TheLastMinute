@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections;
 
 public class OpeningTutorialHints : MonoBehaviour
 {
@@ -27,6 +28,8 @@ public class OpeningTutorialHints : MonoBehaviour
 
     private bool _pistolPickedUp;
     private bool _pistolEquipped;
+
+    private bool _zoneUnlockScheduled;
 
     private void Start()
     {
@@ -173,15 +176,34 @@ public class OpeningTutorialHints : MonoBehaviour
         }
 
         if (!_pistolEquipped &&
-            _pistolPickedUp &&
-            heldItem == _pistolData)
+    _pistolPickedUp &&
+    heldItem == _pistolData)
         {
             _pistolEquipped = true;
 
             ShowHint(
                 "Press [LMB] to fire. Press [R] to reload."
             );
+
+            if (!_zoneUnlockScheduled)
+            {
+                _zoneUnlockScheduled = true;
+
+                StartCoroutine(
+                    UnlockFirstZoneAfterDelay()
+                );
+            }
         }
+    }
+
+    private IEnumerator UnlockFirstZoneAfterDelay()
+    {
+        /*
+         * Cho player đọc hướng dẫn và chuẩn bị súng.
+         */
+        yield return new WaitForSeconds(3f);
+
+        UnlockFirstZombieZone();
     }
 
     private void HandleTutorialZombieDeath()
