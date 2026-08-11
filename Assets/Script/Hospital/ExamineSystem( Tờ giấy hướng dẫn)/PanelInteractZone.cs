@@ -9,8 +9,8 @@ public class PanelInteractZone : MonoBehaviour
     public CinemachineVirtualCamera panelVCam;
 
     [Header("Prompt")]
-    public string enterPrompt = "[F] Kiểm tra bảng điện";
-    public string exitPrompt = "[F] Thoát";
+    public string enterPrompt = "Check the electrical panel";
+    public string exitPrompt = "Quit";
 
     [Header("Player References")]
     public GameObject playerObject;

@@ -5732,6 +5732,37 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 590723856837953485, guid: 933209c3fda96834f8d98c3cbbed7130, type: 3}
   m_PrefabInstance: {fileID: 65553635}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &65713688
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 65713689}
+  m_Layer: 0
+  m_Name: BossRoomReference
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &65713689
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 65713688}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 278079358}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &65907664
 GameObject:
   m_ObjectHideFlags: 0
@@ -24607,6 +24638,7 @@ Transform:
   - {fileID: 1507029370}
   - {fileID: 769443699}
   - {fileID: 868440895}
+  - {fileID: 65713689}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &278079359
@@ -57790,6 +57822,37 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4385097667522851048, guid: e974a9b3acc633b49abdb934271734a8, type: 3}
   m_PrefabInstance: {fileID: 625070301}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &625153800
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 625153801}
+  m_Layer: 0
+  m_Name: SpawnPoint2 (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &625153801
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 625153800}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.7075067, z: 0, w: 0.70670664}
+  m_LocalPosition: {x: -4.691, y: -0.604, z: -17.619}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2101030088}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &625455491
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -67145,7 +67208,7 @@ Transform:
   m_GameObject: {fileID: 719480092}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.7075067, z: 0, w: 0.70670664}
-  m_LocalPosition: {x: -7.9472723, y: 0.42697334, z: -9.484152}
+  m_LocalPosition: {x: -7.9472723, y: -0.604, z: -9.484152}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -93673,7 +93736,7 @@ Camera:
     height: 1
   near clip plane: 0.01
   far clip plane: 5000
-  field of view: 70
+  field of view: 55
   orthographic: 0
   orthographic size: 10
   m_Depth: -1
@@ -93699,8 +93762,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.16610013, y: -0.0882091, z: 0.014919458, w: 0.9820425}
-  m_LocalPosition: {x: -5.0415864, y: 1.6977181, z: 18.228895}
+  m_LocalRotation: {x: 0.16502313, y: -0.56236166, z: 0.14255199, w: 0.7976188}
+  m_LocalPosition: {x: 52.84159, y: 43.738876, z: 38.094566}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -103723,7 +103786,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: OPTIONS
+  m_text: SETTINGS
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -148959,8 +149022,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerHealth: {fileID: 6075764520036708444}
-  bossRoomTransition: {fileID: 0}
-  mainSwitch: {fileID: 0}
+  playerTransform: {fileID: 4987754159636336402}
+  mainSwitch: {fileID: 8098027140682547145}
+  bossDoorTeleportPoint: {fileID: 65713689}
+  rooftopTeleportPoint: {fileID: 2111518558}
+  bossKeyCard: {fileID: 1551785435}
   allowInReleaseBuild: 0
 --- !u!4 &1519885551
 Transform:
@@ -170045,7 +170111,7 @@ Transform:
   m_GameObject: {fileID: 1716479361}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.7075067, z: 0, w: 0.70670664}
-  m_LocalPosition: {x: 27.324543, y: -0.6937556, z: -11.907148}
+  m_LocalPosition: {x: 6.36, y: -0.6937556, z: -4.526}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -195230,6 +195296,37 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 644745358259217420, guid: 3d942e5cfe141aa4ebc6eb524a2c4530, type: 3}
   m_PrefabInstance: {fileID: 1975319621}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1976294693
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1976294694}
+  m_Layer: 0
+  m_Name: SpawnPoint1 (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1976294694
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1976294693}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.7075067, z: 0, w: 0.70670664}
+  m_LocalPosition: {x: 9.938, y: -0.6937556, z: -5.446}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2101030088}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1977622444
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -205674,7 +205771,9 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1716479362}
+  - {fileID: 1976294694}
   - {fileID: 719480093}
+  - {fileID: 625153801}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 90.065, z: 0}
 --- !u!1001 &2101031599
@@ -208945,7 +209044,7 @@ MonoBehaviour:
   spawnPoints:
   - {fileID: 1716479362}
   - {fileID: 719480093}
-  zombieCount: 3
+  zombieCount: 10
   alarmAudioSource: {fileID: 145819677}
   alarmSfx: {fileID: 8300000, guid: 3ad68c0d931044a48ac765f6cc06dd7e, type: 3}
   alarmLight: {fileID: 0}

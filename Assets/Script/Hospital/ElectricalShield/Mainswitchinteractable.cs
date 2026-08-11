@@ -75,8 +75,8 @@ public class MainSwitchInteractable :
         }
 
         return isOn
-            ? "[F] Ngắt nguồn điện tổng"
-            : "[F] Gạt cần kích hoạt nguồn điện tổng";
+            ? "Turn off the main power supply"
+            : "Flip the switch to activate the main power supply";
     }
 
     public bool IsCompleted()
