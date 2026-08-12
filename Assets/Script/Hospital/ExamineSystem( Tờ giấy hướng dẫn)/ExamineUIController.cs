@@ -1,113 +1,310 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
+﻿using System.Collections.Generic;
 using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
-/// Singleton UI controller cho ExamineSystem.
-/// Gắn vào Canvas có sẵn trong scene.
-/// Hiển thị nội dung tờ giấy/vật phẩm khi player đọc — dùng CHUNG cho 2 nguồn:
-///   1) ExaminableObject  → vật thể đọc tại chỗ, không nhặt (giữ nguyên hành vi cũ)
-///   2) DocumentDataSO    → item trong inventory, đọc lại được bất cứ lúc nào (MỚI)
+/// UI dùng chung để đọc ExaminableObject và DocumentDataSO.
+/// Hỗ trợ ảnh, chữ hoặc ảnh và chữ cùng lúc.
+/// Có thể tạm ẩn các HUD object trong lúc đọc.
 /// </summary>
 public class ExamineUIController : MonoBehaviour
 {
-    public static ExamineUIController Instance { get; private set; }
+    public static ExamineUIController Instance
+    {
+        get;
+        private set;
+    }
 
     [Header("UI References")]
-    [Tooltip("Panel nền mờ phủ màn hình khi đang đọc")]
+    [Tooltip("Panel nền khi đang đọc tài liệu.")]
     public GameObject examinePanel;
-    [Tooltip("Image hiển thị sprite tờ giấy/hình ảnh")]
+
+    [Tooltip("Ảnh hoặc nền giấy của tài liệu.")]
     public Image contentImage;
-    [Tooltip("Text hiển thị nội dung chữ")]
+
+    [Tooltip("Nội dung chữ hiển thị trên tài liệu.")]
     public TextMeshProUGUI contentText;
-    [Tooltip("Text nhắc nhở thoát")]
+
+    [Tooltip("Hướng dẫn đóng tài liệu.")]
     public TextMeshProUGUI exitHintText;
-    [Tooltip("Text tên vật phẩm")]
+
+    [Tooltip("Tên tài liệu.")]
     public TextMeshProUGUI titleText;
 
-    // ── State ──────────────────────────────────────────────
-    public bool IsExamining { get; private set; } = false;
+    [Header("Hide While Examining")]
+    [Tooltip(
+        "Những object sẽ tạm bị ẩn khi đọc tài liệu. " +
+        "Ví dụ: HUD, crosshair, ammo, health, objective panel."
+    )]
+    [SerializeField]
+    private List<GameObject> objectsToHideWhileExamining =
+        new List<GameObject>();
 
-    void Awake()
+    public bool IsExamining
     {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        get;
+        private set;
+    }
+
+    private ExaminableObject currentExaminableObject;
+
+    /*
+     * Ghi nhớ trạng thái Active trước khi ẩn.
+     * Nếu object vốn đã tắt thì khi đóng tài liệu,
+     * nó vẫn tiếp tục tắt.
+     */
+    private readonly Dictionary<GameObject, bool>
+        previousObjectStates =
+            new Dictionary<GameObject, bool>();
+
+    private void Awake()
+    {
+        if (Instance != null &&
+            Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         Instance = this;
-        if (examinePanel != null) examinePanel.SetActive(false);
+
+        if (examinePanel != null)
+        {
+            examinePanel.SetActive(false);
+        }
     }
 
     /// <summary>
-    /// Mở UI xem vật phẩm dạng ExaminableObject (đọc tại chỗ, không nhặt).
-    /// Giữ nguyên hành vi cũ, chỉ đổi sang gọi hàm dùng chung bên dưới.
+    /// Mở tài liệu đặt trong thế giới.
     /// </summary>
-    public void OpenExamine(ExaminableObject obj)
+    public void OpenExamine(
+        ExaminableObject obj)
     {
-        if (obj == null) return;
-        ShowContent(obj.objectName, obj.contentText, obj.contentSprite, obj.openSound);
+        if (obj == null || IsExamining)
+        {
+            return;
+        }
+
+        currentExaminableObject = obj;
+
+        ShowContent(
+            obj.objectName,
+            obj.contentText,
+            obj.contentSprite,
+            obj.openSound
+        );
     }
 
     /// <summary>
-    /// MỚI — Mở UI xem 1 DocumentDataSO (item trong inventory).
-    /// Gọi từ ItemGridUI khi player double-click / dùng 1 slot có category = Document.
-    /// Đồng thời báo cho DocumentReadTracker để hệ thống quest ngầm biết đã đọc.
+    /// Mở tài liệu trong inventory.
     /// </summary>
-    public void OpenExamine(DocumentDataSO doc)
+    public void OpenExamine(
+        DocumentDataSO doc)
     {
-        if (doc == null) return;
-        ShowContent(doc.itemName, doc.contentText, doc.contentSprite, doc.openSound);
+        if (doc == null || IsExamining)
+        {
+            return;
+        }
 
-        // Báo ngầm cho quest system — KHÔNG hiện thông báo nào cho player
-        DocumentReadTracker.Instance?.MarkRead(doc);
+        currentExaminableObject = null;
+
+        ShowContent(
+            doc.itemName,
+            doc.contentText,
+            doc.contentSprite,
+            doc.openSound
+        );
+
+        DocumentReadTracker.Instance
+            ?.MarkRead(doc);
     }
 
-    /// <summary>
-    /// Logic hiển thị dùng chung cho cả 2 nguồn ở trên — tránh lặp code.
-    /// </summary>
-    private void ShowContent(string title, string text, Sprite sprite, AudioClip sound)
+    private void ShowContent(
+        string title,
+        string text,
+        Sprite sprite,
+        AudioClip sound)
     {
         IsExamining = true;
-        examinePanel.SetActive(true);
+
+        HideConfiguredObjects();
+
+        if (examinePanel != null)
+        {
+            examinePanel.SetActive(true);
+        }
+
+        bool hasSprite =
+            sprite != null;
+
+        bool hasText =
+            !string.IsNullOrWhiteSpace(text);
 
         if (titleText != null)
-            titleText.text = title;
+        {
+            titleText.gameObject.SetActive(
+                !string.IsNullOrWhiteSpace(title)
+            );
 
-        if (sprite != null)
-        {
-            contentImage.gameObject.SetActive(true);
-            contentImage.sprite = sprite;
-            if (contentText != null)
-                contentText.gameObject.SetActive(false);
+            titleText.text =
+                string.IsNullOrWhiteSpace(title)
+                    ? string.Empty
+                    : title;
         }
-        else if (!string.IsNullOrEmpty(text))
+
+        if (contentImage != null)
         {
-            if (contentText != null)
+            contentImage.gameObject.SetActive(
+                hasSprite
+            );
+
+            contentImage.sprite =
+                hasSprite
+                    ? sprite
+                    : null;
+        }
+
+        if (contentText != null)
+        {
+            contentText.gameObject.SetActive(
+                hasText
+            );
+
+            contentText.text =
+                hasText
+                    ? text
+                    : string.Empty;
+
+            if (hasSprite && hasText)
             {
-                contentText.gameObject.SetActive(true);
-                contentText.text = text;
+                contentText.transform
+                    .SetAsLastSibling();
             }
-            contentImage.gameObject.SetActive(false);
         }
 
         if (exitHintText != null)
-            exitHintText.text = "[F] hoặc [ESC] để đóng";
+        {
+            exitHintText.text =
+                "[F] or [ESC] to close";
+        }
 
-        Cursor.lockState = CursorLockMode.None;
+        Cursor.lockState =
+            CursorLockMode.None;
+
         Cursor.visible = true;
 
         if (sound != null)
-            AudioSource.PlayClipAtPoint(sound, Camera.main.transform.position);
+        {
+            Camera mainCamera =
+                Camera.main;
 
-        Debug.Log($"[ExamineUI] Đang xem: {title}");
+            Vector3 soundPosition =
+                mainCamera != null
+                    ? mainCamera.transform.position
+                    : transform.position;
+
+            AudioSource.PlayClipAtPoint(
+                sound,
+                soundPosition
+            );
+        }
+
+        Debug.Log(
+            $"[ExamineUI] Đang xem: {title}"
+        );
+    }
+
+    public void CloseExamine()
+    {
+        if (!IsExamining)
+        {
+            return;
+        }
+
+        IsExamining = false;
+
+        if (examinePanel != null)
+        {
+            examinePanel.SetActive(false);
+        }
+
+        RestoreConfiguredObjects();
+
+        Cursor.lockState =
+            CursorLockMode.Locked;
+
+        Cursor.visible = false;
+
+        ExaminableObject closedObject =
+            currentExaminableObject;
+
+        currentExaminableObject = null;
+
+        /*
+         * Tài liệu được xem là đã đọc sau khi
+         * người chơi đóng giao diện.
+         */
+        closedObject?.NotifyExamineClosed();
+
+        Debug.Log(
+            "[ExamineUI] Đóng examine."
+        );
     }
 
     /// <summary>
-    /// Đóng UI. Gọi khi nhấn F hoặc ESC (logic bấm phím vẫn nằm ở PlayerInteraction như cũ).
+    /// Ghi nhớ trạng thái rồi tạm ẩn HUD.
     /// </summary>
-    public void CloseExamine()
+    private void HideConfiguredObjects()
     {
-        IsExamining = false;
-        examinePanel.SetActive(false);
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-        Debug.Log("[ExamineUI] Đóng examine.");
+        previousObjectStates.Clear();
+
+        foreach (
+            GameObject target
+            in objectsToHideWhileExamining)
+        {
+            if (target == null ||
+                target == examinePanel)
+            {
+                continue;
+            }
+
+            previousObjectStates[target] =
+                target.activeSelf;
+
+            target.SetActive(false);
+        }
+    }
+
+    /// <summary>
+    /// Khôi phục đúng trạng thái trước khi mở tài liệu.
+    /// </summary>
+    private void RestoreConfiguredObjects()
+    {
+        foreach (
+            KeyValuePair<GameObject, bool> pair
+            in previousObjectStates)
+        {
+            if (pair.Key != null)
+            {
+                pair.Key.SetActive(
+                    pair.Value
+                );
+            }
+        }
+
+        previousObjectStates.Clear();
+    }
+
+    private void OnDisable()
+    {
+        /*
+         * Tránh HUD bị tắt vĩnh viễn nếu controller
+         * bị disable trong lúc đang đọc.
+         */
+        if (previousObjectStates.Count > 0)
+        {
+            RestoreConfiguredObjects();
+        }
     }
 }

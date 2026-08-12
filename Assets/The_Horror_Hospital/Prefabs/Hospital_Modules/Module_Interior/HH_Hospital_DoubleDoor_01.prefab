@@ -121,18 +121,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5ec3be05e5c93243a46b10bb0bbd396, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  smooth: 2
-  DoorOpenAngle: 87
   isSlidingDoor: 0
+  smooth: 2
+  doorOpenAngle: 87
   slideOffset: {x: 1, y: 0, z: 0}
-  openMessage: Open E
-  closeMessage: Close E
+  openMessage: '[F] Open'
+  closeMessage: '[F] Close'
+  keycardPrompt: Use keycard [F]
   messageFont: {fileID: 0}
   fontSize: 24
   fontColor: {r: 1, g: 1, b: 1, a: 1}
   messagePosition: {x: 0.5, y: 0.5}
   openSound: {fileID: 8300000, guid: 7eae614257716554b8cb61086e92a4ae, type: 3}
   closeSound: {fileID: 8300000, guid: 41e1c0e1dd30a5144a430a2961d12824, type: 3}
+  accessDeniedSound: {fileID: 0}
+  isBossDoor: 0
+  bossEncounterController: {fileID: 0}
+  requiresPassword: 0
+  lockedMessage: Password required
+  requiresKeycard: 0
+  requiredKeycardSO: {fileID: 0}
+  powerRequiredMessage: The card reader is offline. Restore power first.
+  keycardRequiredMessage: 'Access Denied: Level 3 Security Card Required.'
+  nextObjectiveDelay: 2
 --- !u!65 &3689858750728538161
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -650,18 +661,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5ec3be05e5c93243a46b10bb0bbd396, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  smooth: 2
-  DoorOpenAngle: -87
   isSlidingDoor: 0
+  smooth: 2
+  doorOpenAngle: 87
   slideOffset: {x: 1, y: 0, z: 0}
-  openMessage: Open E
-  closeMessage: Close E
+  openMessage: '[F] Open'
+  closeMessage: '[F] Close'
+  keycardPrompt: Use keycard [F]
   messageFont: {fileID: 0}
   fontSize: 24
   fontColor: {r: 1, g: 1, b: 1, a: 1}
   messagePosition: {x: 0.5, y: 0.5}
   openSound: {fileID: 8300000, guid: 7eae614257716554b8cb61086e92a4ae, type: 3}
   closeSound: {fileID: 8300000, guid: 41e1c0e1dd30a5144a430a2961d12824, type: 3}
+  accessDeniedSound: {fileID: 0}
+  isBossDoor: 0
+  bossEncounterController: {fileID: 0}
+  requiresPassword: 0
+  lockedMessage: Password required
+  requiresKeycard: 0
+  requiredKeycardSO: {fileID: 0}
+  powerRequiredMessage: The card reader is offline. Restore power first.
+  keycardRequiredMessage: 'Access Denied: Level 3 Security Card Required.'
+  nextObjectiveDelay: 2
 --- !u!65 &6533468991354384071
 BoxCollider:
   m_ObjectHideFlags: 0

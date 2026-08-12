@@ -16,9 +16,9 @@ MonoBehaviour:
   allowedZombiePrefabs:
   - {fileID: 1075863169306009699, guid: a7d09a8327dd0f145b76dd3aff8af79b, type: 3}
   - {fileID: 6178577023303151387, guid: 0433f766ad92df24086f5e496c1eff54, type: 3}
-  initialSpawnCount: 3
-  maxConcurrent: 5
-  totalSpawnBudget: 10
+  initialSpawnCount: 1
+  maxConcurrent: 2
+  totalSpawnBudget: 5
   spawnPerWave: 2
   timeBetweenWaves: 15
   waveTriggerAliveCount: 1

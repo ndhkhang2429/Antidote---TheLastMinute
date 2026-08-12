@@ -1,6 +1,7 @@
 ﻿using System.Collections;
-using UnityEngine;
+using System.Collections.Generic;
 using Cinemachine;
+using UnityEngine;
 
 public class PanelInteractZone : MonoBehaviour
 {
@@ -9,47 +10,102 @@ public class PanelInteractZone : MonoBehaviour
     public CinemachineVirtualCamera panelVCam;
 
     [Header("Prompt")]
-    public string enterPrompt = "Check the electrical panel";
+    public string enterPrompt = "Enter Keypad";
     public string exitPrompt = "Quit";
+
+    [Tooltip(
+        "Bật nếu vẫn muốn hiện dòng Quit khi đang nhập keypad. " +
+        "Nếu InteractionUI cũng bị ẩn thì dòng này sẽ không thấy."
+    )]
+    [SerializeField] private bool showExitPrompt = true;
 
     [Header("Player References")]
     public GameObject playerObject;
-    public MonoBehaviour playerInputComponent;  // StarterAssetsInputs
-    public MonoBehaviour firstPersonController; // ThirdPersonController - THÊM MỚI
+
+    [Tooltip("StarterAssetsInputs hoặc PlayerInput đang sử dụng.")]
+    public MonoBehaviour playerInputComponent;
+
+    [Tooltip("FirstPersonController hoặc script điều khiển player.")]
+    public MonoBehaviour firstPersonController;
 
     [Header("Settings")]
+    [Min(0f)]
     public float blendWaitTime = 0.8f;
 
-    public bool IsInPanelMode { get; private set; } = false;
-    private bool _isTransitioning = false;
+    [Header("Hide While In Panel Mode")]
+    [Tooltip(
+        "Những UI sẽ tạm ẩn khi sử dụng keypad. " +
+        "Không kéo Canvas hoặc object cha của keypad vào đây."
+    )]
+    [SerializeField]
+    private List<GameObject> objectsToHideWhileInPanelMode =
+        new List<GameObject>();
+
+    public bool IsInPanelMode { get; private set; }
 
     public System.Action OnEnterPanelMode;
     public System.Action OnExitPanelMode;
 
-    void Start()
+    private bool _isTransitioning;
+
+    /*
+     * Lưu trạng thái ban đầu của từng object.
+     * Object vốn tắt sẽ tiếp tục tắt sau khi thoát keypad.
+     */
+    private readonly Dictionary<GameObject, bool>
+        _previousObjectStates =
+            new Dictionary<GameObject, bool>();
+
+    private void Start()
     {
-        if (panelVCam != null) panelVCam.Priority = 0;
-        if (playerVCam != null) playerVCam.Priority = 10;
+        if (panelVCam != null)
+        {
+            panelVCam.Priority = 0;
+        }
+
+        if (playerVCam != null)
+        {
+            playerVCam.Priority = 10;
+        }
     }
 
     public void TogglePanelMode()
     {
-        if (_isTransitioning) return;
+        if (_isTransitioning)
+        {
+            return;
+        }
 
         if (!IsInPanelMode)
+        {
             StartCoroutine(EnterPanelMode());
+        }
         else
+        {
             StartCoroutine(ExitPanelMode());
+        }
     }
 
-    IEnumerator EnterPanelMode()
+    private IEnumerator EnterPanelMode()
     {
         _isTransitioning = true;
 
-        panelVCam.Priority = 20;
-        SetPlayerControl(false); // lock player
+        /*
+         * Xóa prompt tương tác trước khi ẩn UI.
+         */
+        InteractionUIManager.Instance?.HidePrompt();
 
-        yield return new WaitForSeconds(blendWaitTime);
+        HideConfiguredObjects();
+        SetPlayerControl(false);
+
+        if (panelVCam != null)
+        {
+            panelVCam.Priority = 20;
+        }
+
+        yield return new WaitForSecondsRealtime(
+            Mathf.Max(0f, blendWaitTime)
+        );
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
@@ -57,56 +113,185 @@ public class PanelInteractZone : MonoBehaviour
         IsInPanelMode = true;
         _isTransitioning = false;
 
-        InteractionUIManager.Instance?.ShowPrompt(exitPrompt);
+        /*
+         * Chỉ hiện được nếu InteractionUI không nằm
+         * trong danh sách object bị ẩn.
+         */
+        if (showExitPrompt)
+        {
+            InteractionUIManager.Instance
+                ?.ShowPrompt(exitPrompt);
+        }
+
         OnEnterPanelMode?.Invoke();
     }
 
-    IEnumerator ExitPanelMode()
+    private IEnumerator ExitPanelMode()
     {
         _isTransitioning = true;
+
+        InteractionUIManager.Instance?.HidePrompt();
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        panelVCam.Priority = 0;
+        if (panelVCam != null)
+        {
+            panelVCam.Priority = 0;
+        }
 
-        yield return new WaitForSeconds(blendWaitTime);
+        if (playerVCam != null)
+        {
+            playerVCam.Priority = 10;
+        }
 
-        SetPlayerControl(true); // unlock sau khi blend xong
+        yield return new WaitForSecondsRealtime(
+            Mathf.Max(0f, blendWaitTime)
+        );
+
+        SetPlayerControl(true);
+
         IsInPanelMode = false;
         _isTransitioning = false;
 
-        InteractionUIManager.Instance?.HidePrompt();
+        RestoreConfiguredObjects();
+
         OnExitPanelMode?.Invoke();
     }
 
-    void SetPlayerControl(bool enabled)
+    private void SetPlayerControl(bool enabledValue)
     {
-        // 1. Disable ThirdPersonController TRƯỚC (ngăn nó gọi Move)
+        /*
+         * Tắt/mở script di chuyển trước.
+         */
         if (firstPersonController != null)
-            firstPersonController.enabled = enabled;
+        {
+            firstPersonController.enabled =
+                enabledValue;
+        }
 
-        // 2. Sau đó mới disable CharacterController
+        /*
+         * Sau đó mới xử lý CharacterController.
+         */
         if (playerObject != null)
         {
-            var cc = playerObject.GetComponent<CharacterController>();
-            if (cc != null) cc.enabled = enabled;
+            CharacterController characterController =
+                playerObject.GetComponent<CharacterController>();
+
+            if (characterController != null)
+            {
+                characterController.enabled =
+                    enabledValue;
+            }
         }
 
-        // 3. Input
         if (playerInputComponent != null)
-            playerInputComponent.enabled = enabled;
+        {
+            playerInputComponent.enabled =
+                enabledValue;
+        }
     }
 
-    void OnDrawGizmosSelected()
+    private void HideConfiguredObjects()
     {
-        if (panelVCam != null)
+        _previousObjectStates.Clear();
+
+        foreach (
+            GameObject target
+            in objectsToHideWhileInPanelMode)
         {
-            Gizmos.color = Color.cyan;
-            Gizmos.DrawSphere(panelVCam.transform.position, 0.1f);
-            Gizmos.DrawLine(transform.position, panelVCam.transform.position);
-            Gizmos.color = Color.blue;
-            Gizmos.DrawRay(panelVCam.transform.position, panelVCam.transform.forward * 0.5f);
+            if (target == null)
+            {
+                continue;
+            }
+
+            /*
+             * Tránh lưu cùng một object hai lần.
+             */
+            if (_previousObjectStates.ContainsKey(target))
+            {
+                continue;
+            }
+
+            _previousObjectStates.Add(
+                target,
+                target.activeSelf
+            );
+
+            target.SetActive(false);
         }
+    }
+
+    private void RestoreConfiguredObjects()
+    {
+        foreach (
+            KeyValuePair<GameObject, bool> pair
+            in _previousObjectStates)
+        {
+            if (pair.Key != null)
+            {
+                pair.Key.SetActive(pair.Value);
+            }
+        }
+
+        _previousObjectStates.Clear();
+    }
+
+    private void OnDisable()
+    {
+        StopAllCoroutines();
+
+        /*
+         * Bảo đảm player và UI không bị khóa vĩnh viễn
+         * nếu PanelInteractZone bị tắt giữa chừng.
+         */
+        if (IsInPanelMode || _isTransitioning)
+        {
+            if (panelVCam != null)
+            {
+                panelVCam.Priority = 0;
+            }
+
+            if (playerVCam != null)
+            {
+                playerVCam.Priority = 10;
+            }
+
+            SetPlayerControl(true);
+            RestoreConfiguredObjects();
+
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+
+            IsInPanelMode = false;
+            _isTransitioning = false;
+        }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (panelVCam == null)
+        {
+            return;
+        }
+
+        Gizmos.color = Color.cyan;
+
+        Gizmos.DrawSphere(
+            panelVCam.transform.position,
+            0.1f
+        );
+
+        Gizmos.DrawLine(
+            transform.position,
+            panelVCam.transform.position
+        );
+
+        Gizmos.color = Color.blue;
+
+        Gizmos.DrawRay(
+            panelVCam.transform.position,
+            panelVCam.transform.forward * 0.5f
+        );
     }
 }

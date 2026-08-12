@@ -2,14 +2,26 @@
 using UnityEngine;
 
 /// <summary>
-/// Gắn vào GameObject của cần gạt (Main Switch).
-/// Đã tích hợp IQuestRequirement và NotificationUI
-/// để hiển thị cảnh báo thông minh.
+/// Cần gạt nguồn điện chính của bệnh viện.
+/// Kiểm tra bảng cầu chì, điều khiển LightingManager,
+/// phát âm thanh và cập nhật Objective System.
 /// </summary>
 public class MainSwitchInteractable :
     MonoBehaviour,
     IQuestRequirement
 {
+    private const string RestorePowerObjectiveID =
+        "restore_power";
+
+    private const string RestorePowerDescription =
+        "Restore power to the hospital";
+
+    private const string FindRooftopRouteObjectiveID =
+        "find_rooftop_route";
+
+    private const string FindRooftopRouteDescription =
+        "Find a route to the rooftop";
+
     [Header("References")]
     public LightingManager lightingManager;
     public FusePanelManager fusePanelManager;
@@ -46,9 +58,18 @@ public class MainSwitchInteractable :
     public Vector2 pitchRange =
         new Vector2(0.97f, 1.03f);
 
+    [Header("Objective Settings")]
+    [Tooltip(
+        "Thời gian chờ trước khi hiện nhiệm vụ tìm đường lên sân thượng."
+    )]
+    [Min(0f)]
+    [SerializeField] private float nextObjectiveDelay = 2f;
+
     private AudioSource _audio;
+
     private bool isOn;
     private bool isAnimating;
+    private bool hasStartedRooftopObjective;
 
     private void Start()
     {
@@ -58,10 +79,16 @@ public class MainSwitchInteractable :
             );
 
         _audio = GetComponent<AudioSource>();
+
+        if (lightingManager == null)
+        {
+            lightingManager = LightingManager.Instance;
+        }
     }
 
-    // Cần gạt không yêu cầu người chơi
-    // phải cầm vật phẩm cụ thể trên tay.
+    /// <summary>
+    /// Cần gạt không yêu cầu player cầm vật phẩm cụ thể.
+    /// </summary>
     public ItemDataSO GetRequiredItem()
     {
         return null;
@@ -85,7 +112,7 @@ public class MainSwitchInteractable :
     }
 
     /// <summary>
-    /// Xử lý khi người chơi nhìn vào cần gạt và nhấn F.
+    /// Được gọi khi player nhìn vào cần gạt và nhấn nút tương tác.
     /// </summary>
     public bool TryUseItem(InventorySystem inventory)
     {
@@ -94,52 +121,39 @@ public class MainSwitchInteractable :
             return false;
         }
 
-        // Điện đang bật: cho phép gạt tắt tự do.
         if (isOn)
         {
-            isOn = false;
-
-            if (lightingManager != null)
-            {
-                lightingManager.SetPower(false);
-            }
-
-            PlaySound(
-                switchFlipSound,
-                switchFlipVolume
-            );
-
-            StartCoroutine(
-                AnimateSwitch(offAngle)
-            );
-
-            Debug.Log("[MainSwitch] Power: OFF");
-
+            TurnPowerOff();
             return true;
         }
 
-        // Điện đang tắt: kiểm tra điều kiện để bật.
-        if (fusePanelManager != null)
+        if (!CanTurnPowerOn())
         {
-            bool missingFuse = false;
+            return false;
+        }
 
-            foreach (FuseSlot slot in
-                     fusePanelManager.allSlots)
+        TurnPowerOn(false);
+        return true;
+    }
+
+    /// <summary>
+    /// Kiểm tra toàn bộ điều kiện của bảng cầu chì.
+    /// </summary>
+    private bool CanTurnPowerOn()
+    {
+        if (fusePanelManager == null)
+        {
+            return true;
+        }
+
+        foreach (FuseSlot slot in fusePanelManager.allSlots)
+        {
+            if (slot == null)
             {
-                if (slot == null)
-                {
-                    continue;
-                }
-
-                if (slot.requiresFuse &&
-                    !slot.HasFuse)
-                {
-                    missingFuse = true;
-                    break;
-                }
+                continue;
             }
 
-            if (missingFuse)
+            if (slot.requiresFuse && !slot.HasFuse)
             {
                 PlaySound(
                     soundFail,
@@ -153,41 +167,52 @@ public class MainSwitchInteractable :
 
                 return false;
             }
-
-            if (!fusePanelManager.CheckAllFuses())
-            {
-                PlaySound(
-                    soundFail,
-                    failVolume
-                );
-
-                NotificationUI.Instance
-                    ?.ShowNotification(
-                        "The fuse positions do not match the wiring diagram!"
-                    );
-
-                return false;
-            }
-
-            if (!fusePanelManager.CheckAllSwitches())
-            {
-                PlaySound(
-                    soundFail,
-                    failVolume
-                );
-
-                NotificationUI.Instance
-                    ?.ShowNotification(
-                        "The auxiliary switch configuration is incorrect!"
-                    );
-
-                return false;
-            }
         }
 
-        // Tất cả điều kiện đều hợp lệ:
-        // kích hoạt nguồn điện.
+        if (!fusePanelManager.CheckAllFuses())
+        {
+            PlaySound(
+                soundFail,
+                failVolume
+            );
+
+            NotificationUI.Instance
+                ?.ShowNotification(
+                    "The fuse positions do not match the wiring diagram!"
+                );
+
+            return false;
+        }
+
+        if (!fusePanelManager.CheckAllSwitches())
+        {
+            PlaySound(
+                soundFail,
+                failVolume
+            );
+
+            NotificationUI.Instance
+                ?.ShowNotification(
+                    "The auxiliary switch configuration is incorrect!"
+                );
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Bật nguồn điện bệnh viện.
+    /// </summary>
+    private void TurnPowerOn(bool activatedByCheat)
+    {
         isOn = true;
+
+        if (lightingManager == null)
+        {
+            lightingManager = LightingManager.Instance;
+        }
 
         if (lightingManager != null)
         {
@@ -196,17 +221,15 @@ public class MainSwitchInteractable :
         else
         {
             Debug.LogWarning(
-                "[MainSwitch] Chưa gán LightingManager!"
+                "[MainSwitch] Không tìm thấy LightingManager."
             );
         }
 
-        // Tiếng cơ học của cần gạt.
         PlaySound(
             switchFlipSound,
             switchFlipVolume
         );
 
-        // Tiếng điện khởi động thành công.
         PlaySound(
             soundSuccess,
             successVolume
@@ -216,19 +239,130 @@ public class MainSwitchInteractable :
             AnimateSwitch(onAngle)
         );
 
+        string notificationMessage =
+            activatedByCheat
+                ? "Cheat: Hospital power has been restored!"
+                : "Power has been restored throughout the hospital!";
+
         NotificationUI.Instance
-            ?.ShowNotification(
-                "Power has been restored throughout the hospital!"
-            );
+            ?.ShowNotification(notificationMessage);
 
-        Debug.Log("[MainSwitch] Power: ON");
+        CompletePowerObjective();
 
-        return true;
+        Debug.Log(
+            activatedByCheat
+                ? "[MainSwitch Cheat] Power: ON"
+                : "[MainSwitch] Power: ON"
+        );
     }
 
     /// <summary>
-    /// Giữ lại hàm Interact cũ để không làm gãy
-    /// các hệ thống đang gọi trực tiếp hàm này.
+    /// Tắt nguồn điện bệnh viện.
+    /// Việc tắt lại điện không hoàn tác objective đã hoàn thành.
+    /// </summary>
+    private void TurnPowerOff()
+    {
+        isOn = false;
+
+        if (lightingManager == null)
+        {
+            lightingManager = LightingManager.Instance;
+        }
+
+        if (lightingManager != null)
+        {
+            lightingManager.SetPower(false);
+        }
+
+        PlaySound(
+            switchFlipSound,
+            switchFlipVolume
+        );
+
+        StartCoroutine(
+            AnimateSwitch(offAngle)
+        );
+
+        Debug.Log("[MainSwitch] Power: OFF");
+    }
+
+    /// <summary>
+    /// Hoàn thành nhiệm vụ mở điện và chuẩn bị objective tiếp theo.
+    /// </summary>
+    private void CompletePowerObjective()
+    {
+        if (ObjectiveManager.Instance == null)
+        {
+            Debug.LogWarning(
+                "[MainSwitch] Không tìm thấy ObjectiveManager."
+            );
+
+            return;
+        }
+
+        /*
+         * Trường hợp player hoặc cheat tới phòng điện
+         * mà chưa đi qua trigger nhận nhiệm vụ.
+         */
+        if (!ObjectiveManager.Instance.HasObjective(
+                RestorePowerObjectiveID))
+        {
+            ObjectiveManager.Instance.AddObjective(
+                RestorePowerObjectiveID,
+                RestorePowerDescription
+            );
+        }
+
+        if (!ObjectiveManager.Instance.IsObjectiveCompleted(
+                RestorePowerObjectiveID))
+        {
+            ObjectiveManager.Instance.CompleteObjective(
+                RestorePowerObjectiveID
+            );
+        }
+
+        if (!hasStartedRooftopObjective)
+        {
+            hasStartedRooftopObjective = true;
+
+            StartCoroutine(
+                GiveRooftopRouteObjective()
+            );
+        }
+    }
+
+    /// <summary>
+    /// Hiện nhiệm vụ tìm đường lên sân thượng
+    /// sau khi dòng nhiệm vụ mở điện biến mất.
+    /// </summary>
+    private IEnumerator GiveRooftopRouteObjective()
+    {
+        yield return new WaitForSecondsRealtime(
+            nextObjectiveDelay
+        );
+
+        if (ObjectiveManager.Instance == null)
+        {
+            Debug.LogWarning(
+                "[MainSwitch] ObjectiveManager đã bị mất."
+            );
+
+            yield break;
+        }
+
+        if (!ObjectiveManager.Instance.HasObjective(
+                FindRooftopRouteObjectiveID))
+        {
+            ObjectiveManager.Instance.AddObjective(
+                FindRooftopRouteObjectiveID,
+                FindRooftopRouteDescription
+            );
+        }
+    }
+
+    /// <summary>
+    /// Giữ lại để không làm hỏng những hệ thống cũ
+    /// đang gọi trực tiếp Interact().
     /// </summary>
     public void Interact()
     {
@@ -237,13 +371,16 @@ public class MainSwitchInteractable :
         );
     }
 
+    /// <summary>
+    /// Bật điện bằng Developer Cheat.
+    /// Vẫn cập nhật đầy đủ Objective System.
+    /// </summary>
     public void CheatTurnOnPower()
     {
         if (isOn)
         {
             Debug.Log(
-                "[MainSwitch Cheat] " +
-                "Nguồn điện đã được bật trước đó."
+                "[MainSwitch Cheat] Nguồn điện đã được bật trước đó."
             );
 
             return;
@@ -252,52 +389,11 @@ public class MainSwitchInteractable :
         StopAllCoroutines();
 
         isAnimating = false;
-        isOn = true;
 
-        if (lightingManager == null)
-        {
-            lightingManager =
-                LightingManager.Instance;
-        }
-
-        if (lightingManager != null)
-        {
-            lightingManager.SetPower(true);
-        }
-        else
-        {
-            Debug.LogWarning(
-                "[MainSwitch Cheat] " +
-                "Không tìm thấy LightingManager."
-            );
-        }
-
-        PlaySound(
-            switchFlipSound,
-            switchFlipVolume
-        );
-
-        PlaySound(
-            soundSuccess,
-            successVolume
-        );
-
-        StartCoroutine(
-            AnimateSwitch(onAngle)
-        );
-
-        NotificationUI.Instance
-            ?.ShowNotification(
-                "Cheat: Hospital power has been restored!"
-            );
-
-        Debug.Log(
-            "[MainSwitch Cheat] Power: ON"
-        );
+        TurnPowerOn(true);
     }
 
-    private IEnumerator AnimateSwitch(
-        float targetAngle)
+    private IEnumerator AnimateSwitch(float targetAngle)
     {
         isAnimating = true;
 
@@ -310,6 +406,7 @@ public class MainSwitchInteractable :
             );
 
         float elapsed = 0f;
+
         float safeDuration =
             Mathf.Max(0.01f, animDuration);
 
@@ -317,9 +414,10 @@ public class MainSwitchInteractable :
         {
             elapsed += Time.deltaTime;
 
-            float progress = Mathf.Clamp01(
-                elapsed / safeDuration
-            );
+            float progress =
+                Mathf.Clamp01(
+                    elapsed / safeDuration
+                );
 
             float smoothProgress =
                 Mathf.SmoothStep(
@@ -353,10 +451,11 @@ public class MainSwitchInteractable :
             return;
         }
 
-        _audio.pitch = Random.Range(
-            pitchRange.x,
-            pitchRange.y
-        );
+        _audio.pitch =
+            Random.Range(
+                pitchRange.x,
+                pitchRange.y
+            );
 
         _audio.PlayOneShot(
             clip,

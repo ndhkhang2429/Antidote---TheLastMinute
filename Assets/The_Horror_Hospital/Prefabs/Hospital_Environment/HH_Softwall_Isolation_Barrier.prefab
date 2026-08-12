@@ -483,18 +483,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5ec3be05e5c93243a46b10bb0bbd396, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  smooth: 2
-  DoorOpenAngle: 87
   isSlidingDoor: 1
+  smooth: 2
+  doorOpenAngle: 87
   slideOffset: {x: 0, y: 0, z: -1.5}
-  openMessage: Open E
-  closeMessage: Close E
+  openMessage: '[F] Open'
+  closeMessage: '[F] Close'
+  keycardPrompt: Use keycard [F]
   messageFont: {fileID: 0}
   fontSize: 24
   fontColor: {r: 1, g: 1, b: 1, a: 1}
-  messagePosition: {x: 0.5, y: 0.5}
+  messagePosition: {x: 0.55, y: 0.55}
   openSound: {fileID: 8300000, guid: 4173125558c11f74aa68edc63f2d91a5, type: 3}
   closeSound: {fileID: 8300000, guid: 2db51eb9b50f1e745a20041542539a0d, type: 3}
+  accessDeniedSound: {fileID: 0}
+  isBossDoor: 0
+  bossEncounterController: {fileID: 0}
+  requiresPassword: 0
+  lockedMessage: Password required
+  requiresKeycard: 0
+  requiredKeycardSO: {fileID: 0}
+  powerRequiredMessage: The card reader is offline. Restore power first.
+  keycardRequiredMessage: 'Access Denied: Level 3 Security Card Required.'
+  nextObjectiveDelay: 2
 --- !u!65 &2185553647474219117
 BoxCollider:
   m_ObjectHideFlags: 0
