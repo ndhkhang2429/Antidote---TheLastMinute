@@ -9,6 +9,9 @@ public class PanelInteractZone : MonoBehaviour
     public CinemachineVirtualCamera playerVCam;
     public CinemachineVirtualCamera panelVCam;
 
+    [Header("Keypad View Light")]
+    [SerializeField] private GameObject keypadViewLight;
+
     [Header("Prompt")]
     public string enterPrompt = "Enter Keypad";
     public string exitPrompt = "Quit";
@@ -67,6 +70,11 @@ public class PanelInteractZone : MonoBehaviour
         {
             playerVCam.Priority = 10;
         }
+
+        if (keypadViewLight != null)
+        {
+            keypadViewLight.SetActive(false);
+        }
     }
 
     public void TogglePanelMode()
@@ -97,6 +105,11 @@ public class PanelInteractZone : MonoBehaviour
 
         HideConfiguredObjects();
         SetPlayerControl(false);
+
+        if (keypadViewLight != null)
+        {
+            keypadViewLight.SetActive(true);
+        }
 
         if (panelVCam != null)
         {
@@ -148,6 +161,11 @@ public class PanelInteractZone : MonoBehaviour
         yield return new WaitForSecondsRealtime(
             Mathf.Max(0f, blendWaitTime)
         );
+
+        if (keypadViewLight != null)
+        {
+            keypadViewLight.SetActive(false);
+        }
 
         SetPlayerControl(true);
 
@@ -265,6 +283,11 @@ public class PanelInteractZone : MonoBehaviour
 
             IsInPanelMode = false;
             _isTransitioning = false;
+
+            if (keypadViewLight != null)
+            {
+                keypadViewLight.SetActive(false);
+            }
         }
     }
 

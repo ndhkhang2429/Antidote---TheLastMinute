@@ -1,26 +1,126 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace NavKeypad { 
-public class KeypadInteractionFPV : MonoBehaviour
+namespace NavKeypad
 {
-    private Camera cam;
-    private void Awake() => cam = Camera.main;
-    private void Update()
+    public class KeypadInteractionFPV : MonoBehaviour
     {
-        var ray = cam.ScreenPointToRay(Input.mousePosition);
+        [Header("Camera")]
+        [Tooltip("Camera thật render gameplay, thường là Main Camera.")]
+        [SerializeField] private Camera interactionCamera;
 
-        if (Input.GetMouseButtonDown(0))
+        [Header("Raycast")]
+        [SerializeField] private float interactionDistance = 10f;
+
+        [Tooltip("Chọn các layer được phép kiểm tra.")]
+        [SerializeField] private LayerMask keypadLayers = ~0;
+
+        [Header("Debug")]
+        [SerializeField] private bool showDebugLog;
+
+        private void Awake()
         {
-            if (Physics.Raycast(ray, out var hit))
+            FindInteractionCamera();
+        }
+
+        private void OnEnable()
+        {
+            FindInteractionCamera();
+        }
+
+        private void Update()
+        {
+            if (!Input.GetMouseButtonDown(0))
             {
-                if (hit.collider.TryGetComponent(out KeypadButton keypadButton))
+                return;
+            }
+
+            if (interactionCamera == null)
+            {
+                FindInteractionCamera();
+
+                if (interactionCamera == null)
                 {
-                    keypadButton.PressButton();
+                    Debug.LogWarning(
+                        "[KeypadInteractionFPV] Không tìm thấy Main Camera.",
+                        this
+                    );
+
+                    return;
                 }
+            }
+
+            Ray ray = interactionCamera.ScreenPointToRay(
+                Input.mousePosition
+            );
+
+            RaycastHit[] hits = Physics.RaycastAll(
+                ray,
+                interactionDistance,
+                keypadLayers,
+                QueryTriggerInteraction.Collide
+            );
+
+            if (hits.Length == 0)
+            {
+                if (showDebugLog)
+                {
+                    Debug.Log(
+                        "[KeypadInteractionFPV] Raycast không chạm collider."
+                    );
+                }
+
+                return;
+            }
+
+            System.Array.Sort(
+                hits,
+                (a, b) => a.distance.CompareTo(b.distance)
+            );
+
+            foreach (RaycastHit hit in hits)
+            {
+                KeypadButton keypadButton =
+                    hit.collider.GetComponent<KeypadButton>();
+
+                if (keypadButton == null)
+                {
+                    keypadButton =
+                        hit.collider.GetComponentInParent<KeypadButton>();
+                }
+
+                if (keypadButton == null)
+                {
+                    continue;
+                }
+
+                if (showDebugLog)
+                {
+                    Debug.Log(
+                        $"[KeypadInteractionFPV] Đã bấm: " +
+                        $"{keypadButton.gameObject.name}",
+                        keypadButton
+                    );
+                }
+
+                keypadButton.PressButton();
+                return;
+            }
+
+            if (showDebugLog)
+            {
+                Debug.Log(
+                    $"[KeypadInteractionFPV] Chạm '{hits[0].collider.name}' " +
+                    "nhưng không tìm thấy KeypadButton."
+                );
+            }
+        }
+
+        private void FindInteractionCamera()
+        {
+            if (interactionCamera == null)
+            {
+                interactionCamera = Camera.main;
             }
         }
     }
-}
 }
