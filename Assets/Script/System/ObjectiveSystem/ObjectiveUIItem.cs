@@ -22,17 +22,23 @@ public class ObjectiveUIItem : MonoBehaviour
 
     private Coroutine fadeCoroutine;
 
-    public void Initialize(string objectiveID, string description)
+    public void Initialize(
+    string objectiveID,
+    string description)
     {
         ObjectiveID = objectiveID;
 
         objectiveText.text = description;
         objectiveText.color = activeColor;
         objectiveText.fontStyle = FontStyles.Normal;
+        objectiveText.alignment =
+            TextAlignmentOptions.Right;
 
         if (checkmarkText != null)
         {
             checkmarkText.text = "[DONE]";
+            checkmarkText.alignment =
+                TextAlignmentOptions.Right;
             checkmarkText.gameObject.SetActive(false);
         }
 

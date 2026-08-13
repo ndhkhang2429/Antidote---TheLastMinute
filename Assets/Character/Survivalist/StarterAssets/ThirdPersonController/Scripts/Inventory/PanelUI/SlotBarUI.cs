@@ -16,10 +16,6 @@ public class SlotBarUI : MonoBehaviour
     [Header("4 Slots: Rifle, Pistol, Melee, Item")]
     public SlotBarItem[] slots = new SlotBarItem[4];
 
-    [Header("Panel Layout")]
-    [SerializeField] private float panelWidth = 230f;
-    [SerializeField] private float slotHeight = 58f;
-    [SerializeField] private float slotSpacing = 5f;
 
     [Header("Key Layout")]
     [SerializeField] private float keyLeftPadding = 8f;
@@ -66,13 +62,12 @@ public class SlotBarUI : MonoBehaviour
 
     private static readonly string[] KeyLabels =
     {
-        "1", "2", "3", "4"
+        "[1]", "[2]", "[3]", "[4]"
     };
 
     private void Start()
     {
         InitLabels();
-        ApplyLayout();
 
         if (InventorySystem.Instance != null)
         {
@@ -119,59 +114,6 @@ public class SlotBarUI : MonoBehaviour
         }
     }
 
-    private void ApplyLayout()
-    {
-        RectTransform panelRect = GetComponent<RectTransform>();
-
-        if (panelRect == null || slots == null)
-            return;
-
-        /*
-         * SlotBarUI bám vào giữa cạnh phải màn hình.
-         * Pos X và Pos Y vẫn có thể chỉnh trong Inspector.
-         */
-        panelRect.anchorMin = new Vector2(1f, 0.5f);
-        panelRect.anchorMax = new Vector2(1f, 0.5f);
-        panelRect.pivot = new Vector2(1f, 0.5f);
-
-        float currentY = 0f;
-
-        for (int i = 0; i < slots.Length; i++)
-        {
-            SlotBarItem slot = slots[i];
-
-            if (slot == null || slot.root == null)
-                continue;
-
-            RectTransform slotRect =
-                slot.root.GetComponent<RectTransform>();
-
-            if (slotRect == null)
-                continue;
-
-            // Slot kéo giãn theo chiều ngang của SlotBarUI.
-            slotRect.anchorMin = new Vector2(0f, 1f);
-            slotRect.anchorMax = new Vector2(1f, 1f);
-            slotRect.pivot = new Vector2(0.5f, 1f);
-
-            slotRect.offsetMin =
-                new Vector2(0f, -(currentY + slotHeight));
-
-            slotRect.offsetMax =
-                new Vector2(0f, -currentY);
-
-            LayoutKey(slot);
-            LayoutIconArea(slot);
-
-            currentY += slotHeight;
-
-            if (i < slots.Length - 1)
-                currentY += slotSpacing;
-        }
-
-        panelRect.sizeDelta =
-            new Vector2(panelWidth, currentY);
-    }
 
     private void LayoutKey(SlotBarItem slot)
     {
@@ -342,9 +284,9 @@ public class SlotBarUI : MonoBehaviour
     }
 
     private void ApplyIcon(
-        SlotBarItem slot,
-        Sprite sprite,
-        bool isActive)
+    SlotBarItem slot,
+    Sprite sprite,
+    bool isActive)
     {
         if (slot.iconImage == null)
             return;
@@ -357,12 +299,16 @@ public class SlotBarUI : MonoBehaviour
             return;
 
         slot.iconImage.sprite = sprite;
+
         slot.iconImage.color =
             isActive
                 ? colorActiveIcon
                 : colorInactiveIcon;
 
-        FitIconToArea(slot.iconImage, sprite);
+        // Giữ nguyên kích thước Rect Transform đã chỉnh trong Scene.
+        slot.iconImage.type = Image.Type.Simple;
+        slot.iconImage.preserveAspect = true;
+
     }
 
     private void FitIconToArea(
