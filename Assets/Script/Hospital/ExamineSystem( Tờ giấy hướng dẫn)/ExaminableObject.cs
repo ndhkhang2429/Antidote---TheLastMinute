@@ -1,9 +1,12 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 /// <summary>
-/// Gắn vào các vật thể có thể đọc/xem:
-/// giấy, sách, bảng thông báo, hồ sơ...
-/// Vật thể vẫn nằm tại chỗ sau khi đọc.
+/// Dùng cho giấy, hồ sơ, sách và bảng thông báo có thể đọc.
+///
+/// Hỗ trợ hai chức năng:
+/// 1. Security Notice: giao ba nhiệm vụ tìm manh mối khi đóng.
+/// 2. Clue Document: hoàn thành một objective cụ thể khi đóng.
 /// </summary>
 public class ExaminableObject : MonoBehaviour
 {
@@ -16,14 +19,17 @@ public class ExaminableObject : MonoBehaviour
     private const string GuardLogObjectiveID =
         "find_guard_log";
 
+    private const string EnterSecurityCodeObjectiveID =
+        "enter_security_code";
+
     [Header("Nội dung hiển thị")]
     [Tooltip("Tên tài liệu hiện trong prompt và Examine UI.")]
     public string objectName = "Document";
 
-    [Tooltip("Nếu tài liệu sử dụng hình ảnh.")]
+    [Tooltip("Hình nền hoặc hình ảnh của tài liệu.")]
     public Sprite contentSprite;
 
-    [Tooltip("Nếu tài liệu sử dụng nội dung chữ.")]
+    [Tooltip("Nội dung chữ hiển thị trên tài liệu.")]
     [TextArea(3, 15)]
     public string contentText = "";
 
@@ -31,19 +37,19 @@ public class ExaminableObject : MonoBehaviour
     [Tooltip("Âm thanh phát khi mở tài liệu.")]
     public AudioClip openSound;
 
-    [Header("Objective Trigger")]
+    [Header("Give Clue Objectives On Close")]
     [Tooltip(
-        "Bật riêng cho Emergency Security Notice. " +
-        "Khi đóng tài liệu, ba nhiệm vụ tìm manh mối sẽ xuất hiện."
+        "Chỉ bật cho Emergency Security Notice. " +
+        "Khi đóng thông báo, ba nhiệm vụ tìm hồ sơ sẽ xuất hiện."
     )]
-    [SerializeField] private bool giveClueObjectivesOnClose;
+    [SerializeField]
+    private bool giveClueObjectivesOnClose;
 
-    [Tooltip(
-        "Chỉ cho phép kích hoạt objective một lần."
-    )]
-    [SerializeField] private bool triggerOnlyOnce = true;
+    [Tooltip("Chỉ giao ba objective một lần.")]
+    [SerializeField]
+    private bool triggerOnlyOnce = true;
 
-    [Header("Objective Text")]
+    [Header("Clue Objective Text")]
     [SerializeField]
     private string receptionObjectiveText =
         "Search the Information Desk";
@@ -56,19 +62,61 @@ public class ExaminableObject : MonoBehaviour
     private string guardLogObjectiveText =
         "Find the chief guard's duty log";
 
-    private bool hasTriggeredObjectives;
+    [Header("Complete Objective On Close")]
+    [Tooltip(
+        "Bật nếu đây là một hồ sơ manh mối. " +
+        "Objective được hoàn thành sau khi player đóng tài liệu."
+    )]
+    [SerializeField]
+    private bool completeObjectiveOnClose;
+
+    [Tooltip(
+        "ID của objective mà tài liệu này sẽ hoàn thành."
+    )]
+    [SerializeField]
+    private string objectiveToCompleteID;
+
+    [Tooltip(
+        "Thông báo hiện sau khi đọc xong manh mối."
+    )]
+    [TextArea(2, 4)]
+    [SerializeField]
+    private string clueFoundMessage;
+
+    [Header("All Clues Completed")]
+    [Tooltip(
+        "Thời gian chờ trước khi giao nhiệm vụ nhập mật khẩu."
+    )]
+    [Min(0f)]
+    [SerializeField]
+    private float nextObjectiveDelay = 2f;
+
+    private bool hasGivenClueObjectives;
+    private bool hasCompletedOwnObjective;
+    private bool hasStartedNextObjective;
 
     /// <summary>
-    /// Được ExamineUIController gọi sau khi người chơi đóng tài liệu.
+    /// ExamineUIController gọi hàm này sau khi player
+    /// đóng tài liệu bằng F hoặc ESC.
     /// </summary>
     public void NotifyExamineClosed()
+    {
+        CompleteOwnObjectiveIfPossible();
+        GiveClueObjectivesIfNeeded();
+    }
+
+    /// <summary>
+    /// Dùng cho Emergency Security Notice.
+    /// </summary>
+    private void GiveClueObjectivesIfNeeded()
     {
         if (!giveClueObjectivesOnClose)
         {
             return;
         }
 
-        if (triggerOnlyOnce && hasTriggeredObjectives)
+        if (triggerOnlyOnce &&
+            hasGivenClueObjectives)
         {
             return;
         }
@@ -76,15 +124,15 @@ public class ExaminableObject : MonoBehaviour
         if (ObjectiveManager.Instance == null)
         {
             Debug.LogWarning(
-                $"[ExaminableObject] Không tìm thấy ObjectiveManager: " +
-                $"{objectName}",
+                $"[ExaminableObject] Không tìm thấy " +
+                $"ObjectiveManager khi đọc '{objectName}'.",
                 this
             );
 
             return;
         }
 
-        hasTriggeredObjectives = true;
+        hasGivenClueObjectives = true;
 
         AddObjectiveIfMissing(
             ReceptionObjectiveID,
@@ -102,16 +150,162 @@ public class ExaminableObject : MonoBehaviour
         );
 
         Debug.Log(
-            $"[ExaminableObject] Đã đọc xong '{objectName}' " +
+            $"[ExaminableObject] Đã đọc '{objectName}' " +
             "và nhận ba nhiệm vụ tìm manh mối."
         );
+    }
+
+    /// <summary>
+    /// Dùng cho từng hồ sơ manh mối.
+    /// </summary>
+    private void CompleteOwnObjectiveIfPossible()
+    {
+        if (!completeObjectiveOnClose ||
+            hasCompletedOwnObjective ||
+            string.IsNullOrWhiteSpace(
+                objectiveToCompleteID))
+        {
+            return;
+        }
+
+        if (ObjectiveManager.Instance == null)
+        {
+            Debug.LogWarning(
+                $"[ExaminableObject] Không tìm thấy " +
+                $"ObjectiveManager khi đọc '{objectName}'.",
+                this
+            );
+
+            return;
+        }
+
+        /*
+         * Chỉ hoàn thành nếu objective đã được giao
+         * sau khi đọc Emergency Security Notice.
+         */
+        if (!ObjectiveManager.Instance.HasObjective(
+                objectiveToCompleteID))
+        {
+            NotificationUI.Instance
+                ?.ShowNotification(
+                    "This document may be important."
+                );
+
+            Debug.Log(
+                $"[ExaminableObject] Đã đọc '{objectName}' " +
+                $"nhưng objective '{objectiveToCompleteID}' " +
+                "chưa được nhận."
+            );
+
+            return;
+        }
+
+        if (!ObjectiveManager.Instance
+                .IsObjectiveCompleted(
+                    objectiveToCompleteID))
+        {
+            ObjectiveManager.Instance
+                .CompleteObjective(
+                    objectiveToCompleteID
+                );
+        }
+
+        hasCompletedOwnObjective = true;
+
+        if (!string.IsNullOrWhiteSpace(
+                clueFoundMessage))
+        {
+            NotificationUI.Instance
+                ?.ShowNotification(
+                    clueFoundMessage
+                );
+        }
+
+        Debug.Log(
+            $"[ExaminableObject] Hoàn thành objective " +
+            $"'{objectiveToCompleteID}' từ '{objectName}'."
+        );
+
+        CheckAllCluesCompleted();
+    }
+
+    /// <summary>
+    /// Sau khi đủ cả ba hồ sơ, giao nhiệm vụ quay lại
+    /// Security Office để nhập mật khẩu.
+    /// </summary>
+    private void CheckAllCluesCompleted()
+    {
+        if (ObjectiveManager.Instance == null ||
+            hasStartedNextObjective)
+        {
+            return;
+        }
+
+        bool receptionCompleted =
+            ObjectiveManager.Instance
+                .IsObjectiveCompleted(
+                    ReceptionObjectiveID
+                );
+
+        bool isolationCompleted =
+            ObjectiveManager.Instance
+                .IsObjectiveCompleted(
+                    IsolationObjectiveID
+                );
+
+        bool guardLogCompleted =
+            ObjectiveManager.Instance
+                .IsObjectiveCompleted(
+                    GuardLogObjectiveID
+                );
+
+        if (!receptionCompleted ||
+            !isolationCompleted ||
+            !guardLogCompleted)
+        {
+            return;
+        }
+
+        hasStartedNextObjective = true;
+
+        StartCoroutine(
+            GiveEnterCodeObjectiveAfterDelay()
+        );
+    }
+
+    private IEnumerator
+        GiveEnterCodeObjectiveAfterDelay()
+    {
+        yield return new WaitForSecondsRealtime(
+            nextObjectiveDelay
+        );
+
+        if (ObjectiveManager.Instance == null)
+        {
+            yield break;
+        }
+
+        if (!ObjectiveManager.Instance.HasObjective(
+                EnterSecurityCodeObjectiveID))
+        {
+            ObjectiveManager.Instance.AddObjective(
+                EnterSecurityCodeObjectiveID,
+                "Enter the code at the Security Office"
+            );
+        }
     }
 
     private void AddObjectiveIfMissing(
         string objectiveID,
         string description)
     {
-        if (!ObjectiveManager.Instance.HasObjective(objectiveID))
+        if (ObjectiveManager.Instance == null)
+        {
+            return;
+        }
+
+        if (!ObjectiveManager.Instance.HasObjective(
+                objectiveID))
         {
             ObjectiveManager.Instance.AddObjective(
                 objectiveID,

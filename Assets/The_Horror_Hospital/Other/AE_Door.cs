@@ -64,6 +64,13 @@ namespace Art_Equilibrium
         [SerializeField]
         private BossEncounterController bossEncounterController;
 
+        [Header("Power Lock")]
+        [SerializeField] private bool requiresPower;
+
+        [SerializeField]
+        private string noPowerMessage =
+            "No power. Restore electricity first.";
+
         [Header("Password Lock")]
         [SerializeField] private bool requiresPassword;
 
@@ -161,6 +168,17 @@ namespace Art_Equilibrium
         {
             if (_bossEncounterRequested)
             {
+                return;
+            }
+
+            if (requiresPower &&
+                (LightingManager.Instance == null ||
+                !LightingManager.Instance.IsPowerOn))
+            {
+                NotificationUI.Instance
+                    ?.ShowNotification(noPowerMessage);
+
+                PlayDeniedSound();
                 return;
             }
 
@@ -371,6 +389,14 @@ namespace Art_Equilibrium
                 _bossEncounterRequested)
             {
                 _doorMessage = string.Empty;
+                return;
+            }
+
+            if (requiresPower &&
+                (LightingManager.Instance == null ||
+                 !LightingManager.Instance.IsPowerOn))
+            {
+                _doorMessage = noPowerMessage;
                 return;
             }
 
