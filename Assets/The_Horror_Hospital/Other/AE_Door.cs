@@ -4,14 +4,11 @@ using UnityEngine;
 namespace Art_Equilibrium
 {
     /// <summary>
-    /// Điều khiển cửa thường, cửa mật khẩu, cửa thẻ từ và cổng boss.
-    /// Teleport/cutscene boss do BossEncounterController xử lý.
+    /// Điều khiển cửa thường, cửa mật khẩu, cửa thẻ từ
+    /// và cổng vào boss room.
     ///
-    /// Với cửa boss:
-    /// - Khi player đến mà chưa có thẻ:
-    ///   + Hoàn thành nhiệm vụ tìm đường lên sân thượng.
-    ///   + Thông báo cần Level 3 Security Card.
-    ///   + Nhận nhiệm vụ tìm Security Office.
+    /// Có cơ chế tự xóa prompt nếu Player bị teleport
+    /// mà Unity không gọi OnTriggerExit.
     /// </summary>
     public class AE_Door : MonoBehaviour
     {
@@ -34,8 +31,13 @@ namespace Art_Equilibrium
             new Vector3(1f, 0f, 0f);
 
         [Header("Interaction Text")]
-        [SerializeField] private string openMessage = "[F] Open";
-        [SerializeField] private string closeMessage = "[F] Close";
+        [SerializeField]
+        private string openMessage =
+            "[F] Open";
+
+        [SerializeField]
+        private string closeMessage =
+            "[F] Close";
 
         [SerializeField]
         private string keycardPrompt =
@@ -43,7 +45,7 @@ namespace Art_Equilibrium
 
         [SerializeField]
         private string inspectCardReaderPrompt =
-        "Inspect card reader [F]";
+            "Inspect card reader [F]";
 
         [SerializeField] private Font messageFont;
         [SerializeField] private int fontSize = 24;
@@ -52,6 +54,14 @@ namespace Art_Equilibrium
         [SerializeField]
         private Vector2 messagePosition =
             new Vector2(0.55f, 0.55f);
+
+        [Header("Prompt Safety")]
+        [Tooltip(
+            "Nếu Player cách cửa xa hơn khoảng này, prompt sẽ bị xóa. " +
+            "Giúp xử lý trường hợp teleport không gọi OnTriggerExit."
+        )]
+        [Min(1f)]
+        [SerializeField] private float promptResetDistance = 5f;
 
         [Header("Audio")]
         [SerializeField] private AudioClip openSound;
@@ -105,6 +115,7 @@ namespace Art_Equilibrium
         private Vector3 _openLocalPosition;
 
         private AudioSource _audioSource;
+        private Transform _trackedPlayer;
 
         private string _doorMessage = string.Empty;
 
@@ -113,11 +124,13 @@ namespace Art_Equilibrium
         private bool _interactionHeld;
         private bool _isUnlocked;
         private bool _bossEncounterRequested;
-
-        // Ngăn việc tạo lại objective mỗi lần player nhấn F.
         private bool _bossDoorDiscoveryHandled;
 
         private Coroutine _nextObjectiveCoroutine;
+
+        // ─────────────────────────────────────────────────────
+        // Lifecycle
+        // ─────────────────────────────────────────────────────
 
         private void Awake()
         {
@@ -142,11 +155,14 @@ namespace Art_Equilibrium
                 _audioSource =
                     gameObject.AddComponent<AudioSource>();
             }
+
+            ForceClearInteraction();
         }
 
         private void Update()
         {
             AnimateDoor();
+            ValidatePlayerRange();
 
             if (Input.GetKeyDown(KeyCode.F) &&
                 _playerInRange &&
@@ -164,19 +180,38 @@ namespace Art_Equilibrium
             UpdateInteractionMessage();
         }
 
+        private void OnDisable()
+        {
+            ForceClearInteraction();
+        }
+
+        private void OnDestroy()
+        {
+            if (_nextObjectiveCoroutine != null)
+            {
+                StopCoroutine(_nextObjectiveCoroutine);
+                _nextObjectiveCoroutine = null;
+            }
+
+            ForceClearInteraction();
+        }
+
+        // ─────────────────────────────────────────────────────
+        // Interaction
+        // ─────────────────────────────────────────────────────
+
         private void TryInteract()
         {
             if (_bossEncounterRequested)
-            {
                 return;
-            }
 
             if (requiresPower &&
                 (LightingManager.Instance == null ||
-                !LightingManager.Instance.IsPowerOn))
+                 !LightingManager.Instance.IsPowerOn))
             {
-                NotificationUI.Instance
-                    ?.ShowNotification(noPowerMessage);
+                NotificationUI.Instance?.ShowNotification(
+                    noPowerMessage
+                );
 
                 PlayDeniedSound();
                 return;
@@ -184,10 +219,9 @@ namespace Art_Equilibrium
 
             if (requiresPassword && !_isUnlocked)
             {
-                NotificationUI.Instance
-                    ?.ShowNotification(
-                        "This door requires a security code."
-                    );
+                NotificationUI.Instance?.ShowNotification(
+                    "This door requires a security code."
+                );
 
                 PlayDeniedSound();
                 return;
@@ -216,10 +250,9 @@ namespace Art_Equilibrium
             if (LightingManager.Instance != null &&
                 !LightingManager.Instance.IsPowerOn)
             {
-                NotificationUI.Instance
-                    ?.ShowNotification(
-                        powerRequiredMessage
-                    );
+                NotificationUI.Instance?.ShowNotification(
+                    powerRequiredMessage
+                );
 
                 PlayDeniedSound();
                 return false;
@@ -241,21 +274,14 @@ namespace Art_Equilibrium
             if (!InventorySystem.Instance.HasItem(
                     requiredKeycardSO))
             {
-                NotificationUI.Instance
-                    ?.ShowNotification(
-                        keycardRequiredMessage
-                    );
+                NotificationUI.Instance?.ShowNotification(
+                    keycardRequiredMessage
+                );
 
                 PlayDeniedSound();
 
-                /*
-                 * Chỉ cửa boss mới kích hoạt chuỗi nhiệm vụ này.
-                 * Những cửa keycard thông thường không bị ảnh hưởng.
-                 */
                 if (isBossDoor)
-                {
                     HandleBossDoorDiscovery();
-                }
 
                 return false;
             }
@@ -263,17 +289,61 @@ namespace Art_Equilibrium
             return true;
         }
 
-        /// <summary>
-        /// Player đã tìm được tuyến lên tầng 3 nhưng bị cửa boss chặn.
-        /// Hoàn thành nhiệm vụ tìm đường và giao nhiệm vụ tìm
-        /// Security Office.
-        /// </summary>
+        // ─────────────────────────────────────────────────────
+        // Boss encounter
+        // ─────────────────────────────────────────────────────
+
+        private void StartBossEncounter()
+        {
+            if (bossEncounterController == null)
+            {
+                Debug.LogError(
+                    "[AE_Door] Cửa boss chưa được gán " +
+                    "BossEncounterController.",
+                    this
+                );
+
+                return;
+            }
+
+            bool encounterStarted =
+                bossEncounterController.StartBossEncounter();
+
+            if (encounterStarted)
+            {
+                _bossEncounterRequested = true;
+
+                /*
+                 * Xóa prompt của tất cả cửa.
+                 * Việc này cần thiết vì teleport có thể không gọi
+                 * OnTriggerExit trên cửa cũ.
+                 */
+                ClearAllDoorPrompts();
+            }
+        }
+
+        public static void ClearAllDoorPrompts()
+        {
+            AE_Door[] doors =
+                FindObjectsOfType<AE_Door>();
+
+            for (int i = 0; i < doors.Length; i++)
+            {
+                if (doors[i] != null)
+                    doors[i].ForceClearInteraction();
+            }
+
+            InteractionUIManager.Instance?.HidePrompt();
+        }
+
+        // ─────────────────────────────────────────────────────
+        // Boss objectives
+        // ─────────────────────────────────────────────────────
+
         private void HandleBossDoorDiscovery()
         {
             if (_bossDoorDiscoveryHandled)
-            {
                 return;
-            }
 
             _bossDoorDiscoveryHandled = true;
 
@@ -316,6 +386,7 @@ namespace Art_Equilibrium
 
             if (ObjectiveManager.Instance == null)
             {
+                _nextObjectiveCoroutine = null;
                 yield break;
             }
 
@@ -331,28 +402,15 @@ namespace Art_Equilibrium
             _nextObjectiveCoroutine = null;
         }
 
-        private void StartBossEncounter()
-        {
-            if (bossEncounterController == null)
-            {
-                Debug.LogError(
-                    "[AE_Door] Cửa boss chưa được gán " +
-                    "BossEncounterController.",
-                    this
-                );
-
-                return;
-            }
-
-            if (bossEncounterController.StartBossEncounter())
-            {
-                _bossEncounterRequested = true;
-                _doorMessage = string.Empty;
-            }
-        }
+        // ─────────────────────────────────────────────────────
+        // Door animation
+        // ─────────────────────────────────────────────────────
 
         private void AnimateDoor()
         {
+            if (isBossDoor)
+                return;
+
             if (isSlidingDoor)
             {
                 Vector3 target =
@@ -380,6 +438,35 @@ namespace Art_Equilibrium
                         target,
                         Time.deltaTime * smooth
                     );
+            }
+        }
+
+        // ─────────────────────────────────────────────────────
+        // Prompt
+        // ─────────────────────────────────────────────────────
+
+        private void ValidatePlayerRange()
+        {
+            if (!_playerInRange)
+                return;
+
+            if (_trackedPlayer == null)
+            {
+                ForceClearInteraction();
+                return;
+            }
+
+            float maximumDistance =
+                Mathf.Max(1f, promptResetDistance);
+
+            float sqrDistance =
+                (_trackedPlayer.position -
+                 transform.position).sqrMagnitude;
+
+            if (sqrDistance >
+                maximumDistance * maximumDistance)
+            {
+                ForceClearInteraction();
             }
         }
 
@@ -415,41 +502,87 @@ namespace Art_Equilibrium
                         requiredKeycardSO
                     );
 
-                _doorMessage = hasRequiredKeycard
-                    ? keycardPrompt
-                    : inspectCardReaderPrompt;
+                _doorMessage =
+                    hasRequiredKeycard
+                        ? keycardPrompt
+                        : inspectCardReaderPrompt;
 
                 return;
             }
 
-            _doorMessage = _open
-                ? closeMessage
-                : openMessage;
+            /*
+             * Cửa boss không bao giờ dùng prompt Open/Close.
+             * Sau khi được mở khóa, nó chỉ khởi chạy encounter.
+             */
+            if (isBossDoor)
+            {
+                _doorMessage =
+                    requiresKeycard
+                        ? keycardPrompt
+                        : openMessage;
+
+                return;
+            }
+
+            _doorMessage =
+                _open
+                    ? closeMessage
+                    : openMessage;
         }
+
+        public void ForceClearInteraction()
+        {
+            _playerInRange = false;
+            _interactionHeld = false;
+            _trackedPlayer = null;
+            _doorMessage = string.Empty;
+        }
+
+        // ─────────────────────────────────────────────────────
+        // Trigger
+        // ─────────────────────────────────────────────────────
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.CompareTag("Player") &&
-                !_bossEncounterRequested)
+            if (!other.CompareTag("Player") ||
+                _bossEncounterRequested)
             {
-                _playerInRange = true;
+                return;
             }
+
+            _trackedPlayer = other.transform;
+            _playerInRange = true;
+            _interactionHeld = false;
+        }
+
+        private void OnTriggerStay(Collider other)
+        {
+            if (!other.CompareTag("Player") ||
+                _bossEncounterRequested)
+            {
+                return;
+            }
+
+            _trackedPlayer = other.transform;
+            _playerInRange = true;
         }
 
         private void OnTriggerExit(Collider other)
         {
             if (!other.CompareTag("Player"))
-            {
                 return;
-            }
 
-            _playerInRange = false;
-            _doorMessage = string.Empty;
+            ForceClearInteraction();
         }
+
+        // ─────────────────────────────────────────────────────
+        // Legacy GUI prompt
+        // ─────────────────────────────────────────────────────
 
         private void OnGUI()
         {
-            if (string.IsNullOrEmpty(_doorMessage))
+            if (!_playerInRange ||
+                string.IsNullOrEmpty(_doorMessage))
             {
                 return;
             }
@@ -466,9 +599,7 @@ namespace Art_Equilibrium
             style.normal.textColor = fontColor;
 
             if (messageFont != null)
-            {
                 style.font = messageFont;
-            }
 
             Vector2 labelSize =
                 style.CalcSize(
@@ -495,6 +626,10 @@ namespace Art_Equilibrium
             );
         }
 
+        // ─────────────────────────────────────────────────────
+        // Audio
+        // ─────────────────────────────────────────────────────
+
         private void PlayDoorSound()
         {
             AudioClip clip =
@@ -520,19 +655,20 @@ namespace Art_Equilibrium
             }
         }
 
+        // ─────────────────────────────────────────────────────
+        // Password
+        // ─────────────────────────────────────────────────────
+
         /// <summary>
         /// Được Keypad gọi sau khi nhập đúng mật khẩu.
         /// </summary>
         public void UnlockByPassword()
         {
             if (_isUnlocked)
-            {
                 return;
-            }
 
             _isUnlocked = true;
 
-            // Cửa boss là portal nên không xoay model tại đây.
             if (!isBossDoor)
             {
                 _open = true;

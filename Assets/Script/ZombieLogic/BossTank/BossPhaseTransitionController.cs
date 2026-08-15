@@ -3,54 +3,89 @@ using UnityEngine;
 using UnityEngine.Playables;
 
 /// <summary>
-/// Chạy Timeline chuyển Phase 1 -> Phase 2 và luôn mở khóa Player khi kết thúc/lỗi.
+/// Điều khiển cutscene chuyển từ Phase 1 sang Phase 2.
+///
+/// Signal trên Timeline sẽ mở khóa gameplay trước,
+/// trong khi âm thanh Sting vẫn có thể tiếp tục phát đến hết Timeline.
 /// </summary>
 public class BossPhaseTransitionController : MonoBehaviour
 {
     [Header("Timeline")]
     [SerializeField] private PlayableDirector phase2Director;
-    [SerializeField] private float materialSwapTime = 1.8f;
-    [SerializeField] private float safetyTimeout = 8f;
+
+    [Tooltip("Thời điểm đổi ngoại hình Phase 2 tính theo Timeline.")]
+    [SerializeField] private double materialSwapTime = 1.8d;
+
+    [Tooltip("Thời gian dự phòng nếu Timeline không kết thúc đúng cách.")]
+    [SerializeField] private float safetyTimeout = 10f;
 
     [Header("Phase 2 Camera Orbit")]
-    [Tooltip("Pivot cha của Phase2FocusCamera. Pivot sẽ được đưa tới vị trí hiện tại của boss trước khi Timeline chạy.")]
+    [Tooltip(
+        "Pivot cha của Phase2FocusCamera. " +
+        "Pivot sẽ được đưa tới vị trí hiện tại của boss trước khi Timeline chạy.")]
     [SerializeField] private Transform phase2CameraOrbit;
-    [Tooltip("Bật nếu pivot cũng phải lấy Y của boss. Thông thường nên bật.")]
+
+    [Tooltip("Cho pivot lấy cả độ cao Y của boss.")]
     [SerializeField] private bool snapOrbitYToBoss = true;
-    [Tooltip("Độ cao cộng thêm cho pivot so với chân boss. Camera con vẫn giữ Local Y riêng.")]
+
+    [Tooltip(
+        "Độ cao cộng thêm cho pivot so với vị trí boss. " +
+        "Camera con vẫn giữ Local Position riêng.")]
     [SerializeField] private float orbitPivotYOffset = 0f;
 
     [Header("Player Lock")]
-    [Tooltip("FirstPersonController, PlayerAttack, PlayerInteraction và các script input cần khóa.")]
+    [Tooltip(
+        "FirstPersonController, PlayerAttack, PlayerInteraction " +
+        "và các script input cần khóa.")]
     [SerializeField] private MonoBehaviour[] playerScriptsToDisable;
-    [Tooltip("FPS Hands, HUD và các object cần ẩn trong cutscene.")]
+
+    [Tooltip("FPS Hands và các object cần ẩn trong cutscene.")]
     [SerializeField] private GameObject[] playerObjectsToHide;
 
     private MutatedBossZombie _boss;
+
     private bool[] _previousScriptStates;
     private bool[] _previousObjectStates;
-    private bool _running;
+
+    // Timeline vẫn còn đang chạy, bao gồm cả phần Sting cuối.
+    private bool _sequenceActive;
+
+    // Gameplay đã được mở lại bởi Signal hoặc fallback.
+    private bool _gameplayReleased;
+
     private bool _directorStopped;
     private bool _visualsApplied;
 
-    public bool IsRunning => _running;
+    /// <summary>
+    /// True khi gameplay Phase 2 vẫn chưa được mở lại.
+    /// </summary>
+    public bool IsRunning => _sequenceActive && !_gameplayReleased;
 
-    /// <summary>Được MutatedBossZombie gọi khi HP chạm ngưỡng Phase 2.</summary>
+    /// <summary>
+    /// Được MutatedBossZombie gọi khi HP chạm ngưỡng Phase 2.
+    /// </summary>
     public bool PlayTransition(MutatedBossZombie boss)
     {
-        if (_running || boss == null)
+        if (_sequenceActive || boss == null)
             return false;
 
-        if (phase2Director == null || phase2Director.playableAsset == null)
+        if (phase2Director == null ||
+            phase2Director.playableAsset == null)
         {
             Debug.LogWarning(
-                "[BossPhaseTransition] Chưa gán PlayableDirector/Timeline. Dùng fallback.",
+                "[BossPhaseTransition] Chưa gán PlayableDirector/Timeline. " +
+                "Sẽ dùng fallback của Boss.",
                 this);
+
             return false;
         }
 
         _boss = boss;
-        _running = true;
+        _sequenceActive = true;
+        _gameplayReleased = false;
+        _visualsApplied = false;
+        _directorStopped = false;
+
         StartCoroutine(TransitionSequence());
         return true;
     }
@@ -60,28 +95,34 @@ public class BossPhaseTransitionController : MonoBehaviour
         LockPlayer();
         SnapCameraOrbitToBoss();
 
-        _directorStopped = false;
-        _visualsApplied = false;
         phase2Director.stopped -= HandleDirectorStopped;
         phase2Director.stopped += HandleDirectorStopped;
+
         phase2Director.time = 0d;
         phase2Director.Play();
 
         float timeout = safetyTimeout;
-        double duration = phase2Director.duration;
-        if (!double.IsNaN(duration) && !double.IsInfinity(duration) && duration > 0d)
-            timeout = Mathf.Max(timeout, (float)duration + 2f);
+        double timelineDuration = phase2Director.duration;
 
-        float elapsed = 0f;
-        while (!_directorStopped && elapsed < timeout)
+        if (!double.IsNaN(timelineDuration) &&
+            !double.IsInfinity(timelineDuration) &&
+            timelineDuration > 0d)
         {
-            elapsed += Time.unscaledDeltaTime;
+            timeout = Mathf.Max(
+                timeout,
+                (float)timelineDuration + 2f);
+        }
 
-            if (!_visualsApplied && elapsed >= materialSwapTime)
+        float elapsedRealtime = 0f;
+
+        while (!_directorStopped && elapsedRealtime < timeout)
+        {
+            elapsedRealtime += Time.unscaledDeltaTime;
+
+            if (!_visualsApplied &&
+                phase2Director.time >= materialSwapTime)
             {
-                _visualsApplied = true;
-                if (_boss != null)
-                    _boss.ApplyPhase2Visuals();
+                ApplyPhase2Visuals();
             }
 
             yield return null;
@@ -92,12 +133,64 @@ public class BossPhaseTransitionController : MonoBehaviour
         if (!_directorStopped)
         {
             Debug.LogWarning(
-                "[BossPhaseTransition] Timeline quá thời gian. Tự kết thúc để mở khóa Player.",
+                "[BossPhaseTransition] Timeline quá thời gian. " +
+                "Đã tự kết thúc để tránh khóa Player.",
                 this);
+
             phase2Director.Stop();
         }
 
-        FinishTransition();
+        // Fallback: dùng khi Signal bị thiếu hoặc không được gọi.
+        ReleaseGameplay();
+
+        CleanupSequence();
+    }
+
+    /// <summary>
+    /// Hàm public để Signal Timeline gọi khi camera Phase 2 kết thúc.
+    /// Không dừng Timeline nên Sting vẫn tiếp tục phát.
+    /// </summary>
+    public void FinishPhase2FromTimeline()
+    {
+        if (!_sequenceActive || _gameplayReleased)
+            return;
+
+        ReleaseGameplay();
+    }
+
+    private void ReleaseGameplay()
+    {
+        if (_gameplayReleased)
+            return;
+
+        _gameplayReleased = true;
+
+        // Bảo đảm ngoại hình Phase 2 đã được áp dụng.
+        ApplyPhase2Visuals();
+
+        // Hoàn tất trạng thái Phase 2 trước khi mở điều khiển.
+        if (_boss != null)
+            _boss.CompletePhase2Transition();
+
+        UnlockPlayer();
+    }
+
+    private void ApplyPhase2Visuals()
+    {
+        if (_visualsApplied)
+            return;
+
+        _visualsApplied = true;
+
+        if (_boss != null)
+            _boss.ApplyPhase2Visuals();
+    }
+
+    private void CleanupSequence()
+    {
+        _boss = null;
+        _sequenceActive = false;
+        _directorStopped = false;
     }
 
     private void SnapCameraOrbitToBoss()
@@ -105,8 +198,10 @@ public class BossPhaseTransitionController : MonoBehaviour
         if (phase2CameraOrbit == null)
         {
             Debug.LogWarning(
-                "[BossPhaseTransition] Chưa gán Phase 2 Camera Orbit; camera sẽ dùng vị trí đặt sẵn trong Scene.",
+                "[BossPhaseTransition] Chưa gán Phase 2 Camera Orbit. " +
+                "Camera sẽ sử dụng vị trí đặt sẵn trong Scene.",
                 this);
+
             return;
         }
 
@@ -120,93 +215,116 @@ public class BossPhaseTransitionController : MonoBehaviour
         orbitPosition.z = bossPosition.z;
 
         if (snapOrbitYToBoss)
-            orbitPosition.y = bossPosition.y + orbitPivotYOffset;
+            orbitPosition.y =
+                bossPosition.y + orbitPivotYOffset;
 
         phase2CameraOrbit.position = orbitPosition;
     }
 
-    private void FinishTransition()
+    private void HandleDirectorStopped(
+        PlayableDirector stoppedDirector)
     {
-        if (!_running)
-            return;
-
-        if (!_visualsApplied)
-        {
-            _visualsApplied = true;
-            if (_boss != null)
-                _boss.ApplyPhase2Visuals();
-        }
-
-        if (_boss != null)
-            _boss.CompletePhase2Transition();
-
-        UnlockPlayer();
-
-        _boss = null;
-        _running = false;
-    }
-
-    private void HandleDirectorStopped(PlayableDirector director)
-    {
-        _directorStopped = true;
+        if (stoppedDirector == phase2Director)
+            _directorStopped = true;
     }
 
     private void LockPlayer()
     {
         if (playerScriptsToDisable == null)
             playerScriptsToDisable = new MonoBehaviour[0];
+
         if (playerObjectsToHide == null)
             playerObjectsToHide = new GameObject[0];
 
-        _previousScriptStates = new bool[playerScriptsToDisable.Length];
-        for (int i = 0; i < playerScriptsToDisable.Length; i++)
-        {
-            MonoBehaviour script = playerScriptsToDisable[i];
-            if (script == null || script == this)
-                continue;
+        _previousScriptStates =
+            new bool[playerScriptsToDisable.Length];
 
-            _previousScriptStates[i] = script.enabled;
-            script.enabled = false;
+        for (int i = 0;
+             i < playerScriptsToDisable.Length;
+             i++)
+        {
+            MonoBehaviour targetScript =
+                playerScriptsToDisable[i];
+
+            if (targetScript == null ||
+                targetScript == this)
+            {
+                continue;
+            }
+
+            _previousScriptStates[i] =
+                targetScript.enabled;
+
+            targetScript.enabled = false;
         }
 
-        _previousObjectStates = new bool[playerObjectsToHide.Length];
-        for (int i = 0; i < playerObjectsToHide.Length; i++)
+        _previousObjectStates =
+            new bool[playerObjectsToHide.Length];
+
+        for (int i = 0;
+             i < playerObjectsToHide.Length;
+             i++)
         {
-            GameObject target = playerObjectsToHide[i];
-            if (target == null)
+            GameObject targetObject =
+                playerObjectsToHide[i];
+
+            if (targetObject == null)
                 continue;
 
-            _previousObjectStates[i] = target.activeSelf;
-            target.SetActive(false);
+            _previousObjectStates[i] =
+                targetObject.activeSelf;
+
+            targetObject.SetActive(false);
         }
     }
 
     private void UnlockPlayer()
     {
-        if (playerScriptsToDisable != null && _previousScriptStates != null)
+        if (playerScriptsToDisable != null &&
+            _previousScriptStates != null)
         {
-            for (int i = 0; i < playerScriptsToDisable.Length; i++)
+            int count = Mathf.Min(
+                playerScriptsToDisable.Length,
+                _previousScriptStates.Length);
+
+            for (int i = 0; i < count; i++)
             {
-                MonoBehaviour script = playerScriptsToDisable[i];
-                if (script != null && script != this)
-                    script.enabled = _previousScriptStates[i];
+                MonoBehaviour targetScript =
+                    playerScriptsToDisable[i];
+
+                if (targetScript != null &&
+                    targetScript != this)
+                {
+                    targetScript.enabled =
+                        _previousScriptStates[i];
+                }
             }
         }
 
-        if (playerObjectsToHide != null && _previousObjectStates != null)
+        if (playerObjectsToHide != null &&
+            _previousObjectStates != null)
         {
-            for (int i = 0; i < playerObjectsToHide.Length; i++)
+            int count = Mathf.Min(
+                playerObjectsToHide.Length,
+                _previousObjectStates.Length);
+
+            for (int i = 0; i < count; i++)
             {
-                GameObject target = playerObjectsToHide[i];
-                if (target != null)
-                    target.SetActive(_previousObjectStates[i]);
+                GameObject targetObject =
+                    playerObjectsToHide[i];
+
+                if (targetObject != null)
+                {
+                    targetObject.SetActive(
+                        _previousObjectStates[i]);
+                }
             }
         }
     }
 
     private void OnDisable()
     {
-        if (!_running)
+        if (!_sequenceActive)
             return;
 
         StopAllCoroutines();
@@ -214,6 +332,8 @@ public class BossPhaseTransitionController : MonoBehaviour
         if (phase2Director != null)
             phase2Director.stopped -= HandleDirectorStopped;
 
-        FinishTransition();
+        // Luôn bảo đảm Player không bị khóa khi object bị tắt.
+        ReleaseGameplay();
+        CleanupSequence();
     }
 }

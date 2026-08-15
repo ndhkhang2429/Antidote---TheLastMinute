@@ -94,7 +94,9 @@ public class BossEncounterController : MonoBehaviour
         if (introDirector != null && introDirector.playableAsset != null)
             yield return PlayIntroSafely();
 
-        FinishEncounterIntro();
+        // Chỉ dùng dự phòng nếu Timeline không phát Signal.
+        if (_sequenceRunning)
+            FinishEncounterIntro();
     }
 
     private IEnumerator PlayIntroSafely()
@@ -135,9 +137,14 @@ public class BossEncounterController : MonoBehaviour
 
     private void FinishEncounterIntro()
     {
-        boss.BeginEncounter();
-        bossHealthUI?.ShowBoss(boss);
+        if (!_sequenceRunning)
+            return;
+
         UnlockPlayer();
+
+        bossHealthUI?.ShowBoss(boss);
+        boss.BeginEncounter();
+
         _sequenceRunning = false;
     }
 
@@ -245,5 +252,12 @@ public class BossEncounterController : MonoBehaviour
 
         UnlockPlayer();
         _sequenceRunning = false;
+    }
+    public void FinishIntroFromTimeline()
+    {
+        if (!_sequenceRunning)
+            return;
+
+        FinishEncounterIntro();
     }
 }
