@@ -388,12 +388,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62513e82c0cc819419a4a56a3cda3cb3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackDamage: 15
-  attackCooldown: 1.5
-  walkSpeed: 0.77
+  attackDamage: 28
+  attackCooldown: 2.5
+  walkSpeed: 0.8
   runSpeed: 2.72
-  detectionRange: 10.69
-  attackRange: 2
+  detectionRange: 14
+  attackRange: 2.4
   wanderRadius: 8
   minIdleTime: 2
   maxIdleTime: 5

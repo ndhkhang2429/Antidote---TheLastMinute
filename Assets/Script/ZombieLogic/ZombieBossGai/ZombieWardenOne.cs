@@ -3,19 +3,17 @@
 /// <summary>
 /// ZombieWardenOne — THE RUSHER
 ///
-/// Combo Phase 1:
-/// Attack1 -> Attack2 -> Attack3
+/// Phase 1:
+/// Attack1 → Attack2 → Attack3.
 ///
-/// Combo Phase 2:
-/// Attack1 -> Attack2 -> Attack5 hoặc Attack3
+/// Phase 2:
+/// Attack1 → Attack2 → Attack5 hoặc Attack3.
 ///
 /// Attack4:
-/// Đòn punish nếu người chơi đứng gần như yên sau combo.
+/// Đòn bổ sung nếu player di chuyển ít sau combo.
 ///
-/// Damage:
-/// Hoàn toàn sử dụng Animation Event "WardenOnHit".
-/// Mỗi Animation Event sẽ gây sát thương một lần.
-/// Vì vậy một clip có hai event sẽ gây sát thương hai lần.
+/// Damage được gọi bằng Animation Event:
+/// WardenOnHit
 /// </summary>
 public class ZombieWardenOne : ZombieBase
 {
@@ -26,7 +24,8 @@ public class ZombieWardenOne : ZombieBase
     [Range(0f, 1f)]
     [SerializeField] private float enrageThreshold = 0.5f;
 
-    [SerializeField] private float enrageSpeedMultiplier = 1.25f;
+    [SerializeField]
+    private float enrageSpeedMultiplier = 1.25f;
 
     [Range(0f, 1f)]
     [SerializeField] private float enrageFinisherChance = 0.6f;
@@ -35,18 +34,37 @@ public class ZombieWardenOne : ZombieBase
     [SerializeField] private float comboCooldown = 2f;
     [SerializeField] private float recoverDuration = 0.8f;
 
-    [Tooltip("Animation đạt giá trị này thì được xem là hoàn thành.")]
+    [Tooltip(
+        "Normalized Time mà animation được xem là hoàn thành."
+    )]
     [Range(0.5f, 1f)]
     [SerializeField] private float exitThreshold = 0.85f;
 
-    [Tooltip("Thời gian tối đa chờ Animator vào state attack.")]
+    [Tooltip(
+        "Thời gian tối đa chờ Animator vào state Attack."
+    )]
     [SerializeField] private float enterAnimationTimeout = 1f;
+
+    [Header("Attack Lock")]
+    [Tooltip(
+        "Khóa hướng của boss trong suốt từng đòn đánh. " +
+        "Giúp tránh xoay trượt khi player chạy ngang."
+    )]
+    [SerializeField] private bool lockRotationDuringAttack = true;
+
+    [Tooltip(
+        "Đồng bộ vị trí nội bộ của NavMeshAgent với Transform " +
+        "trong lúc Attack."
+    )]
+    [SerializeField] private bool lockAgentPositionDuringAttack = true;
 
     [Header("Punish")]
     [Range(0f, 1f)]
     [SerializeField] private float punishChance = 0.5f;
 
-    [Tooltip("Khoảng di chuyển tối đa để bị xem là đứng yên.")]
+    [Tooltip(
+        "Khoảng di chuyển tối đa để được xem là đứng gần như yên."
+    )]
     [SerializeField] private float punishMovementThreshold = 1.5f;
 
     [Header("Damage Multipliers")]
@@ -67,10 +85,12 @@ public class ZombieWardenOne : ZombieBase
         CooldownWait
     }
 
-    private CombatState currentState = CombatState.Approach;
+    private CombatState currentState =
+        CombatState.Approach;
 
     // Combo
     private int comboStep;
+
     private bool isEnraged;
     private bool isFinisher;
     private bool isPunish;
@@ -90,8 +110,17 @@ public class ZombieWardenOne : ZombieBase
     private float stateTimer;
     private float cooldownTimer;
 
+    // Attack position/rotation lock
+    private Vector3 lockedAttackPosition;
+    private Quaternion lockedAttackRotation;
+
+    private bool hasLockedAttackPosition;
+    private bool hasLockedAttackRotation;
+
     // FX
     private ZombieBloodFXHandler bloodFX;
+
+    private WardenSimpleAudio wardenAudio;
 
     // Animator parameters
     private static readonly int SpeedHash =
@@ -112,16 +141,28 @@ public class ZombieWardenOne : ZombieBase
     private static readonly int Attack5TriggerHash =
         Animator.StringToHash("attack5");
 
+    // ─────────────────────────────────────────────────────
+    // Lifecycle
+    // ─────────────────────────────────────────────────────
+
     protected override void Start()
     {
         base.Start();
 
-        bloodFX = GetComponent<ZombieBloodFXHandler>();
+        bloodFX =
+            GetComponent<ZombieBloodFXHandler>();
 
         if (bloodFX == null)
         {
-            bloodFX = GetComponentInChildren<ZombieBloodFXHandler>();
+            bloodFX =
+                GetComponentInChildren<ZombieBloodFXHandler>();
         }
+
+        wardenAudio =
+        GetComponent<WardenSimpleAudio>();
+
+        if (anim != null)
+            anim.applyRootMotion = false;
     }
 
     protected override void OnEnterCombat()
@@ -137,7 +178,10 @@ public class ZombieWardenOne : ZombieBase
             agent.isActiveAndEnabled &&
             agent.isOnNavMesh)
         {
+            agent.isStopped = true;
+            agent.velocity = Vector3.zero;
             agent.ResetPath();
+            agent.updateRotation = true;
         }
     }
 
@@ -146,6 +190,7 @@ public class ZombieWardenOne : ZombieBase
         currentState = CombatState.Approach;
 
         comboStep = 0;
+
         isEnraged = false;
         isFinisher = false;
         isPunish = false;
@@ -159,7 +204,20 @@ public class ZombieWardenOne : ZombieBase
 
         stateTimer = 0f;
         cooldownTimer = 0f;
+
+        ClearAttackLock();
+
+        if (agent != null &&
+            agent.isActiveAndEnabled &&
+            agent.isOnNavMesh)
+        {
+            agent.updateRotation = true;
+        }
     }
+
+    // ─────────────────────────────────────────────────────
+    // Combat update
+    // ─────────────────────────────────────────────────────
 
     protected override void UpdateCombatBehaviour()
     {
@@ -179,16 +237,23 @@ public class ZombieWardenOne : ZombieBase
         CheckEnrage();
 
         float distanceToPlayer =
-            Vector3.Distance(transform.position, player.position);
+            Vector3.Distance(
+                transform.position,
+                player.position
+            );
 
-        float currentRunSpeed = isEnraged
-            ? runSpeed * enrageSpeedMultiplier
-            : runSpeed;
+        float currentRunSpeed =
+            isEnraged
+                ? runSpeed * enrageSpeedMultiplier
+                : runSpeed;
 
         switch (currentState)
         {
             case CombatState.Approach:
-                HandleApproach(distanceToPlayer, currentRunSpeed);
+                HandleApproach(
+                    distanceToPlayer,
+                    currentRunSpeed
+                );
                 break;
 
             case CombatState.WaitingEnterAnim:
@@ -204,21 +269,32 @@ public class ZombieWardenOne : ZombieBase
                 break;
 
             case CombatState.CooldownWait:
-                HandleCooldownWait(distanceToPlayer, currentRunSpeed);
+                HandleCooldownWait(
+                    distanceToPlayer,
+                    currentRunSpeed
+                );
                 break;
         }
     }
 
-    // =========================================================
-    // APPROACH
-    // =========================================================
+    // ─────────────────────────────────────────────────────
+    // Approach
+    // ─────────────────────────────────────────────────────
 
-    private void HandleApproach(float distanceToPlayer, float speed)
+    private void HandleApproach(
+        float distanceToPlayer,
+        float speed)
     {
+        ClearAttackLock();
+        RestoreAgentMovementControl();
+
         ResumeAgent(speed);
 
         agent.stoppingDistance =
-            Mathf.Max(0.1f, comboStartRange - 0.3f);
+            Mathf.Max(
+                0.1f,
+                comboStartRange - 0.3f
+            );
 
         agent.SetDestination(player.position);
 
@@ -235,13 +311,13 @@ public class ZombieWardenOne : ZombieBase
         }
     }
 
-    // =========================================================
-    // WAITING FOR ANIMATION
-    // =========================================================
+    // ─────────────────────────────────────────────────────
+    // Waiting for attack animation
+    // ─────────────────────────────────────────────────────
 
     private void HandleWaitingEnterAnimation()
     {
-        StopAgentCompletely();
+        MaintainAttackLock();
 
         anim.SetFloat(
             SpeedHash,
@@ -250,14 +326,14 @@ public class ZombieWardenOne : ZombieBase
             Time.deltaTime
         );
 
-        FacePlayer();
-
         AnimatorStateInfo stateInfo =
             anim.GetCurrentAnimatorStateInfo(0);
 
         if (IsWaitingAttackState(stateInfo))
         {
-            currentState = CombatState.WaitingFinishAnim;
+            currentState =
+                CombatState.WaitingFinishAnim;
+
             stateTimer = 0f;
             return;
         }
@@ -265,13 +341,11 @@ public class ZombieWardenOne : ZombieBase
         stateTimer += Time.deltaTime;
 
         if (stateTimer < enterAnimationTimeout)
-        {
             return;
-        }
 
         Debug.LogWarning(
             $"[Warden I] Không vào được state " +
-            $"'{waitingStateName}'. Đang thử trigger lại.",
+            $"'{waitingStateName}'. Thử gọi Trigger lại.",
             gameObject
         );
 
@@ -283,7 +357,7 @@ public class ZombieWardenOne : ZombieBase
 
     private void HandleWaitingFinishAnimation()
     {
-        StopAgentCompletely();
+        MaintainAttackLock();
 
         anim.SetFloat(
             SpeedHash,
@@ -292,40 +366,152 @@ public class ZombieWardenOne : ZombieBase
             Time.deltaTime
         );
 
-        FacePlayer();
-
         AnimatorStateInfo stateInfo =
             anim.GetCurrentAnimatorStateInfo(0);
 
         if (!IsWaitingAttackState(stateInfo))
-        {
             return;
-        }
 
-        float normalizedTime = stateInfo.normalizedTime;
-
-        // Không gây damage ở đây.
-        // Damage chỉ được gây bởi Animation Event WardenOnHit.
-
-        if (normalizedTime >= exitThreshold)
+        if (stateInfo.normalizedTime >= exitThreshold)
         {
             OnCurrentAnimationFinished();
         }
     }
 
-    private bool IsWaitingAttackState(AnimatorStateInfo stateInfo)
+    private bool IsWaitingAttackState(
+        AnimatorStateInfo stateInfo)
     {
         if (waitingStateHash == 0)
-        {
             return false;
-        }
 
-        return stateInfo.shortNameHash == waitingStateHash;
+        return stateInfo.shortNameHash ==
+               waitingStateHash;
     }
 
-    // =========================================================
-    // COMBO
-    // =========================================================
+    // ─────────────────────────────────────────────────────
+    // Attack lock
+    // ─────────────────────────────────────────────────────
+
+    private void PrepareAttackLock()
+    {
+        hasLockedAttackPosition = false;
+        hasLockedAttackRotation = false;
+
+        if (agent != null &&
+            agent.isActiveAndEnabled &&
+            agent.isOnNavMesh)
+        {
+            agent.isStopped = true;
+            agent.velocity = Vector3.zero;
+            agent.ResetPath();
+
+            /*
+             * Trong lúc Attack, script tự kiểm soát
+             * hướng quay của Transform.
+             */
+            agent.updateRotation = false;
+
+            lockedAttackPosition =
+                transform.position;
+
+            hasLockedAttackPosition = true;
+
+            agent.nextPosition =
+                lockedAttackPosition;
+        }
+        else
+        {
+            lockedAttackPosition =
+                transform.position;
+
+            hasLockedAttackPosition = true;
+        }
+
+        if (player == null)
+            return;
+
+        Vector3 direction =
+            player.position - transform.position;
+
+        direction.y = 0f;
+
+        if (direction.sqrMagnitude < 0.001f)
+            return;
+
+        lockedAttackRotation =
+            Quaternion.LookRotation(
+                direction.normalized,
+                Vector3.up
+            );
+
+        if (lockRotationDuringAttack)
+        {
+            transform.rotation =
+                lockedAttackRotation;
+
+            hasLockedAttackRotation = true;
+        }
+    }
+
+    private void MaintainAttackLock()
+    {
+        if (agent != null &&
+            agent.isActiveAndEnabled &&
+            agent.isOnNavMesh)
+        {
+            agent.isStopped = true;
+            agent.velocity = Vector3.zero;
+            agent.updateRotation = false;
+
+            if (lockAgentPositionDuringAttack &&
+                hasLockedAttackPosition)
+            {
+                /*
+                 * Khóa cả vị trí nội bộ của Agent và Transform.
+                 */
+                agent.nextPosition =
+                    lockedAttackPosition;
+
+                transform.position =
+                    lockedAttackPosition;
+            }
+            else
+            {
+                agent.nextPosition =
+                    transform.position;
+            }
+        }
+
+        if (lockRotationDuringAttack &&
+            hasLockedAttackRotation)
+        {
+            transform.rotation =
+                lockedAttackRotation;
+        }
+    }
+
+    private void ClearAttackLock()
+    {
+        hasLockedAttackPosition = false;
+        hasLockedAttackRotation = false;
+    }
+
+    private void RestoreAgentMovementControl()
+    {
+        if (agent == null ||
+            !agent.isActiveAndEnabled ||
+            !agent.isOnNavMesh)
+        {
+            return;
+        }
+
+        agent.updateRotation = true;
+        agent.nextPosition = transform.position;
+    }
+
+    // ─────────────────────────────────────────────────────
+    // Combo
+    // ─────────────────────────────────────────────────────
 
     private void StartCombo()
     {
@@ -377,7 +563,9 @@ public class ZombieWardenOne : ZombieBase
     {
         comboStep = 3;
 
-        playerPositionSnapshot = player.position;
+        playerPositionSnapshot =
+            player.position;
+
         pendingPunishCheck = true;
 
         bool useEnrageFinisher =
@@ -408,15 +596,21 @@ public class ZombieWardenOne : ZombieBase
     {
         currentState = CombatState.Recover;
         stateTimer = 0f;
+
+        /*
+         * Giữ vị trí và hướng của đòn cuối trong
+         * khoảng hồi phục để không bị xoay trượt.
+         */
+        MaintainAttackLock();
     }
 
-    // =========================================================
-    // RECOVER AND PUNISH
-    // =========================================================
+    // ─────────────────────────────────────────────────────
+    // Recovery and punish
+    // ─────────────────────────────────────────────────────
 
     private void HandleRecover()
     {
-        StopAgentCompletely();
+        MaintainAttackLock();
 
         anim.SetFloat(
             SpeedHash,
@@ -425,14 +619,10 @@ public class ZombieWardenOne : ZombieBase
             Time.deltaTime
         );
 
-        FacePlayer();
-
         stateTimer += Time.deltaTime;
 
         if (stateTimer < recoverDuration)
-        {
             return;
-        }
 
         if (ShouldPerformPunish())
         {
@@ -447,15 +637,14 @@ public class ZombieWardenOne : ZombieBase
 
     private bool ShouldPerformPunish()
     {
-        if (!pendingPunishCheck || player == null)
+        if (!pendingPunishCheck ||
+            player == null)
         {
             return false;
         }
 
         if (Random.value >= punishChance)
-        {
             return false;
-        }
 
         float playerMovedDistance =
             Vector3.Distance(
@@ -489,13 +678,14 @@ public class ZombieWardenOne : ZombieBase
         EnterCooldown();
     }
 
-    // =========================================================
-    // COOLDOWN
-    // =========================================================
+    // ─────────────────────────────────────────────────────
+    // Cooldown
+    // ─────────────────────────────────────────────────────
 
     private void EnterCooldown()
     {
-        currentState = CombatState.CooldownWait;
+        currentState =
+            CombatState.CooldownWait;
 
         cooldownTimer = 0f;
         comboStep = 0;
@@ -504,12 +694,18 @@ public class ZombieWardenOne : ZombieBase
         isFinisher = false;
 
         currentDamageMultiplier = 1f;
+
+        ClearAttackLock();
+        RestoreAgentMovementControl();
     }
 
     private void HandleCooldownWait(
         float distanceToPlayer,
         float currentRunSpeed)
     {
+        ClearAttackLock();
+        RestoreAgentMovementControl();
+
         cooldownTimer += Time.deltaTime;
 
         float approachSpeed =
@@ -520,7 +716,10 @@ public class ZombieWardenOne : ZombieBase
         ResumeAgent(approachSpeed);
 
         agent.stoppingDistance =
-            Mathf.Max(0.1f, comboStartRange - 0.3f);
+            Mathf.Max(
+                0.1f,
+                comboStartRange - 0.3f
+            );
 
         agent.SetDestination(player.position);
 
@@ -538,24 +737,32 @@ public class ZombieWardenOne : ZombieBase
 
         if (cooldownTimer >= actualCooldown)
         {
-            currentState = CombatState.Approach;
+            currentState =
+                CombatState.Approach;
         }
     }
 
-    // =========================================================
-    // ANIMATOR TRIGGERS
-    // =========================================================
+    // ─────────────────────────────────────────────────────
+    // Animator triggers
+    // ─────────────────────────────────────────────────────
 
     private void TriggerAttack(string stateName)
     {
         waitingStateName = stateName;
+
         waitingStateHash =
             Animator.StringToHash(stateName);
 
         stateTimer = 0f;
-        currentState = CombatState.WaitingEnterAnim;
 
-        StopAgentCompletely();
+        currentState =
+            CombatState.WaitingEnterAnim;
+
+        /*
+         * Khóa Agent và chốt hướng về player ngay
+         * trước khi animation Attack bắt đầu.
+         */
+        PrepareAttackLock();
 
         ResetAllAttackTriggers();
         SetAttackTrigger(stateName);
@@ -566,29 +773,39 @@ public class ZombieWardenOne : ZombieBase
         switch (stateName)
         {
             case "Attack1":
-                anim.SetTrigger(Attack1TriggerHash);
+                anim.SetTrigger(
+                    Attack1TriggerHash
+                );
                 break;
 
             case "Attack2":
-                anim.SetTrigger(Attack2TriggerHash);
+                anim.SetTrigger(
+                    Attack2TriggerHash
+                );
                 break;
 
             case "Attack3":
-                anim.SetTrigger(Attack3TriggerHash);
+                anim.SetTrigger(
+                    Attack3TriggerHash
+                );
                 break;
 
             case "Attack4":
-                anim.SetTrigger(Attack4TriggerHash);
+                anim.SetTrigger(
+                    Attack4TriggerHash
+                );
                 break;
 
             case "Attack5":
-                anim.SetTrigger(Attack5TriggerHash);
+                anim.SetTrigger(
+                    Attack5TriggerHash
+                );
                 break;
 
             default:
                 Debug.LogError(
-                    $"[Warden I] Không tồn tại attack state: " +
-                    $"{stateName}",
+                    "[Warden I] Không tồn tại attack state: " +
+                    stateName,
                     gameObject
                 );
                 break;
@@ -604,29 +821,25 @@ public class ZombieWardenOne : ZombieBase
         anim.ResetTrigger(Attack5TriggerHash);
     }
 
-    // =========================================================
-    // ANIMATION EVENTS
-    // =========================================================
+    // ─────────────────────────────────────────────────────
+    // Animation Events
+    // ─────────────────────────────────────────────────────
 
     /// <summary>
-    /// Hàm này được gọi bởi Animation Event.
+    /// Được gọi bởi Animation Event.
     ///
-    /// Một event = một lần damage.
-    /// Hai event trong một clip = hai lần damage.
-    ///
-    /// Tên Function trong Animation Event phải chính xác:
+    /// Tên Function trong Animation Event:
     /// WardenOnHit
     /// </summary>
     public void WardenOnHit()
     {
-        if (player == null)
-        {
+        if (player == null || anim == null)
             return;
-        }
 
-        // Chỉ nhận event trong lúc đang thực hiện attack.
-        if (currentState != CombatState.WaitingEnterAnim &&
-            currentState != CombatState.WaitingFinishAnim)
+        if (currentState !=
+                CombatState.WaitingEnterAnim &&
+            currentState !=
+                CombatState.WaitingFinishAnim)
         {
             return;
         }
@@ -634,11 +847,12 @@ public class ZombieWardenOne : ZombieBase
         AnimatorStateInfo stateInfo =
             anim.GetCurrentAnimatorStateInfo(0);
 
-        // Ngăn event cũ từ một state khác gây damage.
+        /*
+         * Ngăn event từ một state Attack cũ
+         * gây damage cho state mới.
+         */
         if (!IsWaitingAttackState(stateInfo))
-        {
             return;
-        }
 
         DealHitDamage();
     }
@@ -646,9 +860,7 @@ public class ZombieWardenOne : ZombieBase
     private void DealHitDamage()
     {
         if (player == null)
-        {
             return;
-        }
 
         float distanceToPlayer =
             Vector3.Distance(
@@ -665,9 +877,7 @@ public class ZombieWardenOne : ZombieBase
             attackRange * rangeMultiplier;
 
         if (distanceToPlayer > currentHitRange)
-        {
             return;
-        }
 
         HealthSystem playerHealth =
             player.GetComponent<HealthSystem>();
@@ -689,7 +899,8 @@ public class ZombieWardenOne : ZombieBase
         }
 
         float damage =
-            attackDamage * currentDamageMultiplier;
+            attackDamage *
+            currentDamageMultiplier;
 
         playerHealth.TakeDamage(
             damage,
@@ -707,7 +918,8 @@ public class ZombieWardenOne : ZombieBase
 
     private void SpawnPlayerBloodEffect()
     {
-        if (bloodFX == null || player == null)
+        if (bloodFX == null ||
+            player == null)
         {
             return;
         }
@@ -741,33 +953,30 @@ public class ZombieWardenOne : ZombieBase
     /// </summary>
     public override void DealDamageToPlayer()
     {
-        // Không xử lý damage ở đây.
+        // Damage được xử lý bởi WardenOnHit.
     }
 
-    // =========================================================
-    // ENRAGE
-    // =========================================================
+    // ─────────────────────────────────────────────────────
+    // Enrage
+    // ─────────────────────────────────────────────────────
 
     private void CheckEnrage()
     {
-        if (isEnraged || healthSystem == null)
+        if (isEnraged ||
+            healthSystem == null)
         {
             return;
         }
 
         if (healthSystem.MaxHP <= 0f)
-        {
             return;
-        }
 
         float healthRatio =
             healthSystem.CurrentHP /
             healthSystem.MaxHP;
 
         if (healthRatio > enrageThreshold)
-        {
             return;
-        }
 
         isEnraged = true;
 
@@ -777,13 +986,14 @@ public class ZombieWardenOne : ZombieBase
         );
     }
 
-    // =========================================================
-    // GIZMOS
-    // =========================================================
+    // ─────────────────────────────────────────────────────
+    // Gizmos
+    // ─────────────────────────────────────────────────────
 
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.magenta;
+
         Gizmos.DrawWireSphere(
             transform.position,
             comboStartRange

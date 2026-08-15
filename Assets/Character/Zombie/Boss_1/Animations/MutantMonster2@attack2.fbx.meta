@@ -1155,6 +1155,13 @@ ModelImporter:
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
       events:
+      - time: 0.26158038
+        functionName: PlayAttack
+        data: 
+        objectReferenceParameter: {instanceID: 0}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
       - time: 0.3133903
         functionName: WardenOnHit
         data: 
@@ -1162,7 +1169,14 @@ ModelImporter:
         floatParameter: 0
         intParameter: 0
         messageOptions: 0
-      - time: 0.5470086
+      - time: 0.45231605
+        functionName: PlayAttack
+        data: 
+        objectReferenceParameter: {instanceID: 0}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
+      - time: 0.541559
         functionName: WardenOnHit
         data: 
         objectReferenceParameter: {instanceID: 0}
