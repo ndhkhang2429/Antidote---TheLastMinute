@@ -2,9 +2,19 @@
 using UnityEngine;
 using Cinemachine;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class EndingHelicopterController : MonoBehaviour
 {
+    private enum EndingPhase
+    {
+        Idle,
+        Approaching,
+        Boarding,
+        TakingOff,
+        Ending
+    }
+
     [Header("Flight Points")]
     [SerializeField] private Transform startPoint;
     [SerializeField] private Transform approachPoint;
@@ -48,17 +58,47 @@ public class EndingHelicopterController : MonoBehaviour
 
     [SerializeField] private float departureDuration = 8f;
 
+    [Header("Skip Cutscene")]
+    [SerializeField] private KeyCode skipKey = KeyCode.Space;
+    [SerializeField] private GameObject skipText;
+    [SerializeField] private string skipMessage = "Press SPACE to skip";
+
+    [Tooltip("Thời gian fade nhanh khi skip cảnh cất cánh.")]
+    [SerializeField, Min(0f)] private float skipFadeDuration = 0.5f;
+
 
     private bool hasStarted = false;
+    private bool skipInProgress;
+    private EndingPhase currentPhase = EndingPhase.Idle;
 
     private void Start()
     {
+        ConfigureSkipText();
+        SetSkipTextVisible(false);
+
         if (startPoint != null)
         {
             transform.SetPositionAndRotation(
                 startPoint.position,
                 startPoint.rotation
             );
+        }
+    }
+
+    private void Update()
+    {
+        if (skipInProgress || !Input.GetKeyDown(skipKey))
+            return;
+
+        switch (currentPhase)
+        {
+            case EndingPhase.Approaching:
+                SkipApproachAndLanding();
+                break;
+
+            case EndingPhase.TakingOff:
+                SkipTakeoffAndDeparture();
+                break;
         }
     }
 
@@ -73,6 +113,9 @@ public class EndingHelicopterController : MonoBehaviour
         }
 
         hasStarted = true;
+        currentPhase = EndingPhase.Approaching;
+        skipInProgress = false;
+        SetSkipTextVisible(true);
 
         if (rotorController != null)
         {
@@ -287,6 +330,10 @@ public class EndingHelicopterController : MonoBehaviour
 
     private void ReturnControlToPlayer()
     {
+        currentPhase = EndingPhase.Boarding;
+        skipInProgress = false;
+        SetSkipTextVisible(false);
+
         // Hạ Priority camera landing
         if (landingVirtualCamera != null)
         {
@@ -314,6 +361,15 @@ public class EndingHelicopterController : MonoBehaviour
 
     public void StartTakeoff()
     {
+        if (currentPhase == EndingPhase.TakingOff ||
+            currentPhase == EndingPhase.Ending)
+        {
+            return;
+        }
+
+        currentPhase = EndingPhase.TakingOff;
+        skipInProgress = false;
+        SetSkipTextVisible(true);
         StartCoroutine(TakeoffRoutine());
     }
 
@@ -472,6 +528,9 @@ public class EndingHelicopterController : MonoBehaviour
     }
     private IEnumerator FinalEndingRoutine()
     {
+        currentPhase = EndingPhase.Ending;
+        SetSkipTextVisible(false);
+
         Debug.Log("[ENDING] Final wide shot holding...");
 
         // Giữ shot cuối: camera đứng yên,
@@ -498,7 +557,7 @@ public class EndingHelicopterController : MonoBehaviour
 
         Debug.Log("[ENDING] Loading Ending Scene...");
 
-        SceneManager.LoadScene(endingSceneName);
+        LoadEndingScene();
     }
 
     private void SwitchToDepartureCamera()
@@ -513,5 +572,120 @@ public class EndingHelicopterController : MonoBehaviour
             departureVirtualCamera.Priority = 120;
 
         Debug.Log("[ENDING] Switching to Departure camera.");
+    }
+
+    private void SkipApproachAndLanding()
+    {
+        if (skipInProgress)
+            return;
+
+        skipInProgress = true;
+        StopAllCoroutines();
+
+        if (landingPoint == null)
+        {
+            Debug.LogError(
+                "[ENDING] Cannot skip approach: Landing Point is missing!"
+            );
+
+            skipInProgress = false;
+            return;
+        }
+
+        transform.SetPositionAndRotation(
+            landingPoint.position,
+            landingPoint.rotation
+        );
+
+        Debug.Log(
+            "[ENDING] Approach cutscene skipped. Helicopter snapped to Landing Point."
+        );
+
+        ReturnControlToPlayer();
+    }
+
+    private void SkipTakeoffAndDeparture()
+    {
+        if (skipInProgress)
+            return;
+
+        skipInProgress = true;
+        currentPhase = EndingPhase.Ending;
+        SetSkipTextVisible(false);
+        StopAllCoroutines();
+
+        SetAllEndingCamerasInactive();
+        StartCoroutine(SkipToEndingSceneRoutine());
+    }
+
+    private IEnumerator SkipToEndingSceneRoutine()
+    {
+        if (fadeController != null)
+        {
+            fadeController.FadeOut(skipFadeDuration);
+
+            if (skipFadeDuration > 0f)
+                yield return new WaitForSecondsRealtime(skipFadeDuration);
+        }
+
+        LoadEndingScene();
+    }
+
+    private void LoadEndingScene()
+    {
+        currentPhase = EndingPhase.Ending;
+        SetSkipTextVisible(false);
+
+        if (rotorController != null)
+            rotorController.StopRotor();
+
+        if (string.IsNullOrWhiteSpace(endingSceneName))
+        {
+            Debug.LogError("[ENDING] Ending Scene Name is empty!");
+            return;
+        }
+
+        Debug.Log($"[ENDING] Loading scene: {endingSceneName}");
+        SceneManager.LoadScene(endingSceneName);
+    }
+
+    private void SetAllEndingCamerasInactive()
+    {
+        if (approachVirtualCamera != null)
+            approachVirtualCamera.Priority = 0;
+
+        if (landingVirtualCamera != null)
+            landingVirtualCamera.Priority = 0;
+
+        if (departureVirtualCamera != null)
+            departureVirtualCamera.Priority = 0;
+
+        if (finalWideVirtualCamera != null)
+            finalWideVirtualCamera.Priority = 0;
+    }
+
+    private void ConfigureSkipText()
+    {
+        if (skipText == null)
+            return;
+
+        TextMeshProUGUI label = skipText.GetComponent<TextMeshProUGUI>();
+
+        if (label == null)
+            label = skipText.GetComponentInChildren<TextMeshProUGUI>(true);
+
+        if (label != null)
+            label.text = skipMessage;
+    }
+
+    private void SetSkipTextVisible(bool visible)
+    {
+        if (skipText != null)
+            skipText.SetActive(visible);
+    }
+
+    private void OnDisable()
+    {
+        SetSkipTextVisible(false);
     }
 }

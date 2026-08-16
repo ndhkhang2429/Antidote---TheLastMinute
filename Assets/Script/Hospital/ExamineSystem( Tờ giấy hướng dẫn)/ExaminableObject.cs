@@ -106,6 +106,24 @@ public class ExaminableObject : MonoBehaviour
     }
 
     /// <summary>
+    /// Developer Cheat: giao ba nhiệm vụ tìm manh mối bằng đúng
+    /// luồng của Emergency Security Notice.
+    /// </summary>
+    public void CheatGiveClueObjectives()
+    {
+        GiveClueObjectivesIfNeeded();
+    }
+
+    /// <summary>
+    /// Developer Cheat: hoàn thành objective của tài liệu này
+    /// bằng đúng luồng khi người chơi đóng Examine UI.
+    /// </summary>
+    public void CheatCompleteOwnObjective()
+    {
+        CompleteOwnObjectiveIfPossible();
+    }
+
+    /// <summary>
     /// Dùng cho Emergency Security Notice.
     /// </summary>
     private void GiveClueObjectivesIfNeeded()

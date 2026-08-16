@@ -28,19 +28,26 @@ public class DeadRoofIntroSlideshow : MonoBehaviour
     [SerializeField] private GameObject skipText;
     [SerializeField] private TypewriterText storyTypewriter;
 
+    [Header("Skip / Next Slide")]
+    [SerializeField] private KeyCode nextSlideKey = KeyCode.Space;
+    [SerializeField] private string nextSlideMessage = "Press SPACE for next";
+
     [Header("Timing")]
     [SerializeField] private float imageFadeDuration = 0.8f;
     [SerializeField] private float delayBetweenSlides = 0.2f;
     [SerializeField] private float finalFadeDuration = 1f;
 
     public bool IsFinished { get; private set; }
+    public bool IsPlaying { get; private set; }
 
-    private bool skipRequested;
+    // Chỉ yêu cầu chuyển slide hiện tại, không kết thúc toàn bộ slideshow.
+    private bool nextSlideRequested;
 
     private void Awake()
     {
         IsFinished = false;
-        skipRequested = false;
+        IsPlaying = false;
+        nextSlideRequested = false;
 
         if (introCanvasGroup != null)
         {
@@ -48,30 +55,41 @@ public class DeadRoofIntroSlideshow : MonoBehaviour
             introCanvasGroup.gameObject.SetActive(true);
         }
 
-        if (skipText != null)
-        {
-            skipText.SetActive(true);
-        }
-
+        ConfigureNextSlideText();
+        SetSkipTextVisible(false);
         SetSlideAlpha(0f);
     }
 
     private void Update()
     {
-        if (!IsFinished &&
-            Input.GetKeyDown(KeyCode.Space))
-        {
-            skipRequested = true;
+        if (!IsPlaying || IsFinished)
+            return;
 
+        if (Input.GetKeyDown(nextSlideKey))
+        {
+            nextSlideRequested = true;
+
+            // Dừng typewriter để coroutine của slide có thể chuyển tiếp ngay.
             if (storyTypewriter != null)
-            {
                 storyTypewriter.CancelTyping(false);
-            }
         }
     }
 
     public IEnumerator PlaySlideshow()
     {
+        IsFinished = false;
+        IsPlaying = true;
+        nextSlideRequested = false;
+
+        if (introCanvasGroup != null)
+        {
+            introCanvasGroup.alpha = 1f;
+            introCanvasGroup.gameObject.SetActive(true);
+        }
+
+        ConfigureNextSlideText();
+        SetSkipTextVisible(true);
+
         if (slides == null || slides.Length == 0)
         {
             Debug.LogWarning("Chưa có slide nào trong DeadRoofIntroSlideshow.");
@@ -81,12 +99,9 @@ public class DeadRoofIntroSlideshow : MonoBehaviour
 
         foreach (StorySlide slide in slides)
         {
-            if (skipRequested)
-            {
-                break;
-            }
+            nextSlideRequested = false;
 
-            if (slide.image == null)
+            if (slide == null || slide.image == null)
             {
                 Debug.LogWarning("Có một slide chưa được gán ảnh.");
                 continue;
@@ -95,15 +110,17 @@ public class DeadRoofIntroSlideshow : MonoBehaviour
             storyImage.sprite = slide.image;
 
             if (storyTypewriter != null)
-            {
                 storyTypewriter.ClearImmediately();
-            }
-            else
-            {
+            else if (storyText != null)
                 storyText.text = string.Empty;
-            }
 
             yield return FadeSlide(0f, 1f);
+
+            if (nextSlideRequested)
+            {
+                SetSlideAlpha(0f);
+                continue;
+            }
 
             if (storyTypewriter != null)
             {
@@ -111,86 +128,92 @@ public class DeadRoofIntroSlideshow : MonoBehaviour
                     storyTypewriter.TypeText(slide.storyText)
                 );
             }
-            else
+            else if (storyText != null)
             {
                 storyText.text = slide.storyText;
             }
 
-            float timer = 0f;
-
-            while (timer < slide.displayDuration)
+            if (nextSlideRequested)
             {
-                if (skipRequested)
-                {
-                    break;
-                }
+                SetSlideAlpha(0f);
+                continue;
+            }
 
-                timer += Time.deltaTime;
+            float timer = 0f;
+            while (timer < slide.displayDuration && !nextSlideRequested)
+            {
+                timer += Time.unscaledDeltaTime;
                 yield return null;
             }
 
-            if (skipRequested)
+            if (nextSlideRequested)
             {
-                break;
+                SetSlideAlpha(0f);
+                continue;
             }
 
             yield return FadeSlide(1f, 0f);
 
-            if (delayBetweenSlides > 0f)
+            if (nextSlideRequested)
             {
-                yield return new WaitForSeconds(delayBetweenSlides);
+                SetSlideAlpha(0f);
+                continue;
+            }
+
+            float delayTimer = 0f;
+            while (delayTimer < delayBetweenSlides && !nextSlideRequested)
+            {
+                delayTimer += Time.unscaledDeltaTime;
+                yield return null;
             }
         }
 
+        IsPlaying = false;
         SetSlideAlpha(0f);
+        SetSkipTextVisible(false);
 
-        if (skipText != null)
-        {
-            skipText.SetActive(false);
-        }
-
-        yield return FadeCanvasToBlackOrTransparent();
+        yield return FadeCanvasToTransparent();
 
         if (introCanvasGroup != null)
-        {
             introCanvasGroup.gameObject.SetActive(false);
-        }
 
         IsFinished = true;
     }
 
     private IEnumerator FadeSlide(float from, float to)
     {
-        float timer = 0f;
+        if (imageFadeDuration <= 0f)
+        {
+            SetSlideAlpha(to);
+            yield break;
+        }
 
+        float timer = 0f;
         while (timer < imageFadeDuration)
         {
-            if (skipRequested)
+            if (nextSlideRequested)
             {
                 SetSlideAlpha(0f);
                 yield break;
             }
 
-            timer += Time.deltaTime;
-
-            float progress = Mathf.Clamp01(
-                timer / imageFadeDuration
-            );
-
-            float alpha = Mathf.Lerp(from, to, progress);
-
-            SetSlideAlpha(alpha);
-
+            timer += Time.unscaledDeltaTime;
+            float progress = Mathf.Clamp01(timer / imageFadeDuration);
+            SetSlideAlpha(Mathf.Lerp(from, to, progress));
             yield return null;
         }
 
         SetSlideAlpha(to);
     }
 
-    private IEnumerator FadeCanvasToBlackOrTransparent()
+    private IEnumerator FadeCanvasToTransparent()
     {
         if (introCanvasGroup == null)
+            yield break;
+
+        if (finalFadeDuration <= 0f)
         {
+            introCanvasGroup.alpha = 0f;
             yield break;
         }
 
@@ -199,19 +222,32 @@ public class DeadRoofIntroSlideshow : MonoBehaviour
 
         while (timer < finalFadeDuration)
         {
-            timer += Time.deltaTime;
-
-            float progress = Mathf.Clamp01(
-                timer / finalFadeDuration
-            );
-
-            introCanvasGroup.alpha =
-                Mathf.Lerp(startAlpha, 0f, progress);
-
+            timer += Time.unscaledDeltaTime;
+            float progress = Mathf.Clamp01(timer / finalFadeDuration);
+            introCanvasGroup.alpha = Mathf.Lerp(startAlpha, 0f, progress);
             yield return null;
         }
 
         introCanvasGroup.alpha = 0f;
+    }
+
+    private void ConfigureNextSlideText()
+    {
+        if (skipText == null)
+            return;
+
+        TextMeshProUGUI label = skipText.GetComponent<TextMeshProUGUI>();
+        if (label == null)
+            label = skipText.GetComponentInChildren<TextMeshProUGUI>(true);
+
+        if (label != null)
+            label.text = nextSlideMessage;
+    }
+
+    private void SetSkipTextVisible(bool visible)
+    {
+        if (skipText != null)
+            skipText.SetActive(visible);
     }
 
     private void SetSlideAlpha(float alpha)
@@ -224,19 +260,14 @@ public class DeadRoofIntroSlideshow : MonoBehaviour
         }
 
         if (storyText != null)
-        {
             storyText.alpha = alpha;
-        }
     }
 
     private void FinishImmediately()
     {
+        IsPlaying = false;
         SetSlideAlpha(0f);
-
-        if (skipText != null)
-        {
-            skipText.SetActive(false);
-        }
+        SetSkipTextVisible(false);
 
         if (introCanvasGroup != null)
         {

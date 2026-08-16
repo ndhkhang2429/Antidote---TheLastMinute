@@ -54,30 +54,11 @@ public class RadioSubtitleTypewriter : MonoBehaviour
         HideImmediately();
     }
 
-    public void ShowLine1()
-    {
-        StartLine(line1);
-    }
-
-    public void ShowLine2()
-    {
-        StartLine(line2);
-    }
-
-    public void ShowLine3()
-    {
-        StartLine(line3);
-    }
-
-    public void ShowLine4()
-    {
-        StartLine(line4);
-    }
-
-    public void ShowLine5()
-    {
-        StartLine(line5);
-    }
+    public void ShowLine1() => StartLine(line1);
+    public void ShowLine2() => StartLine(line2);
+    public void ShowLine3() => StartLine(line3);
+    public void ShowLine4() => StartLine(line4);
+    public void ShowLine5() => StartLine(line5);
 
     public void ClearSubtitle()
     {
@@ -85,9 +66,29 @@ public class RadioSubtitleTypewriter : MonoBehaviour
         currentCoroutine = StartCoroutine(ClearRoutine());
     }
 
+    /// <summary>
+    /// Dùng khi skip hoặc kết thúc cutscene: dừng coroutine,
+    /// xóa chữ và ẩn subtitle ngay trong cùng một frame.
+    /// </summary>
+    public void StopImmediately()
+    {
+        StopCurrentCoroutine();
+        HideImmediately();
+    }
+
     private void StartLine(string line)
     {
         StopCurrentCoroutine();
+
+        if (subtitleCanvasGroup == null || subtitleText == null)
+        {
+            Debug.LogWarning(
+                "RadioSubtitleTypewriter chưa được gán CanvasGroup hoặc Subtitle Text.",
+                this
+            );
+            return;
+        }
+
         currentCoroutine = StartCoroutine(TypeLineRoutine(line));
     }
 
@@ -95,24 +96,19 @@ public class RadioSubtitleTypewriter : MonoBehaviour
     {
         subtitleText.text = line;
         subtitleText.maxVisibleCharacters = 0;
-
-        // Buộc TMP tính chính xác số ký tự hiển thị.
         subtitleText.ForceMeshUpdate();
 
-        int visibleCharacterCount =
-            subtitleText.textInfo.characterCount;
+        int visibleCharacterCount = subtitleText.textInfo.characterCount;
 
         yield return FadeCanvasGroup(1f, fadeInDuration);
 
         for (int i = 1; i <= visibleCharacterCount; i++)
         {
             subtitleText.maxVisibleCharacters = i;
-            yield return new WaitForSeconds(characterInterval);
+            yield return new WaitForSecondsRealtime(characterInterval);
         }
 
-        subtitleText.maxVisibleCharacters =
-            visibleCharacterCount;
-
+        subtitleText.maxVisibleCharacters = visibleCharacterCount;
         currentCoroutine = null;
     }
 
@@ -120,16 +116,20 @@ public class RadioSubtitleTypewriter : MonoBehaviour
     {
         yield return FadeCanvasGroup(0f, fadeOutDuration);
 
-        subtitleText.text = string.Empty;
-        subtitleText.maxVisibleCharacters = 0;
+        if (subtitleText != null)
+        {
+            subtitleText.text = string.Empty;
+            subtitleText.maxVisibleCharacters = 0;
+        }
 
         currentCoroutine = null;
     }
 
-    private IEnumerator FadeCanvasGroup(
-        float targetAlpha,
-        float duration)
+    private IEnumerator FadeCanvasGroup(float targetAlpha, float duration)
     {
+        if (subtitleCanvasGroup == null)
+            yield break;
+
         float startAlpha = subtitleCanvasGroup.alpha;
 
         if (duration <= 0f)
@@ -139,21 +139,11 @@ public class RadioSubtitleTypewriter : MonoBehaviour
         }
 
         float timer = 0f;
-
         while (timer < duration)
         {
-            timer += Time.deltaTime;
-
-            float progress = Mathf.Clamp01(
-                timer / duration
-            );
-
-            subtitleCanvasGroup.alpha = Mathf.Lerp(
-                startAlpha,
-                targetAlpha,
-                progress
-            );
-
+            timer += Time.unscaledDeltaTime;
+            float progress = Mathf.Clamp01(timer / duration);
+            subtitleCanvasGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, progress);
             yield return null;
         }
 
@@ -163,9 +153,7 @@ public class RadioSubtitleTypewriter : MonoBehaviour
     private void StopCurrentCoroutine()
     {
         if (currentCoroutine == null)
-        {
             return;
-        }
 
         StopCoroutine(currentCoroutine);
         currentCoroutine = null;
@@ -174,9 +162,7 @@ public class RadioSubtitleTypewriter : MonoBehaviour
     private void HideImmediately()
     {
         if (subtitleCanvasGroup != null)
-        {
             subtitleCanvasGroup.alpha = 0f;
-        }
 
         if (subtitleText != null)
         {
@@ -187,7 +173,6 @@ public class RadioSubtitleTypewriter : MonoBehaviour
 
     private void OnDisable()
     {
-        StopCurrentCoroutine();
-        HideImmediately();
+        StopImmediately();
     }
 }

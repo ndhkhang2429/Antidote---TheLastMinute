@@ -16,6 +16,9 @@ MonoBehaviour:
   icon: {fileID: -543699653, guid: cb92356bea9b9a3449e182505a74acf7, type: 3}
   worldPrefab: {fileID: 1602661717803204, guid: 903c43007ef77274bad19ed037b02892, type: 3}
   equipPrefab: {fileID: 1653613484792568894, guid: 69d24115426ad5d408e7eb764e3a267e, type: 3}
+  equipLocalPosition: {x: 0, y: 0, z: 0}
+  equipLocalRotation: {x: 0, y: 0, z: 0}
+  equipLocalScale: {x: 1, y: 1, z: 1}
   description: 
   category: 1
   weaponSlotType: 3
@@ -23,7 +26,7 @@ MonoBehaviour:
   weightPerUnit: 0
   autoEquip: 0
   combatType: 1
-  damage: 13
+  damage: 28
   attachPointName: Right_Hand
   meleeSwingClips:
   - {fileID: 8300000, guid: 4871c2b923addde4fb2d55c7a6ad7e6b, type: 3}

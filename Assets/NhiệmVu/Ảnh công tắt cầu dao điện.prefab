@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6305637424412947302}
   - component: {fileID: 5131931662187094317}
   - component: {fileID: 6847196847131129860}
+  - component: {fileID: 5742987377110530470}
   m_Layer: 9
   m_Name: "\u1EA2nh c\xF4ng t\u1EAFt c\u1EA7u dao \u0111i\u1EC7n"
   m_TagString: Untagged
@@ -102,6 +103,15 @@ MonoBehaviour:
   contentSprite: {fileID: 21300000, guid: 36351cf1ba4ea05438d5408dd36f83ef, type: 3}
   contentText: 
   openSound: {fileID: 0}
+  giveClueObjectivesOnClose: 0
+  triggerOnlyOnce: 1
+  receptionObjectiveText: Search the Information Desk
+  isolationObjectiveText: Find the isolation report
+  guardLogObjectiveText: Find the chief guard's duty log
+  completeObjectiveOnClose: 0
+  objectiveToCompleteID: 
+  clueFoundMessage: 
+  nextObjectiveDelay: 2
 --- !u!65 &6847196847131129860
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -123,3 +133,30 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 10.240004, y: 15.360007, z: 0.20000039}
   m_Center: {x: -0.000061035156, y: 0, z: 0.000011444092}
+--- !u!54 &5742987377110530470
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7051252497551011287}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0

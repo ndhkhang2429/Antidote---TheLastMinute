@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Playables;
 
@@ -10,6 +11,15 @@ public class OpeningCutsceneManager : MonoBehaviour
     [Header("Wake Up Cutscene")]
     [SerializeField] private PlayableDirector wakeUpDirector;
     [SerializeField] private GameObject wakeUpFadeCanvas;
+
+    [Header("Wake Up Skip")]
+    [SerializeField] private KeyCode skipWakeUpKey = KeyCode.Space;
+    [SerializeField] private GameObject wakeUpSkipText;
+    [SerializeField] private string wakeUpSkipMessage = "Press SPACE to skip";
+
+    [Header("Radio Subtitle")]
+    [Tooltip("Script chạy subtitle của radio trong Wake Up Timeline.")]
+    [SerializeField] private RadioSubtitleTypewriter radioSubtitle;
 
     [Header("Cameras")]
     [SerializeField] private Camera wakeUpCamera;
@@ -40,90 +50,72 @@ public class OpeningCutsceneManager : MonoBehaviour
     [SerializeField] private GameObject firstZombieZone;
 
     private bool openingFinished;
+    private bool wakeUpPlaying;
+    private bool wakeUpSkipRequested;
+    private bool wakeUpSkipInputArmed;
 
     private IEnumerator Start()
     {
         BeginOpening();
 
-        // Phần 1: slideshow.
         if (introSlideshow != null)
         {
-            yield return StartCoroutine(
-                introSlideshow.PlaySlideshow()
-            );
+            yield return StartCoroutine(introSlideshow.PlaySlideshow());
         }
         else
         {
-            Debug.LogError(
-                "OpeningCutsceneManager: Chưa gán Intro Slideshow."
-            );
+            Debug.LogError("OpeningCutsceneManager: Chưa gán Intro Slideshow.");
         }
 
-        // Phần 2: cảnh mở mắt, radio và subtitle.
-        yield return StartCoroutine(
-            PlayWakeUpCutscene()
-        );
+        if (!openingFinished)
+            yield return StartCoroutine(PlayWakeUpCutscene());
 
-        // Phần 3: trả gameplay.
         EndOpening();
+    }
+
+    private void Update()
+    {
+        if (!wakeUpPlaying || openingFinished)
+            return;
+
+        // Sau slide cuối, bắt buộc phải thả Space trước khi được skip Timeline.
+        if (!wakeUpSkipInputArmed)
+        {
+            if (!Input.GetKey(skipWakeUpKey))
+                wakeUpSkipInputArmed = true;
+
+            return;
+        }
+
+        if (Input.GetKeyDown(skipWakeUpKey))
+            wakeUpSkipRequested = true;
     }
 
     private void BeginOpening()
     {
         openingFinished = false;
+        wakeUpPlaying = false;
+        wakeUpSkipRequested = false;
+        wakeUpSkipInputArmed = false;
 
+        SetWakeUpSkipTextVisible(false);
+        ConfigureWakeUpSkipText();
         SetPlayerScriptsEnabled(false);
 
-        if (playerArmature != null)
-        {
-            playerArmature.SetActive(false);
-        }
-
-        if (gameplayUI != null)
-        {
-            gameplayUI.SetActive(false);
-        }
-
-        if (gameplayCamera != null)
-        {
-            gameplayCamera.enabled = false;
-        }
-
-        if (wakeUpCamera != null)
-        {
-            wakeUpCamera.enabled = false;
-        }
-
-        if (zombieSpawnRoot != null)
-        {
-            zombieSpawnRoot.SetActive(false);
-        }
-
-        if (tutorialZombie != null)
-        {
-            tutorialZombie.SetActive(false);
-        }
-
-        if (firstZombieZone != null)
-        {
-            firstZombieZone.SetActive(false);
-        }
-
-        // Không để Canvas đen che slideshow.
-        if (wakeUpFadeCanvas != null)
-        {
-            wakeUpFadeCanvas.SetActive(false);
-        }
+        if (playerArmature != null) playerArmature.SetActive(false);
+        if (gameplayUI != null) gameplayUI.SetActive(false);
+        if (gameplayCamera != null) gameplayCamera.enabled = false;
+        if (wakeUpCamera != null) wakeUpCamera.enabled = false;
+        if (zombieSpawnRoot != null) zombieSpawnRoot.SetActive(false);
+        if (tutorialZombie != null) tutorialZombie.SetActive(false);
+        if (firstZombieZone != null) firstZombieZone.SetActive(false);
+        if (wakeUpFadeCanvas != null) wakeUpFadeCanvas.SetActive(false);
 
         if (wakeUpDirector != null)
         {
             wakeUpDirector.Stop();
             wakeUpDirector.time = 0d;
-
-            // Không để Timeline giữ mãi trạng thái Playing ở frame cuối.
-            wakeUpDirector.extrapolationMode =
-                DirectorWrapMode.None;
-
+            wakeUpDirector.extrapolationMode = DirectorWrapMode.None;
             wakeUpDirector.Evaluate();
         }
 
@@ -135,154 +127,103 @@ public class OpeningCutsceneManager : MonoBehaviour
     {
         if (wakeUpDirector == null)
         {
-            Debug.LogError(
-                "OpeningCutsceneManager: Chưa gán Wake Up Director."
-            );
-
+            Debug.LogError("OpeningCutsceneManager: Chưa gán Wake Up Director.");
             yield break;
         }
 
-        if (wakeUpFadeCanvas != null)
-        {
-            wakeUpFadeCanvas.SetActive(true);
-        }
-
-        if (wakeUpCamera != null)
-        {
-            wakeUpCamera.enabled = true;
-        }
+        if (wakeUpFadeCanvas != null) wakeUpFadeCanvas.SetActive(true);
+        if (wakeUpCamera != null) wakeUpCamera.enabled = true;
 
         wakeUpDirector.Stop();
         wakeUpDirector.time = 0d;
-        wakeUpDirector.extrapolationMode =
-            DirectorWrapMode.None;
+        wakeUpDirector.extrapolationMode = DirectorWrapMode.None;
         wakeUpDirector.Evaluate();
 
-        double timelineDuration =
-            wakeUpDirector.duration;
-
+        double timelineDuration = wakeUpDirector.duration;
         if (timelineDuration <= 0d ||
             double.IsInfinity(timelineDuration) ||
             double.IsNaN(timelineDuration))
         {
-            Debug.LogError(
-                $"WakeUpTimeline có duration không hợp lệ: " +
-                $"{timelineDuration}"
-            );
-
+            Debug.LogError($"WakeUpTimeline có duration không hợp lệ: {timelineDuration}");
             yield break;
         }
 
+        wakeUpSkipRequested = false;
+        wakeUpSkipInputArmed = !Input.GetKey(skipWakeUpKey);
+        wakeUpPlaying = true;
+        SetWakeUpSkipTextVisible(true);
         wakeUpDirector.Play();
 
         float elapsedRealtime = 0f;
+        float safetyTimeout = (float)timelineDuration + safetyTimeoutExtra;
 
-        float safetyTimeout =
-            (float)timelineDuration +
-            safetyTimeoutExtra;
-
-        while (true)
+        while (!wakeUpSkipRequested)
         {
             bool reachedEnd =
-                wakeUpDirector.time >=
-                timelineDuration - finishTolerance;
+                wakeUpDirector.time >= timelineDuration - finishTolerance;
 
             bool stoppedNaturally =
-                wakeUpDirector.state !=
-                PlayState.Playing;
+                wakeUpDirector.state != PlayState.Playing;
 
             if (reachedEnd || stoppedNaturally)
-            {
                 break;
-            }
 
-            elapsedRealtime +=
-                Time.unscaledDeltaTime;
-
+            elapsedRealtime += Time.unscaledDeltaTime;
             if (elapsedRealtime >= safetyTimeout)
             {
                 Debug.LogWarning(
                     "WakeUpTimeline vượt quá thời gian dự kiến. " +
                     "Buộc kết thúc để tránh khóa player."
                 );
-
                 break;
             }
 
             yield return null;
         }
 
+        bool wasSkipped = wakeUpSkipRequested;
+        wakeUpPlaying = false;
+        wakeUpSkipRequested = false;
+        SetWakeUpSkipTextVisible(false);
         wakeUpDirector.Stop();
 
-        Debug.Log(
-            $"WakeUpTimeline kết thúc. " +
-            $"Time: {wakeUpDirector.time:F3}, " +
-            $"Duration: {timelineDuration:F3}"
-        );
+        // Subtitle được chạy bằng coroutine riêng nên phải dừng thủ công.
+        StopRadioSubtitle();
+
+        Debug.Log(wasSkipped
+            ? "WakeUpTimeline đã được bỏ qua bằng phím Space."
+            : $"WakeUpTimeline kết thúc. Duration: {timelineDuration:F3}");
     }
 
     private void EndOpening()
     {
         if (openingFinished)
-        {
             return;
-        }
 
         openingFinished = true;
+        wakeUpPlaying = false;
+        wakeUpSkipRequested = false;
+        SetWakeUpSkipTextVisible(false);
 
-        if (wakeUpDirector != null)
-        {
-            wakeUpDirector.Stop();
-        }
+        // Bảo đảm subtitle không tồn tại sau mọi đường kết thúc Opening.
+        StopRadioSubtitle();
 
-        if (wakeUpCamera != null)
-        {
-            wakeUpCamera.enabled = false;
-        }
-
-        if (gameplayCamera != null)
-        {
-            gameplayCamera.enabled = true;
-        }
-
-        if (wakeUpFadeCanvas != null)
-        {
-            wakeUpFadeCanvas.SetActive(false);
-        }
+        if (wakeUpDirector != null) wakeUpDirector.Stop();
+        if (wakeUpCamera != null) wakeUpCamera.enabled = false;
+        if (gameplayCamera != null) gameplayCamera.enabled = true;
+        if (wakeUpFadeCanvas != null) wakeUpFadeCanvas.SetActive(false);
 
         SetPlayerScriptsEnabled(true);
 
-        if (playerArmature != null)
-        {
-            playerArmature.SetActive(true);
-        }
+        if (playerArmature != null) playerArmature.SetActive(true);
+        if (gameplayUI != null) gameplayUI.SetActive(true);
+        if (zombieSpawnRoot != null) zombieSpawnRoot.SetActive(true);
 
-        if (gameplayUI != null)
-        {
-            gameplayUI.SetActive(true);
-        }
+        // Zone 1 vẫn khóa cho tới khi player nhặt pistol.
+        if (firstZombieZone != null) firstZombieZone.SetActive(false);
 
-        if (zombieSpawnRoot != null)
-        {
-            zombieSpawnRoot.SetActive(true);
-        }
-
-        /*
-        * Root được bật lại nhưng Zone 1 vẫn phải khóa
-        * cho tới khi player nhặt được pistol.
-        */
-        if (firstZombieZone != null)
-        {
-            firstZombieZone.SetActive(false);
-        }
-
-        /*
-         * Tutorial zombie được bật riêng sau intro.
-         */
-        if (tutorialZombie != null)
-        {
-            tutorialZombie.SetActive(true);
-        }
+        // Tutorial zombie được bật riêng sau intro.
+        if (tutorialZombie != null) tutorialZombie.SetActive(true);
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -293,30 +234,48 @@ public class OpeningCutsceneManager : MonoBehaviour
         );
     }
 
+    private void ConfigureWakeUpSkipText()
+    {
+        if (wakeUpSkipText == null)
+            return;
+
+        TextMeshProUGUI label =
+            wakeUpSkipText.GetComponent<TextMeshProUGUI>();
+
+        if (label == null)
+            label = wakeUpSkipText.GetComponentInChildren<TextMeshProUGUI>(true);
+
+        if (label != null)
+            label.text = wakeUpSkipMessage;
+    }
+
+    private void SetWakeUpSkipTextVisible(bool visible)
+    {
+        if (wakeUpSkipText != null)
+            wakeUpSkipText.SetActive(visible);
+    }
+
+    private void StopRadioSubtitle()
+    {
+        if (radioSubtitle != null)
+            radioSubtitle.StopImmediately();
+    }
+
     private void SetPlayerScriptsEnabled(bool enabledValue)
     {
         if (playerScriptsToDisable == null)
-        {
             return;
-        }
 
-        foreach (
-            MonoBehaviour playerScript
-            in playerScriptsToDisable)
+        foreach (MonoBehaviour playerScript in playerScriptsToDisable)
         {
             if (playerScript != null)
-            {
-                playerScript.enabled =
-                    enabledValue;
-            }
+                playerScript.enabled = enabledValue;
         }
     }
 
     private void OnDisable()
     {
         if (!openingFinished)
-        {
             EndOpening();
-        }
     }
 }

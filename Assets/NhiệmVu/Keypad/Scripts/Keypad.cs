@@ -213,6 +213,33 @@ namespace NavKeypad
             }
         }
 
+        /// <summary>
+        /// Developer Cheat: cấp quyền truy cập ngay lập tức.
+        /// Vẫn gọi onAccessGranted để cửa và các hệ thống liên quan
+        /// phản ứng giống như khi người chơi nhập đúng mật khẩu.
+        /// </summary>
+        public void CheatGrantAccess()
+        {
+            if (accessWasGranted)
+            {
+                NotificationUI.Instance
+                    ?.ShowNotification(
+                        "Keypad access was already granted."
+                    );
+
+                return;
+            }
+
+            StopAllCoroutines();
+            displayingResult = false;
+            AccessGranted();
+
+            NotificationUI.Instance
+                ?.ShowNotification(
+                    "Security Office access granted."
+                );
+        }
+
         private IEnumerator DisplayResultRoutine(
             bool granted)
         {
