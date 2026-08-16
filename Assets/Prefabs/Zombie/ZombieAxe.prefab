@@ -673,7 +673,11 @@ MonoBehaviour:
     m_Bits: 0
   fieldOfViewAngle: 360
   loseSightDuration: 4
-  lootTable: []
+  lootTable:
+  - itemPrefab: {fileID: 183502, guid: 4656138d9606a80408030bdc231b1233, type: 3}
+    dropChance: 0.506
+    minAmount: 1
+    maxAmount: 1
   axeSwingRange: 2.2
   knockbackForce: 4
   rageDashSpeed: 8

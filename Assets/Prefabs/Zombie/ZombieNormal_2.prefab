@@ -611,7 +611,15 @@ MonoBehaviour:
     m_Bits: 1088
   fieldOfViewAngle: 360
   loseSightDuration: 4
-  lootTable: []
+  lootTable:
+  - itemPrefab: {fileID: 195412, guid: a991ce3caab51f44889616a93b745f92, type: 3}
+    dropChance: 1
+    minAmount: 1
+    maxAmount: 1
+  - itemPrefab: {fileID: 1987713744733760, guid: b55df95fa6211964e8ad561501250fac, type: 3}
+    dropChance: 1
+    minAmount: 1
+    maxAmount: 1
 --- !u!114 &7178251638453165942
 MonoBehaviour:
   m_ObjectHideFlags: 0
