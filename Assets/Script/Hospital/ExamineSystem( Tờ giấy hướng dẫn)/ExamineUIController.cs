@@ -29,9 +29,6 @@ public class ExamineUIController : MonoBehaviour
     [Tooltip("Hướng dẫn đóng tài liệu.")]
     public TextMeshProUGUI exitHintText;
 
-    [Tooltip("Tên tài liệu.")]
-    public TextMeshProUGUI titleText;
-
     [Header("Hide While Examining")]
     [Tooltip(
         "Những object sẽ tạm bị ẩn khi đọc tài liệu. " +
@@ -140,18 +137,6 @@ public class ExamineUIController : MonoBehaviour
 
         bool hasText =
             !string.IsNullOrWhiteSpace(text);
-
-        if (titleText != null)
-        {
-            titleText.gameObject.SetActive(
-                !string.IsNullOrWhiteSpace(title)
-            );
-
-            titleText.text =
-                string.IsNullOrWhiteSpace(title)
-                    ? string.Empty
-                    : title;
-        }
 
         if (contentImage != null)
         {

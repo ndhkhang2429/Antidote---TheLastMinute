@@ -80,9 +80,20 @@ public class MutatedBossZombie : ZombieBase
     [SerializeField] private float meleeDamageMultiplier = 1f;
 
     [Header("== PHASE 1: SUMMON ==")]
-    [SerializeField] private GameObject minionPrefab;
+    [Tooltip("Danh sách các loại zombie boss có thể gọi. Kéo 6 prefab zombie vào đây.")]
+    [SerializeField] private GameObject[] minionPrefabs;
+
     [SerializeField] private Transform[] minionSpawnPoints;
-    [SerializeField] private int maxAliveMinions = 4;
+
+    [Tooltip("Số zombie ít nhất được gọi trong một đợt.")]
+    [SerializeField, Min(1)] private int minMinionsPerSummon = 2;
+
+    [Tooltip("Số zombie nhiều nhất được gọi trong một đợt.")]
+    [SerializeField, Min(1)] private int maxMinionsPerSummon = 3;
+
+    [Tooltip("Giới hạn tổng số zombie được boss gọi còn sống cùng lúc.")]
+    [SerializeField, Min(1)] private int maxAliveMinions = 6;
+
     [SerializeField] private float summonCooldown = 20f;
     [SerializeField] private float summonAnimationDuration = 2.5f;
     [SerializeField] private float summonSpawnDelay = 1.2f;
@@ -663,9 +674,19 @@ public class MutatedBossZombie : ZombieBase
     // Animation Event: đặt vào thời điểm boss hoàn tất động tác gọi minion.
     public void Event_TriggerSummonMinions()
     {
-        if (minionPrefab == null)
+        List<GameObject> validPrefabs = new List<GameObject>();
+        if (minionPrefabs != null)
         {
-            Debug.LogWarning("[Boss] Chưa gán Minion Prefab.", this);
+            foreach (GameObject prefab in minionPrefabs)
+            {
+                if (prefab != null)
+                    validPrefabs.Add(prefab);
+            }
+        }
+
+        if (validPrefabs.Count == 0)
+        {
+            Debug.LogWarning("[Boss] Chưa gán prefab nào vào Minion Prefabs.", this);
             return;
         }
 
@@ -676,19 +697,58 @@ public class MutatedBossZombie : ZombieBase
         }
 
         CleanupMinionList();
-        int slots = Mathf.Max(0, maxAliveMinions - _aliveMinions.Count);
-
-        foreach (Transform spawnPoint in minionSpawnPoints)
+        int availableSlots = Mathf.Max(0, maxAliveMinions - _aliveMinions.Count);
+        if (availableSlots <= 0)
         {
-            if (slots <= 0) break;
-            if (spawnPoint == null) continue;
-
-            GameObject minion = Instantiate(minionPrefab, spawnPoint.position, spawnPoint.rotation);
-            _aliveMinions.Add(minion);
-            slots--;
+            Debug.Log("[Boss] Đã đạt giới hạn minion đang sống, bỏ qua summon.", this);
+            return;
         }
 
-        Debug.Log($"[Boss] Summon hoàn tất. Minion đang sống: {_aliveMinions.Count}.", this);
+        // Lọc các điểm spawn hợp lệ rồi xáo trộn để mỗi đợt dùng vị trí ngẫu nhiên,
+        // đồng thời bảo đảm hai zombie không xuất hiện tại cùng một spawn point.
+        List<Transform> validSpawnPoints = new List<Transform>();
+        foreach (Transform spawnPoint in minionSpawnPoints)
+        {
+            if (spawnPoint != null)
+                validSpawnPoints.Add(spawnPoint);
+        }
+
+        if (validSpawnPoints.Count == 0)
+        {
+            Debug.LogWarning("[Boss] Không có Minion Spawn Point hợp lệ.", this);
+            return;
+        }
+
+        for (int i = validSpawnPoints.Count - 1; i > 0; i--)
+        {
+            int randomIndex = Random.Range(0, i + 1);
+            Transform temp = validSpawnPoints[i];
+            validSpawnPoints[i] = validSpawnPoints[randomIndex];
+            validSpawnPoints[randomIndex] = temp;
+        }
+
+        int minimum = Mathf.Max(1, Mathf.Min(minMinionsPerSummon, maxMinionsPerSummon));
+        int maximum = Mathf.Max(minimum, Mathf.Max(minMinionsPerSummon, maxMinionsPerSummon));
+        int requestedCount = Random.Range(minimum, maximum + 1);
+        int spawnCount = Mathf.Min(requestedCount, availableSlots, validSpawnPoints.Count);
+
+        for (int i = 0; i < spawnCount; i++)
+        {
+            Transform spawnPoint = validSpawnPoints[i];
+            GameObject selectedPrefab = validPrefabs[Random.Range(0, validPrefabs.Count)];
+
+            GameObject minion = Instantiate(
+                selectedPrefab,
+                spawnPoint.position,
+                spawnPoint.rotation);
+
+            _aliveMinions.Add(minion);
+        }
+
+        Debug.Log(
+            $"[Boss] Đã summon {spawnCount} zombie. " +
+            $"Tổng minion đang sống: {_aliveMinions.Count}/{maxAliveMinions}.",
+            this);
     }
 
     // Giữ lại cho các clip cũ có Animation Event. Event giữa không trung sẽ bị bỏ qua.

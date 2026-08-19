@@ -270,7 +270,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemData: {fileID: 11400000, guid: 051b4a174fe87da4e9ef04baa7b4d985, type: 2}
-  quantity: 1
+  quantity: 12
   onPickedUp:
     m_PersistentCalls:
       m_Calls: []
