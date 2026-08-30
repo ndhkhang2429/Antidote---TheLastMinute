@@ -4,7 +4,7 @@
 
 ## Gameplay Video
 
-[![Dead Roof Gameplay](https://img.youtube.com/vi/mP-Z0-EcmXQ/maxresdefault.jpg)](https://youtu.be/mP-Z0-EcmXQ?si=7nbdShJx9-Es9ZHI)
+[![Dead Roof Gameplay](https://img.youtube.com/vi/mP-Z0-ECmXQ/maxresdefault.jpg)](https://youtu.be/mP-Z0-EcmXQ?si=7nbdShJx9-Es9ZHI)
 
 ## Story & Lore
 
